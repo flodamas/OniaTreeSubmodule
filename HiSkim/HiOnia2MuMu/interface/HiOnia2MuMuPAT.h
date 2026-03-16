@@ -91,5 +91,3 @@ private:
   InvariantMassFromVertex massCalculator;
   math::XYZPoint RefVtx;
 };
-
-#endif

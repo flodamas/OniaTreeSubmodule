@@ -18,8 +18,9 @@ void HiOniaAnalyzer::fillMuMatchingInfo() {
     int foundGen = -1;
     if (Reco_mu_pTrue[irec] >= 0) {  //if pTrue=-1, then the reco muon is a fake
       for (int igen = 0; igen < Gen_mu_size; igen++) {
-        TLorentzVector* genmuMom = (TLorentzVector*)Gen_mu_4mom->ConstructedAt(igen);
-        if (fabs(genmuMom->P() - Reco_mu_pTrue[irec]) / Reco_mu_pTrue[irec] < 1e-6 &&
+	
+        LorentzVector genmuMom = Gen_mu_4mom.at(igen);
+        if (fabs(genmuMom.P() - Reco_mu_pTrue[irec]) / Reco_mu_pTrue[irec] < 1e-6 &&
             Gen_mu_charge[igen] == Reco_mu_charge[irec]) {
           foundGen = igen;
           break;
@@ -208,7 +209,7 @@ bool HiOniaAnalyzer::checkBcCuts(const pat::CompositeCandidate* cand,
     return false;
 };
 
-int HiOniaAnalyzer::IndexOfThisMuon(TLorentzVector* v1, bool isGen) {
+int HiOniaAnalyzer::IndexOfThisMuon(LorentzVector* v1, bool isGen) {
   const auto& mapMuIdx = (isGen ? mapGenMuonMomToIndex_ : mapMuonMomToIndex_);
   const long int& muPt = FloatToIntkey(v1->Pt());
 
@@ -218,7 +219,7 @@ int HiOniaAnalyzer::IndexOfThisMuon(TLorentzVector* v1, bool isGen) {
     return mapMuIdx.at(muPt);
 };
 
-int HiOniaAnalyzer::IndexOfThisTrack(TLorentzVector* v1, bool isGen) {
+int HiOniaAnalyzer::IndexOfThisTrack(LorentzVector* v1, bool isGen) {
   const auto& mapTrkIdx = (isGen ? mapTrkMomToIndex_ : mapTrkMomToIndex_);
   const long int& trkPt = FloatToIntkey(v1->Pt());
 
@@ -402,7 +403,7 @@ bool HiOniaAnalyzer::checkDimuTrkCuts(const pat::CompositeCandidate* cand,
     return false;
 };
 
-Short_t HiOniaAnalyzer::MuInSV(TLorentzVector v1, TLorentzVector v2, TLorentzVector v3) {
+Short_t HiOniaAnalyzer::MuInSV(LorentzVector v1, LorentzVector v2, LorentzVector v3) {
   int nMuInSV = 0;
   for (std::vector<reco::Vertex>::const_iterator vt = SVs->begin(); vt != SVs->end(); ++vt) {
     const reco::Vertex* vtx = &(*vt);
@@ -420,11 +421,6 @@ Short_t HiOniaAnalyzer::MuInSV(TLorentzVector v1, TLorentzVector v2, TLorentzVec
   return nMuInSV;
 };
 
-TLorentzVector HiOniaAnalyzer::lorentzMomentum(const reco::Candidate::LorentzVector& p) {
-  TLorentzVector res;
-  res.SetPtEtaPhiM(p.pt(), p.eta(), p.phi(), p.mass());
-  return res;
-};
 
 void HiOniaAnalyzer::hltReport(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::map<std::string, bool> mapTriggernameToTriggerFired;

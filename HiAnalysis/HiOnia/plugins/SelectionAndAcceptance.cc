@@ -1,6 +1,6 @@
 #include "HiAnalysis/HiOnia/interface/HiOniaAnalyzer.h"
 
-bool HiOniaAnalyzer::isTrkInMuonAccept(TLorentzVector trk4mom, std::string muonType) {
+bool HiOniaAnalyzer::isTrkInMuonAccept(LorentzVector trk4mom, std::string muonType) {
   if (muonType == (std::string)("GLB")) {
     return (fabs(trk4mom.Eta()) < 2.4 && ((fabs(trk4mom.Eta()) < 1.2 && trk4mom.Pt() >= 3.5) ||
                                           (1.2 <= fabs(trk4mom.Eta()) && fabs(trk4mom.Eta()) < 2.1 &&

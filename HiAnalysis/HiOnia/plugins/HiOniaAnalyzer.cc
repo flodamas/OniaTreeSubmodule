@@ -166,6 +166,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
 HiOniaAnalyzer::~HiOniaAnalyzer() {
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
+  /*
   Reco_mu_4mom->Delete();
   Reco_mu_L1_4mom->Delete();
   Reco_QQ_4mom->Delete();
@@ -189,6 +190,7 @@ HiOniaAnalyzer::~HiOniaAnalyzer() {
     Gen_mu_4mom->Delete();
     Gen_QQ_4mom->Delete();
   }
+  */
 };
 
 void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -490,27 +492,31 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
     Reco_mu_charge[Reco_mu_size] = muon->charge();
     Reco_mu_type[Reco_mu_size] = iType;
 
-    TLorentzVector vMuon = lorentzMomentum(muon->p4());
-    new ((*Reco_mu_4mom)[Reco_mu_size]) TLorentzVector(vMuon);
-    Reco_mu_4mom_pt.push_back(vMuon.Pt());
-    Reco_mu_4mom_eta.push_back(vMuon.Eta());
-    Reco_mu_4mom_phi.push_back(vMuon.Phi());
-    Reco_mu_4mom_m.push_back(vMuon.M());
+    LorentzVector vMuon = muon->p4(); // lorentzMomentum(muon->p4());
+    Reco_mu_4mom.emplace_back(vMuon);
+    
+    //new ((*Reco_mu_4mom)[Reco_mu_size]) LorentzVector(vMuon);
+    Reco_mu_4mom_pt.push_back(vMuon.pt());
+    Reco_mu_4mom_eta.push_back(vMuon.eta());
+    Reco_mu_4mom_phi.push_back(vMuon.phi());
+    Reco_mu_4mom_m.push_back(vMuon.mass());
 
-    TLorentzVector vMuonL1;
+    LorentzVector vMuonL1;
     if (muon->hasUserFloat("l1Eta") && muon->hasUserFloat("l1Phi")) {
-      vMuonL1.SetPtEtaPhiM(vMuon.Pt(), muon->userFloat("l1Eta"), muon->userFloat("l1Phi"), vMuon.M());
+      vMuonL1 = LorentzVector(vMuon.pt(), muon->userFloat("l1Eta"), muon->userFloat("l1Phi"), vMuon.mass());
     } else {
-      vMuonL1.SetPtEtaPhiM(0, 0, 0, 0);
+      vMuonL1 = LorentzVector(0, 0, 0, 0);
     }
-    new ((*Reco_mu_L1_4mom)[Reco_mu_size]) TLorentzVector(vMuonL1);
-    Reco_mu_L1_4mom_pt.push_back(vMuonL1.Pt());
-    Reco_mu_L1_4mom_eta.push_back(vMuonL1.Eta());
-    Reco_mu_L1_4mom_phi.push_back(vMuonL1.Phi());
-    Reco_mu_L1_4mom_m.push_back(vMuonL1.M());
+    
+    //new ((*Reco_mu_L1_4mom)[Reco_mu_size]) LorentzVector(vMuonL1);
+    Reco_mu_L1_4mom.emplace_back(vMuonL1);
+    Reco_mu_L1_4mom_pt.push_back(vMuonL1.pt());
+    Reco_mu_L1_4mom_eta.push_back(vMuonL1.eta());
+    Reco_mu_L1_4mom_phi.push_back(vMuonL1.phi());
+    Reco_mu_L1_4mom_m.push_back(vMuonL1.mass());
 
     //Fill map of the muon indices. Use long int keys, to avoid rounding errors on a float key. Implies a precision of 10^-6
-    mapMuonMomToIndex_[FloatToIntkey(vMuon.Pt())] = Reco_mu_size;
+    mapMuonMomToIndex_[FloatToIntkey(vMuon.pt())] = Reco_mu_size;
 
     Reco_mu_trig[Reco_mu_size] = trigBits;
 
@@ -552,7 +558,7 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
         Reco_mu_dxyErr[Reco_mu_size] = iTrack->dxyError();
         Reco_mu_dz[Reco_mu_size] = iTrack->dz(RefVtx);
         Reco_mu_dzErr[Reco_mu_size] = iTrack->dzError();
-        //Reco_mu_pt_inner[Reco_mu_size] = iTrack->pt();
+        Reco_mu_pt_inner[Reco_mu_size] = iTrack->pt();
         Reco_mu_ptErr_inner[Reco_mu_size] = iTrack->ptError();
         Reco_mu_validFraction[Reco_mu_size] = iTrack->validFraction();
       } else if (_muonSel != (std::string)("All")) {
@@ -597,11 +603,11 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
     return;
   }
 
-  const pat::CompositeCandidate* aJpsiCand = _thePassedCands.at(count);
+  const pat::CompositeCandidate* aDimuonCandidate = _thePassedCands.at(count);
 
-  if (aJpsiCand != nullptr) {
-    const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon1"));
-    const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon2"));
+  if (aDimuonCandidate != nullptr) {
+    const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(aDimuonCandidate->daughter("muon1"));
+    const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(aDimuonCandidate->daughter("muon2"));
 
     ULong64_t trigBits = 0;
     for (unsigned int iTr = 1; iTr < NTRIGGERS; ++iTr) {
@@ -619,35 +625,40 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
 
       Reco_QQ_trig[Reco_QQ_size] = trigBits;
 
-      if (!(_isHI) && _muonLessPrimaryVertex && aJpsiCand->hasUserData("muonlessPV")) {
-        RefVtx = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).position();
-        RefVtx_xError = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).xError();
-        RefVtx_yError = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).yError();
-        RefVtx_zError = (*aJpsiCand->userData<reco::Vertex>("muonlessPV")).zError();
-      } else if (!_muonLessPrimaryVertex && aJpsiCand->hasUserData("PVwithmuons")) {
-        RefVtx = (*aJpsiCand->userData<reco::Vertex>("PVwithmuons")).position();
-        RefVtx_xError = (*aJpsiCand->userData<reco::Vertex>("PVwithmuons")).xError();
-        RefVtx_yError = (*aJpsiCand->userData<reco::Vertex>("PVwithmuons")).yError();
-        RefVtx_zError = (*aJpsiCand->userData<reco::Vertex>("PVwithmuons")).zError();
+      if (!(_isHI) && _muonLessPrimaryVertex && aDimuonCandidate->hasUserData("muonlessPV")) {
+        RefVtx = (*aDimuonCandidate->userData<reco::Vertex>("muonlessPV")).position();
+        RefVtx_xError = (*aDimuonCandidate->userData<reco::Vertex>("muonlessPV")).xError();
+        RefVtx_yError = (*aDimuonCandidate->userData<reco::Vertex>("muonlessPV")).yError();
+        RefVtx_zError = (*aDimuonCandidate->userData<reco::Vertex>("muonlessPV")).zError();
+      } else if (!_muonLessPrimaryVertex && aDimuonCandidate->hasUserData("PVwithmuons")) {
+        RefVtx = (*aDimuonCandidate->userData<reco::Vertex>("PVwithmuons")).position();
+        RefVtx_xError = (*aDimuonCandidate->userData<reco::Vertex>("PVwithmuons")).xError();
+        RefVtx_yError = (*aDimuonCandidate->userData<reco::Vertex>("PVwithmuons")).yError();
+        RefVtx_zError = (*aDimuonCandidate->userData<reco::Vertex>("PVwithmuons")).zError();
       } else {
-        cout << "HiOniaAnalyzer::fillTreeJpsi: no PVfor muon pair stored" << endl;
+        cout << "HiOniaAnalyzer::fillTreeJpsi: no PV for muon pair stored" << endl;
         return;
       }
 
-      new ((*Reco_QQ_vtx)[Reco_QQ_size]) TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z());
+      //new ((*Reco_QQ_vtx)[Reco_QQ_size]) TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z());
 
-      TLorentzVector vMuon1 = lorentzMomentum(muon1->p4());
-      TLorentzVector vMuon2 = lorentzMomentum(muon2->p4());
+      //Reco_QQ_vtx.emplace_back(TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z()));
+
+      Reco_QQ_vtx_xpos.emplace_back(RefVtx.X());
+      Reco_QQ_vtx_ypos.emplace_back(RefVtx.Y());
+      Reco_QQ_vtx_zpos.emplace_back(RefVtx.Z());
+      LorentzVector vMuon1 = muon1->p4();
+      LorentzVector vMuon2 = muon2->p4();
 
       reco::Track iTrack_mupl, iTrack_mumi, mu1Trk, mu2Trk;
-      if (_flipJpsiDirection > 0 && aJpsiCand->hasUserData("muon1Track") && aJpsiCand->hasUserData("muon2Track")) {
-        mu1Trk = *(aJpsiCand->userData<reco::Track>("muon1Track"));
-        mu2Trk = *(aJpsiCand->userData<reco::Track>("muon2Track"));
+      if (_flipJpsiDirection > 0 && aDimuonCandidate->hasUserData("muon1Track") && aDimuonCandidate->hasUserData("muon2Track")) {
+        mu1Trk = *(aDimuonCandidate->userData<reco::Track>("muon1Track"));
+        mu2Trk = *(aDimuonCandidate->userData<reco::Track>("muon2Track"));
       }
 
       Reco_QQ_flipJpsi[Reco_QQ_size] = _flipJpsiDirection;
-      if (aJpsiCand->hasUserInt("flipJpsi"))
-        Reco_QQ_flipJpsi[Reco_QQ_size] = aJpsiCand->userInt("flipJpsi");
+      if (aDimuonCandidate->hasUserInt("flipJpsi"))
+        Reco_QQ_flipJpsi[Reco_QQ_size] = aDimuonCandidate->userInt("flipJpsi");
 
       if ((muon1->innerTrack()).isNull() || (muon2->innerTrack()).isNull()) {
         std::cout << "ERROR: 'iTrack_mupl' or 'iTrack_mumi' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
@@ -661,18 +672,25 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
         if (_flipJpsiDirection > 0) {
           iTrack_mupl = mu1Trk;
           iTrack_mumi = mu2Trk;
-          new ((*Reco_QQ_mupl_4mom)[Reco_QQ_size]) TLorentzVector(
-              mu1Trk.px(), mu1Trk.py(), mu1Trk.pz(), vMuon1.E());  //only the direction of the 3-momentum changes
-          Reco_QQ_mupl_4mom_pt.push_back(mu1Trk.pt());
+
+
+	  
+          //new ((*Reco_QQ_mupl_4mom)[Reco_QQ_size]) LorentzVector(mu1Trk.px(), mu1Trk.py(), mu1Trk.pz(), vMuon1.energy());  //only the direction of the 3-momentum changes
+
+	  Reco_QQ_mupl_4mom.emplace_back(LorentzVector(mu1Trk.px(), mu1Trk.py(), mu1Trk.pz(), vMuon1.energy()));
+	  
+	  Reco_QQ_mupl_4mom_pt.push_back(mu1Trk.pt());
           Reco_QQ_mupl_4mom_eta.push_back(mu1Trk.eta());
           Reco_QQ_mupl_4mom_phi.push_back(mu1Trk.phi());
-          Reco_QQ_mupl_4mom_m.push_back(vMuon1.M());
+          Reco_QQ_mupl_4mom_m.push_back(vMuon1.mass());
 
-          new ((*Reco_QQ_mumi_4mom)[Reco_QQ_size]) TLorentzVector(mu2Trk.px(), mu2Trk.py(), mu2Trk.pz(), vMuon2.E());
+          //new ((*Reco_QQ_mumi_4mom)[Reco_QQ_size]) LorentzVector(mu2Trk.px(), mu2Trk.py(), mu2Trk.pz(), vMuon2.energy());
+	  Reco_QQ_mumi_4mom.emplace_back(LorentzVector(mu2Trk.px(), mu2Trk.py(), mu2Trk.pz(), vMuon2.energy()));
+
           Reco_QQ_mumi_4mom_pt.push_back(mu2Trk.pt());
           Reco_QQ_mumi_4mom_eta.push_back(mu2Trk.eta());
           Reco_QQ_mumi_4mom_phi.push_back(mu2Trk.phi());
-          Reco_QQ_mumi_4mom_m.push_back(vMuon2.M());
+          Reco_QQ_mumi_4mom_m.push_back(vMuon2.mass());
 
         } else if (_muonLessPrimaryVertex || _useGeTracks) {
           iTrack_mupl = *(muon1->innerTrack());
@@ -686,17 +704,21 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
         if (_flipJpsiDirection > 0) {
           iTrack_mupl = mu2Trk;
           iTrack_mumi = mu1Trk;
-          new ((*Reco_QQ_mumi_4mom)[Reco_QQ_size]) TLorentzVector(
-              mu1Trk.px(), mu1Trk.py(), mu1Trk.pz(), vMuon1.E());  //only the direction of the 3-momentum changes
+          //new ((*Reco_QQ_mumi_4mom)[Reco_QQ_size]) LorentzVector(mu1Trk.px(), mu1Trk.py(), mu1Trk.pz(), vMuon1.energy());  //only the direction of the 3-momentum changes
+	  Reco_QQ_mumi_4mom.emplace_back(LorentzVector(mu1Trk.px(), mu1Trk.py(), mu1Trk.pz(), vMuon1.energy()));
+
           Reco_QQ_mumi_4mom_pt.push_back(mu1Trk.pt());
           Reco_QQ_mumi_4mom_eta.push_back(mu1Trk.eta());
           Reco_QQ_mumi_4mom_phi.push_back(mu1Trk.phi());
-          Reco_QQ_mumi_4mom_m.push_back(vMuon1.M());
-          new ((*Reco_QQ_mupl_4mom)[Reco_QQ_size]) TLorentzVector(mu2Trk.px(), mu2Trk.py(), mu2Trk.pz(), vMuon2.E());
+          Reco_QQ_mumi_4mom_m.push_back(vMuon1.mass());
+	  
+          //new ((*Reco_QQ_mupl_4mom)[Reco_QQ_size]) LorentzVector(mu2Trk.px(), mu2Trk.py(), mu2Trk.pz(), vMuon2.energy());
+	  Reco_QQ_mupl_4mom.emplace_back(LorentzVector(mu2Trk.px(), mu2Trk.py(), mu2Trk.pz(), vMuon2.energy()));
+	  
           Reco_QQ_mupl_4mom_pt.push_back(mu2Trk.pt());
           Reco_QQ_mupl_4mom_eta.push_back(mu2Trk.eta());
           Reco_QQ_mupl_4mom_phi.push_back(mu2Trk.phi());
-          Reco_QQ_mupl_4mom_m.push_back(vMuon2.M());
+          Reco_QQ_mupl_4mom_m.push_back(vMuon2.mass());
         } else if (_muonLessPrimaryVertex || _useGeTracks) {
           iTrack_mupl = *(muon2->innerTrack());
           iTrack_mumi = *(muon1->innerTrack());
@@ -710,91 +732,92 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
         Reco_QQ_mumi_dz[Reco_QQ_size] = iTrack_mumi.dz(RefVtx);
       }
 
-      TLorentzVector vJpsi = lorentzMomentum(aJpsiCand->p4());
-      new ((*Reco_QQ_4mom)[Reco_QQ_size]) TLorentzVector(vJpsi);
-      Reco_QQ_4mom_pt.push_back(vJpsi.Pt());
-      Reco_QQ_4mom_eta.push_back(vJpsi.Eta());
-      Reco_QQ_4mom_y.push_back(vJpsi.Rapidity());
-      Reco_QQ_4mom_phi.push_back(vJpsi.Phi());
-      Reco_QQ_4mom_m.push_back(vJpsi.M());
+      LorentzVector dimuonLV = aDimuonCandidate->p4();
+      //new ((*Reco_QQ_4mom)[Reco_QQ_size]) LorentzVector(dimuonLV);
+      Reco_QQ_4mom.emplace_back(dimuonLV);
+      Reco_QQ_4mom_pt.push_back(dimuonLV.Pt());
+      Reco_QQ_4mom_eta.push_back(dimuonLV.Eta());
+      Reco_QQ_4mom_y.push_back(dimuonLV.Rapidity());
+      Reco_QQ_4mom_phi.push_back(dimuonLV.Phi());
+      Reco_QQ_4mom_m.push_back(dimuonLV.M());
 
       if (_useBS) {
-        if (aJpsiCand->hasUserFloat("ppdlBS")) {
-          Reco_QQ_ctau[Reco_QQ_size] = 10.0 * aJpsiCand->userFloat("ppdlBS");
+        if (aDimuonCandidate->hasUserFloat("ppdlBS")) {
+          Reco_QQ_ctau[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlBS");
         } else {
           Reco_QQ_ctau[Reco_QQ_size] = -100;
           std::cout << "Warning: User Float ppdlBS was not found" << std::endl;
         }
-        if (aJpsiCand->hasUserFloat("ppdlErrBS")) {
-          Reco_QQ_ctauErr[Reco_QQ_size] = 10.0 * aJpsiCand->userFloat("ppdlErrBS");
+        if (aDimuonCandidate->hasUserFloat("ppdlErrBS")) {
+          Reco_QQ_ctauErr[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrBS");
         } else {
           Reco_QQ_ctauErr[Reco_QQ_size] = -100;
           std::cout << "Warning: User Float ppdlErrBS was not found" << std::endl;
         }
-        if (aJpsiCand->hasUserFloat("ppdlBS3D")) {
-          Reco_QQ_ctau3D[Reco_QQ_size] = 10.0 * aJpsiCand->userFloat("ppdlBS3D");
+        if (aDimuonCandidate->hasUserFloat("ppdlBS3D")) {
+          Reco_QQ_ctau3D[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlBS3D");
         } else {
           Reco_QQ_ctau3D[Reco_QQ_size] = -100;
           std::cout << "Warning: User Float ppdlBS3D was not found" << std::endl;
         }
-        if (aJpsiCand->hasUserFloat("ppdlErrBS3D")) {
-          Reco_QQ_ctauErr3D[Reco_QQ_size] = 10.0 * aJpsiCand->userFloat("ppdlErrBS3D");
+        if (aDimuonCandidate->hasUserFloat("ppdlErrBS3D")) {
+          Reco_QQ_ctauErr3D[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrBS3D");
         } else {
           Reco_QQ_ctauErr3D[Reco_QQ_size] = -100;
           std::cout << "Warning: User Float ppdlErrBS3D was not found" << std::endl;
         }
       } else {
-        if (aJpsiCand->hasUserFloat("ppdlPV")) {
-          Reco_QQ_ctau[Reco_QQ_size] = 10.0 * aJpsiCand->userFloat("ppdlPV");
+        if (aDimuonCandidate->hasUserFloat("ppdlPV")) {
+          Reco_QQ_ctau[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlPV");
         } else {
           Reco_QQ_ctau[Reco_QQ_size] = -100;
           std::cout << "Warning: User Float ppdlPV was not found" << std::endl;
         }
-        if (aJpsiCand->hasUserFloat("ppdlErrPV")) {
-          Reco_QQ_ctauErr[Reco_QQ_size] = 10.0 * aJpsiCand->userFloat("ppdlErrPV");
+        if (aDimuonCandidate->hasUserFloat("ppdlErrPV")) {
+          Reco_QQ_ctauErr[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrPV");
         } else {
           Reco_QQ_ctauErr[Reco_QQ_size] = -100;
           std::cout << "Warning: User Float ppdlErrPV was not found" << std::endl;
         }
-        if (aJpsiCand->hasUserFloat("ppdlPV3D")) {
-          Reco_QQ_ctau3D[Reco_QQ_size] = 10.0 * aJpsiCand->userFloat("ppdlPV3D");
+        if (aDimuonCandidate->hasUserFloat("ppdlPV3D")) {
+          Reco_QQ_ctau3D[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlPV3D");
         } else {
           Reco_QQ_ctau3D[Reco_QQ_size] = -100;
           std::cout << "Warning: User Float ppdlPV3D was not found" << std::endl;
         }
-        if (aJpsiCand->hasUserFloat("ppdlErrPV3D")) {
-          Reco_QQ_ctauErr3D[Reco_QQ_size] = 10.0 * aJpsiCand->userFloat("ppdlErrPV3D");
+        if (aDimuonCandidate->hasUserFloat("ppdlErrPV3D")) {
+          Reco_QQ_ctauErr3D[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrPV3D");
         } else {
           Reco_QQ_ctau3D[Reco_QQ_size] = -100;
           std::cout << "Warning: User Float ppdlErrPV3D was not found" << std::endl;
         }
-        if (aJpsiCand->hasUserFloat("cosAlpha")) {
-          Reco_QQ_cosAlpha[Reco_QQ_size] = aJpsiCand->userFloat("cosAlpha");
+        if (aDimuonCandidate->hasUserFloat("cosAlpha")) {
+          Reco_QQ_cosAlpha[Reco_QQ_size] = aDimuonCandidate->userFloat("cosAlpha");
         } else {
           Reco_QQ_cosAlpha[Reco_QQ_size] = -10;
           std::cout << "Warning: User Float cosAlpha was not found" << std::endl;
         }
-        if (aJpsiCand->hasUserFloat("cosAlpha3D")) {
-          Reco_QQ_cosAlpha3D[Reco_QQ_size] = aJpsiCand->userFloat("cosAlpha3D");
+        if (aDimuonCandidate->hasUserFloat("cosAlpha3D")) {
+          Reco_QQ_cosAlpha3D[Reco_QQ_size] = aDimuonCandidate->userFloat("cosAlpha3D");
         } else {
           Reco_QQ_cosAlpha3D[Reco_QQ_size] = -10;
           std::cout << "Warning: User Float cosAlpha3D was not found" << std::endl;
         }
       }
-      if (aJpsiCand->hasUserFloat("vProb")) {
-        Reco_QQ_VtxProb[Reco_QQ_size] = aJpsiCand->userFloat("vProb");
+      if (aDimuonCandidate->hasUserFloat("vProb")) {
+        Reco_QQ_VtxProb[Reco_QQ_size] = aDimuonCandidate->userFloat("vProb");
       } else {
         Reco_QQ_VtxProb[Reco_QQ_size] = -1;
         std::cout << "Warning: User Float vProb was not found" << std::endl;
       }
-      if (aJpsiCand->hasUserFloat("DCA")) {
-        Reco_QQ_dca[Reco_QQ_size] = aJpsiCand->userFloat("DCA");
+      if (aDimuonCandidate->hasUserFloat("DCA")) {
+        Reco_QQ_dca[Reco_QQ_size] = aDimuonCandidate->userFloat("DCA");
       } else {
         Reco_QQ_dca[Reco_QQ_size] = -10;
         std::cout << "Warning: User Float DCA was not found" << std::endl;
       }
-      if (aJpsiCand->hasUserFloat("MassErr")) {
-        Reco_QQ_MassErr[Reco_QQ_size] = aJpsiCand->userFloat("MassErr");
+      if (aDimuonCandidate->hasUserFloat("MassErr")) {
+        Reco_QQ_MassErr[Reco_QQ_size] = aDimuonCandidate->userFloat("MassErr");
       } else {
         Reco_QQ_MassErr[Reco_QQ_size] = -10;
         std::cout << "Warning: User Float MassErr was not found" << std::endl;
@@ -845,7 +868,7 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
                     continue;
                 }
 
-                double Reco_QQ_NtrkDeltaR = deltaR(aJpsiCand->eta(), aJpsiCand->phi(), track->eta(), track->phi());
+                double Reco_QQ_NtrkDeltaR = deltaR(aDimuonCandidate->eta(), aDimuonCandidate->phi(), track->eta(), track->phi());
                 if (Reco_QQ_NtrkDeltaR < 0.3)
                   Reco_QQ_NtrkDeltaR03[Reco_QQ_size]++;
                 if (Reco_QQ_NtrkDeltaR < 0.4)
@@ -993,51 +1016,58 @@ void HiOniaAnalyzer::InitEvent() {
   Reco_mu_size = 0;
   Reco_trk_size = 0;
 
-  Reco_QQ_4mom->Clear();
+  Reco_QQ_4mom.clear();
   Reco_QQ_4mom_pt.clear();
   Reco_QQ_4mom_eta.clear();
   Reco_QQ_4mom_y.clear();
   Reco_QQ_4mom_phi.clear();
   Reco_QQ_4mom_m.clear();
-  Reco_QQ_mupl_4mom->Clear();
+  Reco_QQ_mupl_4mom.clear();
   Reco_QQ_mupl_4mom_pt.clear();
   Reco_QQ_mupl_4mom_eta.clear();
   Reco_QQ_mupl_4mom_phi.clear();
   Reco_QQ_mupl_4mom_m.clear();
-  Reco_QQ_mumi_4mom->Clear();
+  Reco_QQ_mumi_4mom.clear();
   Reco_QQ_mumi_4mom_pt.clear();
   Reco_QQ_mumi_4mom_eta.clear();
   Reco_QQ_mumi_4mom_phi.clear();
   Reco_QQ_mumi_4mom_m.clear();
-  Reco_QQ_vtx->Clear();
-  Reco_mu_4mom->Clear();
+  //Reco_QQ_vtx.clear();
+  Reco_QQ_vtx_xpos.clear();
+  Reco_QQ_vtx_ypos.clear();
+  Reco_QQ_vtx_zpos.clear();
+  
+  Reco_mu_4mom.clear();
   Reco_mu_4mom_pt.clear();
   Reco_mu_4mom_eta.clear();
   Reco_mu_4mom_phi.clear();
   Reco_mu_4mom_m.clear();
-  Reco_mu_L1_4mom->Clear();
+  Reco_mu_L1_4mom.clear();
   Reco_mu_L1_4mom_pt.clear();
   Reco_mu_L1_4mom_eta.clear();
   Reco_mu_L1_4mom_phi.clear();
   Reco_mu_L1_4mom_m.clear();
 
   if (_useGeTracks && _fillRecoTracks) {
-    Reco_trk_4mom->Clear();
+    Reco_trk_4mom.clear();
     Reco_trk_4mom_pt.clear();
     Reco_trk_4mom_eta.clear();
     Reco_trk_4mom_phi.clear();
     Reco_trk_4mom_m.clear();
-    Reco_trk_vtx->Clear();
+    //Reco_trk_vtx.clear();
+    Reco_trk_vtx_xpos.clear();
+    Reco_trk_vtx_ypos.clear();
+    Reco_trk_vtx_zpos.clear();
   }
 
   if (_isMC) {
-    Gen_QQ_4mom->Clear();
+    Gen_QQ_4mom.clear();
     Gen_QQ_4mom_pt.clear();
     Gen_QQ_4mom_eta.clear();
     Gen_QQ_4mom_y.clear();
     Gen_QQ_4mom_phi.clear();
     Gen_QQ_4mom_m.clear();
-    Gen_mu_4mom->Clear();
+    Gen_mu_4mom.clear();
     Gen_mu_4mom_pt.clear();
     Gen_mu_4mom_eta.clear();
     Gen_mu_4mom_phi.clear();
@@ -1056,8 +1086,11 @@ void HiOniaAnalyzer::InitEvent() {
     _thePassedBcCands.clear();
 
     Reco_3mu_size = 0;
-    Reco_3mu_vtx->Clear();
-    Reco_3mu_4mom->Clear();
+    //Reco_3mu_vtx.clear();
+    Reco_3mu_vtx_xpos.clear();
+    Reco_3mu_vtx_ypos.clear();
+    Reco_3mu_vtx_zpos.clear();
+    Reco_3mu_4mom.clear();
     Reco_3mu_4mom_pt.clear();
     Reco_3mu_4mom_eta.clear();
     Reco_3mu_4mom_y.clear();
@@ -1066,19 +1099,19 @@ void HiOniaAnalyzer::InitEvent() {
 
     if (_isMC) {
       Gen_Bc_size = 0;
-      Gen_Bc_4mom->Clear();
+      Gen_Bc_4mom.clear();
       Gen_Bc_4mom_pt.clear();
       Gen_Bc_4mom_eta.clear();
       Gen_Bc_4mom_y.clear();
       Gen_Bc_4mom_phi.clear();
       Gen_Bc_4mom_m.clear();
-      Gen_Bc_nuW_4mom->Clear();
+      Gen_Bc_nuW_4mom.clear();
       Gen_Bc_nuW_4mom_pt.clear();
       Gen_Bc_nuW_4mom_eta.clear();
       Gen_Bc_nuW_4mom_y.clear();
       Gen_Bc_nuW_4mom_phi.clear();
       Gen_Bc_nuW_4mom_m.clear();
-      Gen_3mu_4mom->Clear();
+      Gen_3mu_4mom.clear();
       Gen_3mu_4mom_pt.clear();
       Gen_3mu_4mom_eta.clear();
       Gen_3mu_4mom_y.clear();
@@ -1128,8 +1161,7 @@ void HiOniaAnalyzer::fillRecoTracks() {
         std::cout << "Maximum allowed: " << Max_trk_size << std::endl;
         break;
       }
-      TLorentzVector vTrack;
-      vTrack.SetPtEtaPhiM(track->pt(), track->eta(), track->phi(), 0.13957018);  //0.13957018 for the pion
+      LorentzVector vTrack(track->pt(), track->eta(), track->phi(), 0.13957018);  //0.13957018 for the pion
 
       if (_isMC) {
 	Reco_trk_whichGenmu[Reco_trk_size] = -1;
@@ -1138,10 +1170,10 @@ void HiOniaAnalyzer::fillRecoTracks() {
         float dR;
         float dPtmax = 0.5;
         for (int igen = 0; igen < Gen_mu_size; igen++) {
-          TLorentzVector* genmu = (TLorentzVector*)Gen_mu_4mom->ConstructedAt(igen);
-          dR = genmu->DeltaR(vTrack);
+          LorentzVector genmu = Gen_mu_4mom.at(igen);
+          dR = deltaR(genmu.eta(), genmu.phi(), vTrack.eta(), vTrack.phi()); // genmu->DeltaR(vTrack);
           if (dR <= dRmax && track->charge() == Gen_mu_charge[igen] &&
-              fabs(genmu->Pt() - vTrack.Pt()) / genmu->Pt() < dPtmax) {
+              fabs(genmu.Pt() - vTrack.Pt()) / genmu.Pt() < dPtmax) {
             dRmax = dR;
             Reco_trk_whichGenmu[Reco_trk_size] = igen;
           }
@@ -1162,15 +1194,20 @@ void HiOniaAnalyzer::fillRecoTracks() {
       Reco_trk_dz[Reco_trk_size] = track->dz(RefVtx);
       Reco_trk_ptErr[Reco_trk_size] = track->ptError();
 
-      new ((*Reco_trk_vtx)[Reco_trk_size]) TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z());
+      //new ((*Reco_trk_vtx)[Reco_trk_size]) TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z());
+      //Reco_trk_vtx.emplace_back(TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z()));
 
-
+      Reco_trk_vtx_xpos.emplace_back(RefVtx.X());
+      Reco_trk_vtx_ypos.emplace_back(RefVtx.Y());
+      Reco_trk_vtx_zpos.emplace_back(RefVtx.Z());
+      
       mapTrkMomToIndex_[FloatToIntkey(vTrack.Pt())] = Reco_trk_size;
 
       Reco_trk_InLooseAcc[Reco_trk_size] = isTrkInMuonAccept(vTrack, "GLBSOFT");
       Reco_trk_InTightAcc[Reco_trk_size] = isTrkInMuonAccept(vTrack, "GLB");
 
-      new ((*Reco_trk_4mom)[Reco_trk_size]) TLorentzVector(vTrack);
+      //new ((*Reco_trk_4mom)[Reco_trk_size]) LorentzVector(vTrack);
+      Reco_trk_4mom.emplace_back(vTrack);
       Reco_trk_4mom_pt.push_back(vTrack.Pt());
       Reco_trk_4mom_eta.push_back(vTrack.Eta());
       Reco_trk_4mom_phi.push_back(vTrack.Phi());
@@ -1314,34 +1351,35 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
 };
 
 void HiOniaAnalyzer::InitTree() {
-  Reco_mu_4mom = new TClonesArray("TLorentzVector", Max_mu_size);
-  Reco_mu_L1_4mom = new TClonesArray("TLorentzVector", Max_mu_size);
-  Reco_QQ_4mom = new TClonesArray("TLorentzVector", Max_QQ_size);
-  Reco_QQ_mumi_4mom = new TClonesArray("TLorentzVector", Max_QQ_size);
-  Reco_QQ_mupl_4mom = new TClonesArray("TLorentzVector", Max_QQ_size);
+  /*
+  Reco_mu_4mom = new TClonesArray("LorentzVector", Max_mu_size);
+  Reco_mu_L1_4mom = new TClonesArray("LorentzVector", Max_mu_size);
+  Reco_QQ_4mom = new TClonesArray("LorentzVector", Max_QQ_size);
+  Reco_QQ_mumi_4mom = new TClonesArray("LorentzVector", Max_QQ_size);
+  Reco_QQ_mupl_4mom = new TClonesArray("LorentzVector", Max_QQ_size);
   Reco_QQ_vtx = new TClonesArray("TVector3", Max_QQ_size);
 
   if (_useGeTracks && _fillRecoTracks) {
-    Reco_trk_4mom = new TClonesArray("TLorentzVector", Max_trk_size);
+    Reco_trk_4mom = new TClonesArray("LorentzVector", Max_trk_size);
     Reco_trk_vtx = new TClonesArray("TVector3", Max_trk_size);
   }
 
   if (_isMC) {
-    Gen_mu_4mom = new TClonesArray("TLorentzVector", 10);
-    Gen_QQ_4mom = new TClonesArray("TLorentzVector", 10);
+    Gen_mu_4mom = new TClonesArray("LorentzVector", 10);
+    Gen_QQ_4mom = new TClonesArray("LorentzVector", 10);
   }
 
   if (_doTrimuons || _doDimuTrk) {
-    Reco_3mu_4mom = new TClonesArray("TLorentzVector", Max_Bc_size);
+    Reco_3mu_4mom = new TClonesArray("LorentzVector", Max_Bc_size);
     Reco_3mu_vtx = new TClonesArray("TVector3", Max_Bc_size);
 
     if (_isMC) {
-      Gen_Bc_4mom = new TClonesArray("TLorentzVector", 10);
-      Gen_Bc_nuW_4mom = new TClonesArray("TLorentzVector", 10);
-      Gen_3mu_4mom = new TClonesArray("TLorentzVector", 10);
+      Gen_Bc_4mom = new TClonesArray("LorentzVector", 10);
+      Gen_Bc_nuW_4mom = new TClonesArray("LorentzVector", 10);
+      Gen_3mu_4mom = new TClonesArray("LorentzVector", 10);
     }
   }
-
+*/
   //myTree = new TTree("myTree","My TTree of dimuons");
   myTree = fs->make<TTree>("myTree", "My TTree of dimuons");
 
@@ -1395,7 +1433,7 @@ void HiOniaAnalyzer::InitTree() {
       myTree->Branch("Reco_3mu_size", &Reco_3mu_size, "Reco_3mu_size/S");
       myTree->Branch("Reco_3mu_charge", Reco_3mu_charge, "Reco_3mu_charge[Reco_3mu_size]/S");
       if (std::strcmp("array", _mom4format.c_str()) == 0)
-        myTree->Branch("Reco_3mu_4mom", "TClonesArray", &Reco_3mu_4mom, 32000, 0);
+        myTree->Branch("Reco_3mu_4mom", &Reco_3mu_4mom, 32000, 0);
       if (std::strcmp("vector", _mom4format.c_str()) == 0){
         myTree->Branch("Reco_3mu_4mom_pt", &Reco_3mu_4mom_pt, 32000, 0);
         myTree->Branch("Reco_3mu_4mom_eta", &Reco_3mu_4mom_eta, 32000, 0);
@@ -1460,14 +1498,17 @@ void HiOniaAnalyzer::InitTree() {
       if (_useSVfinder && SVs.isValid() && !SVs->empty()) {
         myTree->Branch("Reco_3mu_NbMuInSameSV", Reco_3mu_NbMuInSameSV, "Reco_3mu_NbMuInSameSV[Reco_3mu_size]/S");
       }
-      myTree->Branch("Reco_3mu_vtx", "TClonesArray", &Reco_3mu_vtx, 32000, 0);
+      //myTree->Branch("Reco_3mu_vtx", "TClonesArray", &Reco_3mu_vtx, 32000, 0);
+      myTree->Branch("Reco_3mu_vtx_xpos", &Reco_3mu_vtx_xpos, 32000, 0);
+      myTree->Branch("Reco_3mu_vtx_ypos", &Reco_3mu_vtx_ypos, 32000, 0);
+      myTree->Branch("Reco_3mu_vtx_zpos", &Reco_3mu_vtx_zpos, 32000, 0);
     }
 
     myTree->Branch("Reco_QQ_size", &Reco_QQ_size, "Reco_QQ_size/S");
     myTree->Branch("Reco_QQ_type", Reco_QQ_type, "Reco_QQ_type[Reco_QQ_size]/S");
     myTree->Branch("Reco_QQ_sign", Reco_QQ_sign, "Reco_QQ_sign[Reco_QQ_size]/S");
     if (std::strcmp("array", _mom4format.c_str()) == 0)
-      myTree->Branch("Reco_QQ_4mom", "TClonesArray", &Reco_QQ_4mom, 32000, 0);
+      myTree->Branch("Reco_QQ_4mom", &Reco_QQ_4mom, 32000, 0);
     if (std::strcmp("vector", _mom4format.c_str()) == 0) {
       myTree->Branch("Reco_QQ_4mom_pt", &Reco_QQ_4mom_pt, 32000, 0);
       myTree->Branch("Reco_QQ_4mom_eta", &Reco_QQ_4mom_eta, 32000, 0);
@@ -1492,8 +1533,11 @@ void HiOniaAnalyzer::InitTree() {
     myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb, "Reco_QQ_VtxProb[Reco_QQ_size]/F");
     myTree->Branch("Reco_QQ_dca", Reco_QQ_dca, "Reco_QQ_dca[Reco_QQ_size]/F");
     //myTree->Branch("Reco_QQ_MassErr", Reco_QQ_MassErr, "Reco_QQ_MassErr[Reco_QQ_size]/F");
-    myTree->Branch("Reco_QQ_vtx", "TClonesArray", &Reco_QQ_vtx, 32000, 0);
-
+    //myTree->Branch("Reco_QQ_vtx", &Reco_QQ_vtx, 32000, 0);
+    myTree->Branch("Reco_QQ_vtx_xpos", &Reco_QQ_vtx_xpos, 32000, 0);
+    myTree->Branch("Reco_QQ_vtx_ypos", &Reco_QQ_vtx_ypos, 32000, 0);
+    myTree->Branch("Reco_QQ_vtx_zpos", &Reco_QQ_vtx_zpos, 32000, 0);
+      
     if ((!_theMinimumFlag && _muonLessPrimaryVertex) || (_flipJpsiDirection > 0)) {
       myTree->Branch("Reco_QQ_mupl_dxy_muonlessVtx", Reco_QQ_mupl_dxy, "Reco_QQ_mupl_dxy_muonlessVtx[Reco_QQ_size]/F");
       myTree->Branch("Reco_QQ_mumi_dxy_muonlessVtx", Reco_QQ_mumi_dxy, "Reco_QQ_mumi_dxy_muonlessVtx[Reco_QQ_size]/F");
@@ -1503,7 +1547,7 @@ void HiOniaAnalyzer::InitTree() {
     if (_flipJpsiDirection > 0) {
       myTree->Branch("Reco_QQ_flipJpsi", Reco_QQ_flipJpsi, "Reco_QQ_flipJpsi[Reco_QQ_size]/S");
       if (std::strcmp("array", _mom4format.c_str()) == 0)
-        myTree->Branch("Reco_QQ_mumi_4mom", "TClonesArray", &Reco_QQ_mumi_4mom, 32000, 0);
+        myTree->Branch("Reco_QQ_mumi_4mom", &Reco_QQ_mumi_4mom, 32000, 0);
       if (std::strcmp("vector", _mom4format.c_str()) == 0) {
         myTree->Branch("Reco_QQ_mumi_4mom_pt", &Reco_QQ_mumi_4mom_pt, 32000, 0);
         myTree->Branch("Reco_QQ_mumi_4mom_eta", &Reco_QQ_mumi_4mom_eta, 32000, 0);
@@ -1511,7 +1555,7 @@ void HiOniaAnalyzer::InitTree() {
         myTree->Branch("Reco_QQ_mumi_4mom_m", &Reco_QQ_mumi_4mom_m, 32000, 0);
       }
       if (std::strcmp("array", _mom4format.c_str()) == 0)
-        myTree->Branch("Reco_QQ_mupl_4mom", "TClonesArray", &Reco_QQ_mupl_4mom, 32000, 0);
+        myTree->Branch("Reco_QQ_mupl_4mom", &Reco_QQ_mupl_4mom, 32000, 0);
       if (std::strcmp("vector", _mom4format.c_str()) == 0) {
         myTree->Branch("Reco_QQ_mupl_4mom_pt", &Reco_QQ_mupl_4mom_pt, 32000, 0);
         myTree->Branch("Reco_QQ_mupl_4mom_eta", &Reco_QQ_mupl_4mom_eta, 32000, 0);
@@ -1529,8 +1573,8 @@ void HiOniaAnalyzer::InitTree() {
   //myTree->Branch("Reco_mu_SelectionType", Reco_mu_SelectionType, "Reco_mu_SelectionType[Reco_mu_size]/I");
   myTree->Branch("Reco_mu_charge", Reco_mu_charge, "Reco_mu_charge[Reco_mu_size]/S");
   if (std::strcmp("array", _mom4format.c_str()) == 0) {
-    myTree->Branch("Reco_mu_4mom", "TClonesArray", &Reco_mu_4mom, 32000, 0);
-    myTree->Branch("Reco_mu_L1_4mom", "TClonesArray", &Reco_mu_L1_4mom, 32000, 0);
+    myTree->Branch("Reco_mu_4mom", &Reco_mu_4mom, 32000, 0);
+    myTree->Branch("Reco_mu_L1_4mom", &Reco_mu_L1_4mom, 32000, 0);
   }
   if (std::strcmp("vector", _mom4format.c_str()) == 0) {
     myTree->Branch("Reco_mu_4mom_pt", &Reco_mu_4mom_pt, 32000, 0);
@@ -1599,7 +1643,7 @@ void HiOniaAnalyzer::InitTree() {
     myTree->Branch("Reco_trk_InLooseAcc", Reco_trk_InLooseAcc, "Reco_trk_InLooseAcc[Reco_trk_size]/O");
     myTree->Branch("Reco_trk_InTightAcc", Reco_trk_InTightAcc, "Reco_trk_InTightAcc[Reco_trk_size]/O");
     if (std::strcmp("array", _mom4format.c_str()) == 0) {
-      myTree->Branch("Reco_trk_4mom", "TClonesArray", &Reco_trk_4mom, 32000, 0);
+      myTree->Branch("Reco_trk_4mom", &Reco_trk_4mom, 32000, 0);
     }
     if (std::strcmp("vector", _mom4format.c_str()) == 0) {
       myTree->Branch("Reco_trk_4mom_pt", &Reco_trk_4mom_pt, 32000, 0);
@@ -1607,7 +1651,11 @@ void HiOniaAnalyzer::InitTree() {
       myTree->Branch("Reco_trk_4mom_phi", &Reco_trk_4mom_phi, 32000, 0);
       myTree->Branch("Reco_trk_4mom_m", &Reco_trk_4mom_m, 32000, 0);
     }
-    myTree->Branch("Reco_trk_vtx", "TClonesArray", &Reco_trk_vtx, 32000, 0);
+    //myTree->Branch("Reco_trk_vtx", &Reco_trk_vtx, 32000, 0);
+    myTree->Branch("Reco_trk_vtx_xpos", &Reco_trk_vtx_xpos, 32000, 0);
+    myTree->Branch("Reco_trk_vtx_ypos", &Reco_trk_vtx_ypos, 32000, 0);
+    myTree->Branch("Reco_trk_vtx_zpos", &Reco_trk_vtx_zpos, 32000, 0);
+    
     myTree->Branch("Reco_trk_dxyError", Reco_trk_dxyError, "Reco_trk_dxyError[Reco_trk_size]/F");
     myTree->Branch("Reco_trk_dzError", Reco_trk_dzError, "Reco_trk_dzError[Reco_trk_size]/F");
     myTree->Branch("Reco_trk_dxy", Reco_trk_dxy, "Reco_trk_dxy[Reco_trk_size]/F");
@@ -1634,12 +1682,12 @@ genOnly2:
       myTree->Branch("Gen_QQ_size", &Gen_QQ_size, "Gen_QQ_size/S");
       //myTree->Branch("Gen_QQ_type",      Gen_QQ_type,    "Gen_QQ_type[Gen_QQ_size]/S");
       if (std::strcmp("array", _mom4format.c_str()) == 0) {
-	      myTree->Branch("Gen_QQ_4mom", "TClonesArray", &Gen_QQ_4mom, 32000, 0);
+	      myTree->Branch("Gen_QQ_4mom", &Gen_QQ_4mom, 32000, 0);
       }
       if (std::strcmp("vector", _mom4format.c_str()) == 0) {
 	      myTree->Branch("Gen_QQ_4mom_pt", &Gen_QQ_4mom_pt, 32000, 0);
 	      myTree->Branch("Gen_QQ_4mom_eta", &Gen_QQ_4mom_eta, 32000, 0);
-        myTree->Branch("Gen_QQ_4mom_y", &Gen_QQ_4mom_y, 32000, 0);
+	      myTree->Branch("Gen_QQ_4mom_y", &Gen_QQ_4mom_y, 32000, 0);
 	      myTree->Branch("Gen_QQ_4mom_phi", &Gen_QQ_4mom_phi, 32000, 0);
 	      myTree->Branch("Gen_QQ_4mom_m", &Gen_QQ_4mom_m, 32000, 0);
       }
@@ -1656,9 +1704,9 @@ genOnly2:
         myTree->Branch("Gen_QQ_Bc_idx", Gen_QQ_Bc_idx, "Gen_QQ_Bc_idx[Gen_QQ_size]/S");
         myTree->Branch("Gen_Bc_size", &Gen_Bc_size, "Gen_Bc_size/S");
         if (std::strcmp("array", _mom4format.c_str()) == 0) {
-          myTree->Branch("Gen_Bc_4mom", "TClonesArray", &Gen_Bc_4mom, 32000, 0);
-          myTree->Branch("Gen_Bc_nuW_4mom", "TClonesArray", &Gen_Bc_nuW_4mom, 32000, 0);
-          myTree->Branch("Gen_3mu_4mom", "TClonesArray", &Gen_3mu_4mom, 32000, 0);
+          myTree->Branch("Gen_Bc_4mom", &Gen_Bc_4mom, 32000, 0);
+          myTree->Branch("Gen_Bc_nuW_4mom", &Gen_Bc_nuW_4mom, 32000, 0);
+          myTree->Branch("Gen_3mu_4mom", &Gen_3mu_4mom, 32000, 0);
         }
         if (std::strcmp("vector", _mom4format.c_str()) == 0) {
           myTree->Branch("Gen_Bc_4mom_pt", &Gen_Bc_4mom_pt, 32000, 0);
@@ -1690,7 +1738,7 @@ genOnly2:
     //myTree->Branch("Gen_mu_type",   Gen_mu_type,   "Gen_mu_type[Gen_mu_size]/S");
     myTree->Branch("Gen_mu_charge", Gen_mu_charge, "Gen_mu_charge[Gen_mu_size]/S");
     if (std::strcmp("array", _mom4format.c_str()) == 0) {
-      myTree->Branch("Gen_mu_4mom", "TClonesArray", &Gen_mu_4mom, 32000, 0);
+      myTree->Branch("Gen_mu_4mom", &Gen_mu_4mom, 32000, 0);
     }
     if (std::strcmp("vector", _mom4format.c_str()) == 0) {
       myTree->Branch("Gen_mu_4mom_pt", &Gen_mu_4mom_pt, 32000, 0);

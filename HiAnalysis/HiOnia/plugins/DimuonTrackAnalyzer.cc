@@ -24,9 +24,9 @@ void HiOniaAnalyzer::fillTreeDimuTrk(int count) {
     } else {
       Reco_3mu_charge[Reco_3mu_size] = muon1->charge() + muon2->charge() + trk3->charge();
 
-      TLorentzVector vMuon1 = lorentzMomentum(muon1->p4());
-      TLorentzVector vMuon2 = lorentzMomentum(muon2->p4());
-      TLorentzVector vTrk3 = lorentzMomentum(trk3->p4());
+      LorentzVector vMuon1 = muon1->p4(); // lorentzMomentum(muon1->p4());
+      LorentzVector vMuon2 = muon2->p4(); //lorentzMomentum(muon2->p4());
+      LorentzVector vTrk3 = trk3->p4(); // lorentzMomentum(trk3->p4());
 
       int mu1_idx = IndexOfThisMuon(&vMuon1);
       int mu2_idx = IndexOfThisMuon(&vMuon2);
@@ -38,8 +38,10 @@ void HiOniaAnalyzer::fillTreeDimuTrk(int count) {
         return;
       }
 
-      TLorentzVector vBc = lorentzMomentum(aBcCand->p4());
-      new ((*Reco_3mu_4mom)[Reco_3mu_size]) TLorentzVector(vBc);
+      LorentzVector vBc = aBcCand->p4(); // lorentzMomentum(aBcCand->p4());
+
+      Reco_3mu_4mom.emplace_back(vBc);
+      //new ((*Reco_3mu_4mom)[Reco_3mu_size]) LorentzVector(vBc);
       Reco_3mu_4mom_pt.push_back(vBc.Pt());
       Reco_3mu_4mom_eta.push_back(vBc.Eta());
       Reco_3mu_4mom_y.push_back(vBc.Rapidity());
@@ -68,8 +70,13 @@ void HiOniaAnalyzer::fillTreeDimuTrk(int count) {
         return;
       }
 
-      new ((*Reco_3mu_vtx)[Reco_3mu_size]) TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z());
+      //new ((*Reco_3mu_vtx)[Reco_3mu_size]) TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z());
+      //Reco_3mu_vtx.emplace_back(TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z()));
 
+      Reco_3mu_vtx_xpos.emplace_back(RefVtx.X());
+      Reco_3mu_vtx_ypos.emplace_back(RefVtx.Y());
+      Reco_3mu_vtx_zpos.emplace_back(RefVtx.Z());
+      
       Reco_3mu_muW_dxy[Reco_3mu_size] = trk3->track()->dxy(RefVtx);
       Reco_3mu_muW_dz[Reco_3mu_size] = trk3->track()->dz(RefVtx);
 

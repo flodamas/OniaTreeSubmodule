@@ -23,7 +23,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
 #include "TMath.h"
 #include "Math/VectorUtil.h"
-#include "TVector3.h"
+//#include "TVector3.h"
 
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -486,17 +486,17 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
         userFloat["vNChi2"] = (vChi2 / vNDF);
         userFloat["vProb"] = vProb;
 
-        TVector3 vtx, vtx3D;
-        TVector3 pvtx, pvtx3D;
+        //TVector3 vtx, vtx3D;
+        //TVector3 pvtx, pvtx3D;
         VertexDistanceXY vdistXY;
         VertexDistance3D vdistXYZ;
 
-        vtx.SetXYZ(myVertex.position().x(), myVertex.position().y(), 0);
-        TVector3 pperp(jpsi.px(), jpsi.py(), 0);
+	math::XYZPoint vtx(myVertex.position().x(), myVertex.position().y(), 0);
+        math::XYZPoint pperp(jpsi.px(), jpsi.py(), 0);
         AlgebraicVector3 vpperp(pperp.x(), pperp.y(), 0.);
 
-        vtx3D.SetXYZ(myVertex.position().x(), myVertex.position().y(), myVertex.position().z());
-        TVector3 pxyz(jpsi.px(), jpsi.py(), jpsi.pz());
+        math::XYZPoint vtx3D(myVertex.position().x(), myVertex.position().y(), myVertex.position().z());
+        math::XYZPoint pxyz(jpsi.px(), jpsi.py(), jpsi.pz());
         AlgebraicVector3 vpxyz(pxyz.x(), pxyz.y(), pxyz.z());
 
         ///DCA
@@ -520,11 +520,11 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
         }
 
         // lifetime using PV
-        pvtx.SetXYZ(thePrimaryV.position().x(), thePrimaryV.position().y(), 0);
-        TVector3 vdiff = vtx - pvtx;
-        double cosAlpha = vdiff.Dot(pperp) / (vdiff.Perp() * pperp.Perp());
+	math::XYZPoint pvtx(thePrimaryV.position().x(), thePrimaryV.position().y(), 0);
+        auto vdiff = vtx - pvtx;
+        double cosAlpha = vdiff.Dot(pperp) / (std::sqrt(vdiff.Perp2()) * std::sqrt(pperp.Perp2()));
         Measurement1D distXY = vdistXY.distance(Vertex(myVertex), thePrimaryV);
-        double ctauPV = distXY.value() * cosAlpha * dimuonMass_ / pperp.Perp();
+        double ctauPV = distXY.value() * cosAlpha * dimuonMass_ / std::sqrt(pperp.Perp2());
         GlobalError v1e = (Vertex(myVertex)).error();
         GlobalError v2e = thePrimaryV.error();
         AlgebraicSymMatrix33 vXYe = v1e.matrix() + v2e.matrix();
@@ -534,11 +534,11 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
         userFloat["ppdlErrPV"] = ctauErrPV;
         userFloat["cosAlpha"] = cosAlpha;
 
-        pvtx3D.SetXYZ(thePrimaryV.position().x(), thePrimaryV.position().y(), thePrimaryV.position().z());
-        TVector3 vdiff3D = vtx3D - pvtx3D;
-        double cosAlpha3D = vdiff3D.Dot(pxyz) / (vdiff3D.Mag() * pxyz.Mag());
+        math::XYZPoint pvtx3D(thePrimaryV.position().x(), thePrimaryV.position().y(), thePrimaryV.position().z());
+        auto vdiff3D = vtx3D - pvtx3D;
+        double cosAlpha3D = vdiff3D.Dot(pxyz) / (std::sqrt(vdiff3D.Mag2()) * std::sqrt(pxyz.Mag2()));
         Measurement1D distXYZ = vdistXYZ.distance(Vertex(myVertex), thePrimaryV);
-        double ctauPV3D = distXYZ.value() * cosAlpha3D * dimuonMass_ / pxyz.Mag();
+        double ctauPV3D = distXYZ.value() * cosAlpha3D * dimuonMass_ / std::sqrt(pxyz.Mag2());
         double ctauErrPV3D = sqrt(ROOT::Math::Similarity(vpxyz, vXYe)) * dimuonMass_ / (pxyz.Mag2());
 
         userFloat["ppdlPV3D"] = ctauPV3D;
@@ -549,9 +549,9 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
           // 2D-lifetime using Original PV
           pvtx.SetXYZ(theOriginalPV.position().x(), theOriginalPV.position().y(), 0);
           vdiff = vtx - pvtx;
-          double cosAlphaOrigPV = vdiff.Dot(pperp) / (vdiff.Perp() * pperp.Perp());
+          double cosAlphaOrigPV = vdiff.Dot(pperp) / (std::sqrt(vdiff.Perp2()) * std::sqrt(pperp.Perp2()));
           distXY = vdistXY.distance(Vertex(myVertex), theOriginalPV);
-          double ctauOrigPV = distXY.value() * cosAlphaOrigPV * dimuonMass_ / pperp.Perp();
+          double ctauOrigPV = distXY.value() * cosAlphaOrigPV * dimuonMass_ / std::sqrt(pperp.Perp2());
           GlobalError v1eOrigPV = (Vertex(myVertex)).error();
           GlobalError v2eOrigPV = theOriginalPV.error();
           AlgebraicSymMatrix33 vXYeOrigPV = v1eOrigPV.matrix() + v2eOrigPV.matrix();
@@ -563,9 +563,9 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
           // 3D-lifetime using Original PV
           pvtx3D.SetXYZ(theOriginalPV.position().x(), theOriginalPV.position().y(), theOriginalPV.position().z());
           vdiff3D = vtx3D - pvtx3D;
-          double cosAlphaOrigPV3D = vdiff3D.Dot(pxyz) / (vdiff3D.Mag() * pxyz.Mag());
+          double cosAlphaOrigPV3D = vdiff3D.Dot(pxyz) / (std::sqrt(vdiff3D.Mag2()) * std::sqrt(pxyz.Mag2()));
           distXYZ = vdistXYZ.distance(Vertex(myVertex), theOriginalPV);
-          double ctauOrigPV3D = distXYZ.value() * cosAlphaOrigPV3D * dimuonMass_ / pxyz.Mag();
+          double ctauOrigPV3D = distXYZ.value() * cosAlphaOrigPV3D * dimuonMass_ / std::sqrt(pxyz.Mag2());
           double ctauErrOrigPV3D = sqrt(ROOT::Math::Similarity(vpxyz, vXYeOrigPV)) * dimuonMass_ / (pxyz.Mag2());
 
           userFloat["ppdlOrigPV3D"] = ctauOrigPV3D;
@@ -581,9 +581,9 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
         if (!doTrimuons_ && !DimuonTrk_) {
           pvtx.SetXYZ(theBeamSpotV.position().x(), theBeamSpotV.position().y(), 0);
           vdiff = vtx - pvtx;
-          cosAlpha = vdiff.Dot(pperp) / (vdiff.Perp() * pperp.Perp());
+          cosAlpha = vdiff.Dot(pperp) / (std::sqrt(vdiff.Perp2()) * std::sqrt(pperp.Perp2()));
           distXY = vdistXY.distance(Vertex(myVertex), theBeamSpotV);
-          double ctauBS = distXY.value() * cosAlpha * dimuonMass_ / pperp.Perp();
+          double ctauBS = distXY.value() * cosAlpha * dimuonMass_ / std::sqrt(pperp.Perp2());
           GlobalError v1eB = (Vertex(myVertex)).error();
           GlobalError v2eB = theBeamSpotV.error();
           AlgebraicSymMatrix33 vXYeB = v1eB.matrix() + v2eB.matrix();
@@ -593,9 +593,9 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
           userFloat["ppdlErrBS"] = ctauErrBS;
           pvtx3D.SetXYZ(theBeamSpotV.position().x(), theBeamSpotV.position().y(), theBeamSpotV.position().z());
           vdiff3D = vtx3D - pvtx3D;
-          cosAlpha3D = vdiff3D.Dot(pxyz) / (vdiff3D.Mag() * pxyz.Mag());
+          cosAlpha3D = vdiff3D.Dot(pxyz) / (std::sqrt(vdiff3D.Mag2()) * std::sqrt(pxyz.Mag2()));
           distXYZ = vdistXYZ.distance(Vertex(myVertex), theBeamSpotV);
-          double ctauBS3D = distXYZ.value() * cosAlpha3D * dimuonMass_ / pxyz.Mag();
+          double ctauBS3D = distXYZ.value() * cosAlpha3D * dimuonMass_ / std::sqrt(pxyz.Mag2());
           double ctauErrBS3D = sqrt(ROOT::Math::Similarity(vpxyz, vXYeB)) * dimuonMass_ / (pxyz.Mag2());
 
           userFloat["ppdlBS3D"] = ctauBS3D;
@@ -763,17 +763,17 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
             userBcFloat["vNChi2"] = (vChi2 / vNDF);
             userBcFloat["vProb"] = vProb;
 
-            TVector3 vtx, vtx3D;
-            TVector3 pvtx, pvtx3D;
+            //TVector3 vtx, vtx3D;
+            //TVector3 pvtx, pvtx3D;
             VertexDistanceXY vdistXY;
             VertexDistance3D vdistXYZ;
 
-            vtx.SetXYZ(DimuTrkVertex.position().x(), DimuTrkVertex.position().y(), 0);
-            TVector3 pperp(bc.px(), bc.py(), 0);
+	    math::XYZPoint vtx(DimuTrkVertex.position().x(), DimuTrkVertex.position().y(), 0);
+            math::XYZPoint pperp(bc.px(), bc.py(), 0);
             AlgebraicVector3 vpperp(pperp.x(), pperp.y(), 0.);
 
-            vtx3D.SetXYZ(DimuTrkVertex.position().x(), DimuTrkVertex.position().y(), DimuTrkVertex.position().z());
-            TVector3 pxyz(bc.px(), bc.py(), bc.pz());
+	    math::XYZPoint vtx3D(DimuTrkVertex.position().x(), DimuTrkVertex.position().y(), DimuTrkVertex.position().z());
+            math::XYZPoint pxyz(bc.px(), bc.py(), bc.pz());
             AlgebraicVector3 vpxyz(pxyz.x(), pxyz.y(), pxyz.z());
 
             //The "resolvePileUpAmbiguity" (looking for the PV that is the closest in z to the displaced vertex) has already been done with the dimuon, we keep this PV as such
@@ -863,11 +863,11 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
             }
 
             // lifetime using PV
-            pvtx.SetXYZ(thePrimaryV.position().x(), thePrimaryV.position().y(), 0);
-            TVector3 vdiff = vtx - pvtx;
-            double cosAlpha = vdiff.Dot(pperp) / (vdiff.Perp() * pperp.Perp());
+            math::XYZPoint pvtx(thePrimaryV.position().x(), thePrimaryV.position().y(), 0);
+            auto vdiff = vtx - pvtx;
+            double cosAlpha = vdiff.Dot(pperp) / (std::sqrt(vdiff.Perp2() * pperp.Perp2()));
             Measurement1D distXY = vdistXY.distance(Vertex(DimuTrkVertex), thePrimaryV);
-            double ctauPV = distXY.value() * cosAlpha * BcMass / pperp.Perp();
+            double ctauPV = distXY.value() * cosAlpha * BcMass / std::sqrt(pperp.Perp2());
             GlobalError v1e = (Vertex(DimuTrkVertex)).error();
             GlobalError v2e = thePrimaryV.error();
             AlgebraicSymMatrix33 vXYe = v1e.matrix() + v2e.matrix();
@@ -877,11 +877,11 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
             userBcFloat["ppdlErrPV"] = ctauErrPV;
             userBcFloat["cosAlpha"] = cosAlpha;
 
-            pvtx3D.SetXYZ(thePrimaryV.position().x(), thePrimaryV.position().y(), thePrimaryV.position().z());
-            TVector3 vdiff3D = vtx3D - pvtx3D;
-            double cosAlpha3D = vdiff3D.Dot(pxyz) / (vdiff3D.Mag() * pxyz.Mag());
+            math::XYZPoint pvtx3D(thePrimaryV.position().x(), thePrimaryV.position().y(), thePrimaryV.position().z());
+            auto vdiff3D = vtx3D - pvtx3D;
+            double cosAlpha3D = vdiff3D.Dot(pxyz) / (std::sqrt(vdiff3D.Mag2() * pxyz.Mag2()));
             Measurement1D distXYZ = vdistXYZ.distance(Vertex(DimuTrkVertex), thePrimaryV);
-            double ctauPV3D = distXYZ.value() * cosAlpha3D * BcMass / pxyz.Mag();
+            double ctauPV3D = distXYZ.value() * cosAlpha3D * BcMass / std::sqrt(pxyz.Mag2());
             double ctauErrPV3D = sqrt(ROOT::Math::Similarity(vpxyz, vXYe)) * BcMass / (pxyz.Mag2());
 
             userBcFloat["ppdlPV3D"] = ctauPV3D;
@@ -934,7 +934,7 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
             continue;
 
           bool KCvtxNotFound = true;
-          /////////////////Begin Kinematic Constrained Vertex Fit
+          ///////////////// Begin Kinematic Constrained Vertex Fit
           std::vector<RefCountedKinematicParticle> BcDaughters;
           reco::TransientTrack muon1TT(it.track(), &(*bField));
           reco::TransientTrack muon2TT(it2.track(), &(*bField));
@@ -959,29 +959,29 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
                 double vtxProb = TMath::Prob(BcVtx->chiSquared(), BcVtx->degreesOfFreedom());
                 userBcFloat["KinConstrainedVtxProb"] = vtxProb;
 
-                // lifetime using PV and vertex from kin constrained fit
-                TVector3 vtx, vtx3D;
-                TVector3 pvtx, pvtx3D;
+                // lifetime using PV and vertex from kinematic constrained fit
+                //TVector3 vtx, vtx3D;
+                //TVector3 pvtx, pvtx3D;
                 VertexDistanceXY vdistXY;
                 VertexDistance3D vdistXYZ;
 
-                vtx.SetXYZ(BcVtx->position().x(), BcVtx->position().y(), 0);
-                TVector3 pperp(BcPart->currentState().kinematicParameters().momentum().x(),
+		math::XYZPoint vtx(BcVtx->position().x(), BcVtx->position().y(), 0);
+		math::XYZPoint pperp(BcPart->currentState().kinematicParameters().momentum().x(),
                                BcPart->currentState().kinematicParameters().momentum().y(),
                                0);
                 AlgebraicVector3 vpperp(pperp.x(), pperp.y(), 0.);
 
-                vtx3D.SetXYZ(vtx.X(), vtx.Y(), BcVtx->position().z());
-                TVector3 pxyz(pperp.x(), pperp.y(), BcPart->currentState().kinematicParameters().momentum().z());
+		math::XYZPoint vtx3D(vtx.X(), vtx.Y(), BcVtx->position().z());
+		math::XYZPoint pxyz(pperp.x(), pperp.y(), BcPart->currentState().kinematicParameters().momentum().z());
                 AlgebraicVector3 vpxyz(pxyz.x(), pxyz.y(), pxyz.z());
 
-                pvtx.SetXYZ(thePrimaryV.position().x(), thePrimaryV.position().y(), 0);
-                TVector3 vdiff = vtx - pvtx;
-                double cosAlpha = vdiff.Dot(pperp) / (vdiff.Perp() * pperp.Perp());
+		math::XYZPoint pvtx(thePrimaryV.position().x(), thePrimaryV.position().y(), 0);
+                auto vdiff = vtx - pvtx;
+                double cosAlpha = vdiff.Dot(pperp) / std::sqrt(vdiff.Perp2() * pperp.Perp2());
                 Measurement1D distXY =
                     vdistXY.distance(Vertex(math::XYZPoint(vtx3D.X(), vtx3D.Y(), vtx3D.Z()), reco::Vertex::Error()),
                                      thePrimaryV);  //!!! Put 0 error here because we use only dist.value
-                double ctauPV = distXY.value() * cosAlpha * BcMass / pperp.Perp();
+                double ctauPV = distXY.value() * cosAlpha * BcMass / std::sqrt(pperp.Perp2());
                 GlobalError v1e = BcVtx->error();
                 GlobalError v2e = thePrimaryV.error();
                 AlgebraicSymMatrix33 vXYe = v1e.matrix() + v2e.matrix();
@@ -991,13 +991,13 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
                 userBcFloat["KCppdlErrPV"] = ctauErrPV;
                 userBcFloat["KCcosAlpha"] = cosAlpha;
 
-                pvtx3D.SetXYZ(pvtx.X(), pvtx.Y(), thePrimaryV.position().z());
-                TVector3 vdiff3D = vtx3D - pvtx3D;
-                double cosAlpha3D = vdiff3D.Dot(pxyz) / (vdiff3D.Mag() * pxyz.Mag());
+		math::XYZPoint pvtx3D(pvtx.X(), pvtx.Y(), thePrimaryV.position().z());
+                auto vdiff3D = vtx3D - pvtx3D;
+                double cosAlpha3D = vdiff3D.Dot(pxyz) / std::sqrt(vdiff3D.Mag2() * pxyz.Mag2());
                 Measurement1D distXYZ =
                     vdistXYZ.distance(Vertex(math::XYZPoint(vtx3D.X(), vtx3D.Y(), vtx3D.Z()), reco::Vertex::Error()),
                                       thePrimaryV);  //!!! Put 0 error here because we use only dist.value
-                double ctauPV3D = distXYZ.value() * cosAlpha3D * BcMass / pxyz.Mag();
+                double ctauPV3D = distXYZ.value() * cosAlpha3D * BcMass / std::sqrt(pxyz.Mag2());
                 double ctauErrPV3D = sqrt(ROOT::Math::Similarity(vpxyz, vXYe)) * BcMass / (pxyz.Mag2());
 
                 userBcFloat["KCppdlPV3D"] = ctauPV3D;
@@ -1108,17 +1108,17 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
               userBcFloat["vNChi2"] = (vChi2 / vNDF);
               userBcFloat["vProb"] = vProb;
 
-              TVector3 vtx, vtx3D;
-              TVector3 pvtx, pvtx3D;
+              //TVector3 vtx, vtx3D;
+              //TVector3 pvtx, pvtx3D;
               VertexDistanceXY vdistXY;
               VertexDistance3D vdistXYZ;
 
-              vtx.SetXYZ(TrimuVertex.position().x(), TrimuVertex.position().y(), 0);
-              TVector3 pperp(bc.px(), bc.py(), 0);
+	      math::XYZPoint vtx(TrimuVertex.position().x(), TrimuVertex.position().y(), 0);
+              math::XYZPoint pperp(bc.px(), bc.py(), 0);
               AlgebraicVector3 vpperp(pperp.x(), pperp.y(), 0.);
 
-              vtx3D.SetXYZ(TrimuVertex.position().x(), TrimuVertex.position().y(), TrimuVertex.position().z());
-              TVector3 pxyz(bc.px(), bc.py(), bc.pz());
+              math::XYZPoint vtx3D(TrimuVertex.position().x(), TrimuVertex.position().y(), TrimuVertex.position().z());
+              math::XYZPoint pxyz(bc.px(), bc.py(), bc.pz());
               AlgebraicVector3 vpxyz(pxyz.x(), pxyz.y(), pxyz.z());
 
               //The "resolvePileUpAmbiguity" (looking for the PV that is the closest in z to the displaced vertex) has already been done with the dimuon, we keep this PV as such
@@ -1208,11 +1208,11 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
               }
 
               // lifetime using PV
-              pvtx.SetXYZ(thePrimaryV.position().x(), thePrimaryV.position().y(), 0);
-              TVector3 vdiff = vtx - pvtx;
-              double cosAlpha = vdiff.Dot(pperp) / (vdiff.Perp() * pperp.Perp());
+              math::XYZPoint pvtx(thePrimaryV.position().x(), thePrimaryV.position().y(), 0);
+              auto vdiff = vtx - pvtx;
+              double cosAlpha = vdiff.Dot(pperp) / std::sqrt(vdiff.Perp2() * pperp.Perp2());
               Measurement1D distXY = vdistXY.distance(Vertex(TrimuVertex), thePrimaryV);
-              double ctauPV = distXY.value() * cosAlpha * BcMass / pperp.Perp();
+              double ctauPV = distXY.value() * cosAlpha * BcMass / std::sqrt(pperp.Perp2());
               GlobalError v1e = (Vertex(TrimuVertex)).error();
               GlobalError v2e = thePrimaryV.error();
               AlgebraicSymMatrix33 vXYe = v1e.matrix() + v2e.matrix();
@@ -1222,13 +1222,14 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
               userBcFloat["ppdlErrPV"] = ctauErrPV;
               userBcFloat["cosAlpha"] = cosAlpha;
 
-              pvtx3D.SetXYZ(thePrimaryV.position().x(), thePrimaryV.position().y(), thePrimaryV.position().z());
-              TVector3 vdiff3D = vtx3D - pvtx3D;
-              double cosAlpha3D = vdiff3D.Dot(pxyz) / (vdiff3D.Mag() * pxyz.Mag());
+              math::XYZPoint pvtx3D(thePrimaryV.position().x(), thePrimaryV.position().y(), thePrimaryV.position().z());
+              auto vdiff3D = vtx3D - pvtx3D;
+              double cosAlpha3D = vdiff3D.Dot(pxyz) / std::sqrt(vdiff3D.Mag2() * pxyz.Mag2());
               Measurement1D distXYZ = vdistXYZ.distance(Vertex(TrimuVertex), thePrimaryV);
-              double ctauPV3D = distXYZ.value() * cosAlpha3D * BcMass / pxyz.Mag();
-              double ctauErrPV3D = sqrt(ROOT::Math::Similarity(vpxyz, vXYe)) * BcMass / (pxyz.Mag2());
-
+              double ctauPV3D = distXYZ.value() * cosAlpha3D * BcMass / std::sqrt(pxyz.Mag2());
+              //double ctauErrPV3D = sqrt(ROOT::Math::Similarity(vpxyz, vXYe)) * BcMass / (pxyz.Mag2());
+	      double ctauErrPV3D = distXYZ.error() * BcMass / std::sqrt(pxyz.Mag2());
+	      
               userBcFloat["ppdlPV3D"] = ctauPV3D;
               userBcFloat["ppdlErrPV3D"] = ctauErrPV3D;
               userBcFloat["cosAlpha3D"] = cosAlpha3D;

@@ -63,15 +63,16 @@ void HiOniaAnalyzer::fillGenInfo() {
         Gen_mu_type[Gen_mu_size] = _isPromptMC ? 0 : 1;  // prompt: 0, non-prompt: 1
         Gen_mu_charge[Gen_mu_size] = gen->charge();
 
-        TLorentzVector vMuon = lorentzMomentum(gen->p4());
-        new ((*Gen_mu_4mom)[Gen_mu_size]) TLorentzVector(vMuon);
-        Gen_mu_4mom_pt.push_back(vMuon.Pt());
-        Gen_mu_4mom_eta.push_back(vMuon.Eta());
-        Gen_mu_4mom_phi.push_back(vMuon.Phi());
-        Gen_mu_4mom_m.push_back(vMuon.M());
+        LorentzVector muonLV = gen->p4();// lorentzMomentum(gen->p4());
+        //new ((*Gen_mu_4mom)[Gen_mu_size]) LorentzVector(muonLV);
+	Gen_mu_4mom.emplace_back(muonLV);
+        Gen_mu_4mom_pt.push_back(muonLV.Pt());
+        Gen_mu_4mom_eta.push_back(muonLV.Eta());
+        Gen_mu_4mom_phi.push_back(muonLV.Phi());
+        Gen_mu_4mom_m.push_back(muonLV.M());
 
         //Fill map of the muon indices. Use long int keys, to avoid rounding errors on a float key. Implies a precision of 10^-6
-        mapGenMuonMomToIndex_[FloatToIntkey(vMuon.Pt())] = Gen_mu_size;
+        mapGenMuonMomToIndex_[FloatToIntkey(muonLV.Pt())] = Gen_mu_size;
 
         Gen_mu_size++;
       }
@@ -99,16 +100,17 @@ void HiOniaAnalyzer::fillGenInfo() {
             Gen_QQ_momId[Gen_QQ_size] = _Gen_QQ_MomAndTrkBro[Gen_QQ_size][0]->pdgId();
           }
 
-          TLorentzVector vJpsi = lorentzMomentum(gen->p4());
-          new ((*Gen_QQ_4mom)[Gen_QQ_size]) TLorentzVector(vJpsi);
-          Gen_QQ_4mom_pt.push_back(vJpsi.Pt());
-          Gen_QQ_4mom_eta.push_back(vJpsi.Eta());
-          Gen_QQ_4mom_y.push_back(vJpsi.Rapidity());
-          Gen_QQ_4mom_phi.push_back(vJpsi.Phi());
-          Gen_QQ_4mom_m.push_back(vJpsi.M());
+          LorentzVector quarkoniumLV = gen->p4(); // lorentzMomentum(gen->p4());
+          //new ((*Gen_QQ_4mom)[Gen_QQ_size]) LorentzVector(quarkoniumLV);
+	  Gen_QQ_4mom.emplace_back(quarkoniumLV);
+	  Gen_QQ_4mom_pt.push_back(quarkoniumLV.Pt());
+          Gen_QQ_4mom_eta.push_back(quarkoniumLV.Eta());
+          Gen_QQ_4mom_y.push_back(quarkoniumLV.Rapidity());
+          Gen_QQ_4mom_phi.push_back(quarkoniumLV.Phi());
+          Gen_QQ_4mom_m.push_back(quarkoniumLV.M());
 
-          TLorentzVector vMuon1 = lorentzMomentum(genMuon1->p4());
-          TLorentzVector vMuon2 = lorentzMomentum(genMuon2->p4());
+          LorentzVector vMuon1 = genMuon1->p4(); // lorentzMomentum(genMuon1->p4());
+          LorentzVector vMuon2 = genMuon2->p4(); // lorentzMomentum(genMuon2->p4());
 
           if (genMuon1->charge() > genMuon2->charge()) {
             Gen_QQ_mupl_idx[Gen_QQ_size] = IndexOfThisMuon(&vMuon1, true);
@@ -158,20 +160,22 @@ void HiOniaAnalyzer::fillGenInfo() {
                   std::pair<int, std::pair<float, float> > MCinfo = findGenBcInfo(genBc, gen);
                   Gen_Bc_ctau[Gen_Bc_size] = 10.0 * MCinfo.second.first;
 
-                  TLorentzVector vBc = lorentzMomentum(genBc->p4());
-                  new ((*Gen_Bc_4mom)[Gen_Bc_size]) TLorentzVector(vBc);
-                  Gen_Bc_4mom_pt.push_back(vBc.Pt());
-                  Gen_Bc_4mom_eta.push_back(vBc.Eta());
-                  Gen_Bc_4mom_y.push_back(vBc.Rapidity());
-                  Gen_Bc_4mom_phi.push_back(vBc.Phi());
-                  Gen_Bc_4mom_m.push_back(vBc.M());
+                  LorentzVector BcLV = genBc->p4(); // lorentzMomentum(genBc->p4());
+                  //new ((*Gen_Bc_4mom)[Gen_Bc_size]) LorentzVector(BcLV);
+		  Gen_Bc_4mom.emplace_back(BcLV);
+                  Gen_Bc_4mom_pt.push_back(BcLV.Pt());
+                  Gen_Bc_4mom_eta.push_back(BcLV.Eta());
+                  Gen_Bc_4mom_y.push_back(BcLV.Rapidity());
+                  Gen_Bc_4mom_phi.push_back(BcLV.Phi());
+                  Gen_Bc_4mom_m.push_back(BcLV.M());
 
-                  TLorentzVector vmuW = lorentzMomentum(genmuW->p4());
+                  LorentzVector vmuW = genmuW->p4(); // lorentzMomentum(genmuW->p4());
                   Gen_Bc_muW_idx[Gen_Bc_size] = IndexOfThisMuon(&vmuW, true);
 
-                  TLorentzVector vnuW = lorentzMomentum(gennuW->p4());
-                  new ((*Gen_Bc_nuW_4mom)[Gen_Bc_size]) TLorentzVector(vnuW);
-                  Gen_Bc_nuW_4mom_pt.push_back(vnuW.Pt());
+                  LorentzVector vnuW = gennuW->p4(); // lorentzMomentum(gennuW->p4());
+                  //new ((*Gen_Bc_nuW_4mom)[Gen_Bc_size]) LorentzVector(vnuW);
+		  Gen_Bc_nuW_4mom.emplace_back(vnuW);
+		  Gen_Bc_nuW_4mom_pt.push_back(vnuW.Pt());
                   Gen_Bc_nuW_4mom_eta.push_back(vnuW.Eta());
                   Gen_Bc_nuW_4mom_y.push_back(vnuW.Rapidity());
                   Gen_Bc_nuW_4mom_phi.push_back(vnuW.Phi());
@@ -179,8 +183,7 @@ void HiOniaAnalyzer::fillGenInfo() {
 
                   Gen_Bc_size++;
                 } else {
-                  std::cout << "WARNING : Problem with daughters of the gen Bc, hence Bc and its daughters are not "
-                               "written out"
+                  std::cout << "WARNING : Problem with daughters of the gen Bc, hence Bc and its daughters are not written out"
                             << std::endl;
                 }
               }
@@ -295,13 +298,16 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
   std::vector<reco::GenParticleRef> JpsiBrothers;
 
   if (genJpsi->numberOfMothers() > 0) {
-    TVector3 trueVtx(0.0, 0.0, 0.0);
-    TVector3 trueP(0.0, 0.0, 0.0);
-    TVector3 trueVtxMom(0.0, 0.0, 0.0);
+    //TVector3 trueVtx(0.0, 0.0, 0.0);
+    //TVector3 trueP(0.0, 0.0, 0.0);
+    math::XYZPoint trueVtxMom(0.0, 0.0, 0.0);
 
-    trueVtx.SetXYZ(genJpsi->vertex().x(), genJpsi->vertex().y(), genJpsi->vertex().z());
-    trueP.SetXYZ(genJpsi->momentum().x(), genJpsi->momentum().y(), genJpsi->momentum().z());
+    //trueVtx.SetXYZ(genJpsi->vertex().x(), genJpsi->vertex().y(), genJpsi->vertex().z());
+    //trueP.SetXYZ(genJpsi->momentum().x(), genJpsi->momentum().y(), genJpsi->momentum().z());
+    
 
+    math::XYZPoint trueVtx = genJpsi->vertex(); //(genJpsi->vertex().x(), genJpsi->vertex().y(), genJpsi->vertex().z());
+    
     bool aBhadron = false;
     reco::GenParticleRef Jpsimom_final;
     reco::GenParticleRef Jpsimom = findMotherRef(genJpsi->motherRef(), genJpsi->pdgId());
@@ -357,16 +363,16 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
     }
 
     if (Jpsimom_final.isNonnull()) {
-      trueVtxMom.SetXYZ(Jpsimom_final->vertex().x(), Jpsimom_final->vertex().y(), Jpsimom_final->vertex().z());
+      trueVtxMom = Jpsimom_final->vertex(); //math::XYZPoint(Jpsimom_final->vertex().x(), Jpsimom_final->vertex().y(), Jpsimom_final->vertex().z());
       if (_genealogyInfo && Reco_3mu_size > 0) {
         JpsiBrothers = GenBrothers(Jpsimom_final, genJpsi->pdgId());
       }
       JpsiBrothers.insert(JpsiBrothers.begin(), Jpsimom_final);
     }
 
-    TVector3 vdiff = trueVtx - trueVtxMom;
-    trueLife = vdiff.Perp() * JpsiPDGMass / trueP.Perp();
-    trueLife3D = vdiff.Mag() * JpsiPDGMass / trueP.Mag();
+    auto vdiff = trueVtx - trueVtxMom;
+    trueLife = std::sqrt(vdiff.Perp2()) * genJpsi->mass() / genJpsi->pt();// trueP.Perp();
+    trueLife3D = std::sqrt(vdiff.Mag2()) * genJpsi->mass() / genJpsi->p();
   }
 
   std::pair<float, float> trueLifePair = std::make_pair(trueLife, trueLife3D);

@@ -22,9 +22,9 @@
 #include <utility>
 
 #include <TTree.h>
-#include <TLorentzVector.h>
-#include <TVector2.h>
-#include <TClonesArray.h>
+//#include <TLorentzVector.h>
+//#include <TVector3.h>
+//#include <TClonesArray.h>
 #include <TRegexp.h>
 
 // user include files
@@ -56,6 +56,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "HiAnalysis/HiOnia/interface/MyCommonHistoManager.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -64,6 +65,7 @@
 //
 // class declaration
 //
+using LorentzVector = math::XYZTLorentzVector;
 
 class HiOniaAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
@@ -102,8 +104,8 @@ private:
                         bool (HiOniaAnalyzer::*callFunc3)(const reco::TrackRef));
 
   reco::GenParticleRef findDaughterRef(reco::GenParticleRef GenParticleDaughter, int GenParticlePDG);
-  int IndexOfThisMuon(TLorentzVector* v1, bool isGen = false);
-  int IndexOfThisTrack(TLorentzVector* v1, bool isGen = false);
+  int IndexOfThisMuon(LorentzVector* v1, bool isGen = false);
+  int IndexOfThisTrack(LorentzVector* v1, bool isGen = false);
   int IndexOfThisJpsi(int mu1_idx, int mu2_idx, int flipJpsi = 0);
   void fillGenInfo();
   void fillMuMatchingInfo();
@@ -121,11 +123,11 @@ private:
 
   void fillRecoMuons(int theCentralityBin);
   bool isMuonInAccept(const pat::Muon* aMuon, std::string muonType);
-  bool isTrkInMuonAccept(TLorentzVector trk4mom, std::string muonType);
+  bool isTrkInMuonAccept(LorentzVector trk4mom, std::string muonType);
 
   bool isSoftMuonBase(const pat::Muon* aMuon);
   bool isHybridSoftMuon(const pat::Muon* aMuon);
-  Short_t MuInSV(TLorentzVector v1, TLorentzVector v2, TLorentzVector v3);
+  Short_t MuInSV(LorentzVector v1, LorentzVector v2, LorentzVector v3);
 
   void fillRecoTracks();
 
@@ -155,7 +157,7 @@ private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override{};
 
-  TLorentzVector lorentzMomentum(const reco::Candidate::LorentzVector& p);
+  //TLorentzVector lorentzMomentum(const reco::Candidate::LorentzVector& p);
   int muonIDmask(const pat::Muon* muon);
 
   // ----------member data ---------------------------
@@ -193,7 +195,7 @@ private:
 
   // TTree
   TTree* myTree;
-
+  /*
   TClonesArray* Reco_mu_4mom;
   TClonesArray* Reco_mu_L1_4mom;
   TClonesArray* Reco_QQ_4mom;
@@ -210,7 +212,37 @@ private:
 
   TClonesArray* Gen_mu_4mom;
   TClonesArray* Gen_QQ_4mom;
+  */
 
+  std::vector<LorentzVector> Reco_mu_4mom;
+  std::vector<LorentzVector> Reco_mu_L1_4mom;
+  std::vector<LorentzVector> Reco_QQ_4mom;
+  std::vector<LorentzVector> Reco_QQ_mumi_4mom;
+  std::vector<LorentzVector> Reco_QQ_mupl_4mom;
+  std::vector<LorentzVector> Reco_3mu_4mom;
+  //std::vector<TVector3> Reco_QQ_vtx;
+  //std::vector<TVector3> Reco_3mu_vtx;
+  std::vector<LorentzVector> Reco_trk_4mom;
+  //std::vector<TVector3> Reco_trk_vtx;
+  std::vector<LorentzVector> Gen_Bc_4mom;
+  std::vector<LorentzVector> Gen_Bc_nuW_4mom;
+  std::vector<LorentzVector> Gen_3mu_4mom;
+  std::vector<LorentzVector> Gen_mu_4mom;
+  std::vector<LorentzVector> Gen_QQ_4mom;
+
+
+  std::vector<float> Reco_QQ_vtx_xpos;
+  std::vector<float> Reco_QQ_vtx_ypos;
+  std::vector<float> Reco_QQ_vtx_zpos;
+
+  std::vector<float> Reco_3mu_vtx_xpos;
+  std::vector<float> Reco_3mu_vtx_ypos;
+  std::vector<float> Reco_3mu_vtx_zpos;
+
+  std::vector<float> Reco_trk_vtx_xpos;
+  std::vector<float> Reco_trk_vtx_ypos;
+  std::vector<float> Reco_trk_vtx_zpos;
+  
   std::vector<float> Reco_mu_4mom_pt;
   std::vector<float> Reco_mu_L1_4mom_pt;
   std::vector<float> Reco_QQ_4mom_pt;

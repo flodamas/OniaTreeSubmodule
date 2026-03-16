@@ -23,9 +23,9 @@ void HiOniaAnalyzer::fillTreeBc(int count) {
     } else {
       int charge = muon1->charge() + muon2->charge() + muon3->charge();
 
-      TLorentzVector vMuon1 = lorentzMomentum(muon1->p4());
-      TLorentzVector vMuon2 = lorentzMomentum(muon2->p4());
-      TLorentzVector vMuon3 = lorentzMomentum(muon3->p4());
+      LorentzVector vMuon1 = muon1->p4(); // lorentzMomentum(muon1->p4());
+      LorentzVector vMuon2 = muon2->p4(); // lorentzMomentum(muon2->p4());
+      LorentzVector vMuon3 = muon3->p4(); // lorentzMomentum(muon3->p4());
 
       int mu1_idx = IndexOfThisMuon(&vMuon1);  //the muon list contains unchanged muons (even in jpsiFlipping case)
       int mu2_idx = IndexOfThisMuon(&vMuon2);
@@ -108,8 +108,11 @@ void HiOniaAnalyzer::fillTreeBc(int count) {
       //*********
       //Fill all remaining Bc variables
       Reco_3mu_charge[Reco_3mu_size] = charge;
-      TLorentzVector vBc = lorentzMomentum(aBcCand->p4());
-      new ((*Reco_3mu_4mom)[Reco_3mu_size]) TLorentzVector(vBc);
+      LorentzVector vBc = aBcCand->p4(); // lorentzMomentum(aBcCand->p4());
+      //new ((*Reco_3mu_4mom)[Reco_3mu_size]) LorentzVector(vBc);
+
+      Reco_3mu_4mom.emplace_back(vBc);
+      
       Reco_3mu_4mom_pt.push_back(vBc.Pt());
       Reco_3mu_4mom_eta.push_back(vBc.Eta());
       Reco_3mu_4mom_y.push_back(vBc.Rapidity());
@@ -134,8 +137,14 @@ void HiOniaAnalyzer::fillTreeBc(int count) {
         return;
       }
 
-      new ((*Reco_3mu_vtx)[Reco_3mu_size]) TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z());
+      //new ((*Reco_3mu_vtx)[Reco_3mu_size]) TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z());
+      //Reco_3mu_vtx.emplace_back(TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z()));
 
+
+      Reco_3mu_vtx_xpos.emplace_back(RefVtx.X());
+      Reco_3mu_vtx_ypos.emplace_back(RefVtx.Y());
+      Reco_3mu_vtx_zpos.emplace_back(RefVtx.Z());
+      
       reco::Track iTrack_mupl, iTrack_mumi, iTrack_muW, mu1Trk, mu2Trk;
       if (_flipJpsiDirection > 0 && aBcCand->hasUserData("muon1Track") && aBcCand->hasUserData("muon2Track")) {
         mu1Trk = *(aBcCand->userData<reco::Track>("muon1Track"));
@@ -270,11 +279,11 @@ void HiOniaAnalyzer::fillTreeBc(int count) {
       }
 
       //Correct the Bc mass for the momentum of the neutrino, transverse to the Bc flight direction
-      float Mtrimu = vBc.M();
+      //float Mtrimu = vBc.M();
       float Ptrimu = vBc.P();
       float sinalpha = sin(acos(Reco_3mu_cosAlpha3D[Reco_3mu_size]));
       float PperpTrimu = sinalpha * Ptrimu;
-      Reco_3mu_CorrM[Reco_3mu_size] = sqrt(Mtrimu * Mtrimu + PperpTrimu * PperpTrimu) + PperpTrimu;
+      Reco_3mu_CorrM[Reco_3mu_size] = sqrt(vBc.M2() + PperpTrimu * PperpTrimu) + PperpTrimu;
 
       if (_useSVfinder && SVs.isValid() && !SVs->empty()) {
         Reco_3mu_NbMuInSameSV[Reco_3mu_size] = MuInSV(vMuon1, vMuon2, vMuon3);
@@ -452,10 +461,10 @@ void HiOniaAnalyzer::fillBcMatchingInfo() {
   for (int igen = 0; igen < Gen_Bc_size; igen++) {
     Gen_3mu_whichRec[igen] = -1;
 
-    //Build the visible Gen Bc (sum of lorentzvectors of the three gen muons)
-    TLorentzVector gen_3mu_4mom = *((TLorentzVector*)Gen_QQ_4mom->ConstructedAt(Gen_Bc_QQ_idx[igen])) +
-                                  *((TLorentzVector*)Gen_mu_4mom->ConstructedAt(Gen_Bc_muW_idx[igen]));
-    new ((*Gen_3mu_4mom)[igen]) TLorentzVector(gen_3mu_4mom);
+    //Build the visible Gen Bc (sum of Lorentz vectors of the three gen muons)
+    LorentzVector gen_3mu_4mom = Gen_QQ_4mom.at(Gen_Bc_QQ_idx[igen]) + Gen_mu_4mom.at(Gen_Bc_muW_idx[igen]);
+    //new ((*Gen_3mu_4mom)[igen]) LorentzVector(gen_3mu_4mom);
+    Gen_3mu_4mom.emplace_back(gen_3mu_4mom);
     Gen_3mu_4mom_pt.push_back(gen_3mu_4mom.Pt());
     Gen_3mu_4mom_eta.push_back(gen_3mu_4mom.Eta());
     Gen_3mu_4mom_y.push_back(gen_3mu_4mom.Rapidity());
@@ -529,7 +538,7 @@ void HiOniaAnalyzer::fillBcMatchingInfo() {
 
       //If the muon is fake, match it to whatever generated particles
       if (genMuWidx == -1) {
-        TLorentzVector* recmuW = (TLorentzVector*)Reco_mu_4mom->ConstructedAt(newmuWidx);
+        LorentzVector recmuW = Reco_mu_4mom.at(newmuWidx);
         bool SureDecayInFlight = (fabs(Reco_mu_simExtType[newmuWidx]) == 4);
         bool Unmatched = (fabs(Reco_mu_simExtType[newmuWidx]) == 0);
         float dRmax = SureDecayInFlight ? 0.3 : (Unmatched ? 0.15 : 0.1);
@@ -545,13 +554,13 @@ void HiOniaAnalyzer::fillBcMatchingInfo() {
 
           if (isChargedTrack(gen->pdgId())  //&& gen->status() == 1
           ) {
-            TLorentzVector genP = lorentzMomentum(gen->p4());
-            float dR = recmuW->DeltaR(genP);
+            LorentzVector genP = gen->p4(); // lorentzMomentum(gen->p4());
+            auto dR = deltaR(recmuW.Eta(),recmuW.Phi(),genP.Eta(),genP.Phi()); // recmuW->DeltaR(genP);
             if (dR < dRmin &&
                 (!Unmatched ||
                  (genP.Pt() >
                   0.6 *
-                      recmuW->Pt()))  // if unmatched, probably a ghost, so at least have a decent Pt agreement (leaving possibility for energy loss of a decayInFlight) for the particle causing the ghost
+                      recmuW.Pt()))  // if unmatched, probably a ghost, so at least have a decent Pt agreement (leaving possibility for energy loss of a decayInFlight) for the particle causing the ghost
             ) {
               dRmin = dR;
               Reco_3mu_muW_trueId[irec] = gen->pdgId();
@@ -579,9 +588,11 @@ void HiOniaAnalyzer::fillBcMatchingInfo() {
         Reco_3mu_muW_trueId[irec] = (Gen_mu_charge[genMuWidx] == -1) ? 13 : (-13);
 
         if (genQQidx > -1) {
+
+	  auto genMuW_Phi = (Gen_mu_4mom.at(genMuWidx)).Phi();
+	  
           for (auto&& bro : _Gen_QQ_MomAndTrkBro[genQQidx]) {
-            if (fabs(bro->pdgId()) == 13 &&
-                fabs(bro->phi() - ((TLorentzVector*)Gen_mu_4mom->ConstructedAt(genMuWidx))->Phi()) < 1e-6) {
+            if (fabs(bro->pdgId()) == 13 && fabs(bro->phi() - genMuW_Phi) < 1e-6) {
               Reco_3mu_muW_isGenJpsiBro[irec] = true;
               break;
             }
@@ -598,16 +609,19 @@ std::pair<int, std::pair<float, float> > HiOniaAnalyzer::findGenBcInfo(reco::Gen
   int momBcID = 0;
   float trueLife = -99.;
 
-  TVector3 trueVtx(0.0, 0.0, 0.0);
-  TVector3 trueP(0.0, 0.0, 0.0);
-  TVector3 trueVtxMom(0.0, 0.0, 0.0);
+  //TVector3 trueVtx(0.0, 0.0, 0.0);
+  //TVector3 trueP(0.0, 0.0, 0.0);
+  //TVector3 trueVtxMom(0.0, 0.0, 0.0);
 
-  trueVtx.SetXYZ(genJpsi->vertex().x(), genJpsi->vertex().y(), genJpsi->vertex().z());
-  trueVtxMom.SetXYZ(genBc->vertex().x(), genBc->vertex().y(), genBc->vertex().z());
-  trueP.SetXYZ(genBc->momentum().x(), genBc->momentum().y(), genBc->momentum().z());
+  //trueVtx.SetXYZ(genJpsi->vertex().x(), genJpsi->vertex().y(), genJpsi->vertex().z());
+  //trueVtxMom.SetXYZ(genBc->vertex().x(), genBc->vertex().y(), genBc->vertex().z());
+  //trueP.SetXYZ(genBc->momentum().x(), genBc->momentum().y(), genBc->momentum().z());
 
-  TVector3 vdiff = trueVtx - trueVtxMom;
-  trueLife = vdiff.Perp() * BcPDGMass / trueP.Perp();
+  math::XYZPoint trueVtx = genJpsi->vertex();
+  math::XYZPoint trueVtxMom = genBc->vertex();
+  
+  auto vdiff = trueVtx - trueVtxMom;
+  trueLife = std::sqrt(vdiff.Perp2()) * genBc->p4().mass() / genBc->p4().pt();
 
   std::pair<float, float> trueLifePair = std::make_pair(trueLife, trueLife);
   std::pair<int, std::pair<float, float> > result = std::make_pair(momBcID, trueLifePair);
