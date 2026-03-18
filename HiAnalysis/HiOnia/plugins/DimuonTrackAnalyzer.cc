@@ -24,13 +24,13 @@ void HiOniaAnalyzer::fillTreeDimuTrk(int count) {
     } else {
       Reco_3mu_charge[Reco_3mu_size] = muon1->charge() + muon2->charge() + trk3->charge();
 
-      LorentzVector vMuon1 = muon1->p4(); // lorentzMomentum(muon1->p4());
-      LorentzVector vMuon2 = muon2->p4(); //lorentzMomentum(muon2->p4());
-      LorentzVector vTrk3 = trk3->p4(); // lorentzMomentum(trk3->p4());
+      LorentzVector vMuon1 = muon1->p4();
+      LorentzVector vMuon2 = muon2->p4();
+      LorentzVector vTrk3 = trk3->p4();
 
-      int mu1_idx = IndexOfThisMuon(&vMuon1);
-      int mu2_idx = IndexOfThisMuon(&vMuon2);
-      int trk3_idx = IndexOfThisTrack(&vTrk3);
+      int mu1_idx = IndexOfThisMuon(muon1->pt());
+      int mu2_idx = IndexOfThisMuon(muon2->pt());
+      int trk3_idx = IndexOfThisTrack(trk3->pt());
 
       //The dimuon has to pass the Jpsi kinematic cuts
       Reco_3mu_QQ1_idx[Reco_3mu_size] = IndexOfThisJpsi(mu1_idx, mu2_idx);
@@ -38,10 +38,8 @@ void HiOniaAnalyzer::fillTreeDimuTrk(int count) {
         return;
       }
 
-      LorentzVector vBc = aBcCand->p4(); // lorentzMomentum(aBcCand->p4());
+      LorentzVector vBc = aBcCand->p4(); 
 
-      Reco_3mu_4mom.emplace_back(vBc);
-      //new ((*Reco_3mu_4mom)[Reco_3mu_size]) LorentzVector(vBc);
       Reco_3mu_4mom_pt.push_back(vBc.Pt());
       Reco_3mu_4mom_eta.push_back(vBc.Eta());
       Reco_3mu_4mom_y.push_back(vBc.Rapidity());
@@ -66,12 +64,9 @@ void HiOniaAnalyzer::fillTreeDimuTrk(int count) {
         RefVtx_yError = (*aBcCand->userData<reco::Vertex>("PVwithmuons")).yError();
         RefVtx_zError = (*aBcCand->userData<reco::Vertex>("PVwithmuons")).zError();
       } else {
-        cout << "HiOniaAnalyzer::fillTreeDimuTrk: no PVfor muon pair stored" << endl;
+        cout << "HiOniaAnalyzer::fillTreeDimuTrk: no PVf or muon pair stored" << endl;
         return;
       }
-
-      //new ((*Reco_3mu_vtx)[Reco_3mu_size]) TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z());
-      //Reco_3mu_vtx.emplace_back(TVector3(RefVtx.X(), RefVtx.Y(), RefVtx.Z()));
 
       Reco_3mu_vtx_xpos.emplace_back(RefVtx.X());
       Reco_3mu_vtx_ypos.emplace_back(RefVtx.Y());
@@ -206,11 +201,11 @@ void HiOniaAnalyzer::fillTreeDimuTrk(int count) {
       }
 
       //Correct the Bc mass for the momentum of the neutrino, transverse to the Bc flight direction
-      float Mtrimu = vBc.M();
+      //float Mtrimu = vBc.M();
       float Ptrimu = vBc.P();
       float sinalpha = sin(acos(Reco_3mu_cosAlpha3D[Reco_3mu_size]));
       float PperpTrimu = sinalpha * Ptrimu;
-      Reco_3mu_CorrM[Reco_3mu_size] = sqrt(Mtrimu * Mtrimu + PperpTrimu * PperpTrimu) + PperpTrimu;
+      Reco_3mu_CorrM[Reco_3mu_size] = sqrt(vBc.M2() + PperpTrimu * PperpTrimu) + PperpTrimu;
 
       if (_useSVfinder && SVs.isValid() && !SVs->empty()) {
         Reco_3mu_NbMuInSameSV[Reco_3mu_size] = MuInSV(vMuon1, vMuon2, vTrk3);

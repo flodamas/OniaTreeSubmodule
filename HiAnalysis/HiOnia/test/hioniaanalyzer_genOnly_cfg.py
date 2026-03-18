@@ -6,7 +6,6 @@ from Configuration.StandardSequences.Eras import eras
 
 isMC = True # if input is MONTECARLO: True or if it's DATA: False
 pdgId = 443 # J/Psi : 443, Y(1S) : 553
-useMomFormat = "array" # default "array" for TClonesArray of TLorentzVector. Use "vector" for std::vector<float> of pt, eta, phi, M
 
 #----------------------------------------------------------------------------
 
@@ -58,7 +57,6 @@ oniaTreeAnalyzer(process, isMC=isMC, pdgID=pdgId, outputFileName=options.outputF
 
 process.oniaTreeAna = cms.Path(process.oniaTreeAna)
 
-process.hionia.mom4format       = cms.string(useMomFormat)
 process.hionia.isHI = cms.untracked.bool(False)
 
 process.oniaTreeAna = cms.Path(process.genMuons * process.hionia)

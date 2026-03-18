@@ -22,9 +22,6 @@
 #include <utility>
 
 #include <TTree.h>
-//#include <TLorentzVector.h>
-//#include <TVector3.h>
-//#include <TClonesArray.h>
 #include <TRegexp.h>
 
 // user include files
@@ -104,8 +101,8 @@ private:
                         bool (HiOniaAnalyzer::*callFunc3)(const reco::TrackRef));
 
   reco::GenParticleRef findDaughterRef(reco::GenParticleRef GenParticleDaughter, int GenParticlePDG);
-  int IndexOfThisMuon(LorentzVector* v1, bool isGen = false);
-  int IndexOfThisTrack(LorentzVector* v1, bool isGen = false);
+  int IndexOfThisMuon(const float pt,, bool isGen = false);
+  int IndexOfThisTrack(const float pt,, bool isGen = false);
   int IndexOfThisJpsi(int mu1_idx, int mu2_idx, int flipJpsi = 0);
   void fillGenInfo();
   void fillMuMatchingInfo();
@@ -122,8 +119,7 @@ private:
   std::pair<int, std::pair<float, float> > findGenBcInfo(reco::GenParticleRef genBc, const reco::GenParticle* genJpsi);
 
   void fillRecoMuons(int theCentralityBin);
-  bool isMuonInAccept(const pat::Muon* aMuon, std::string muonType);
-  bool isTrkInMuonAccept(LorentzVector trk4mom, std::string muonType);
+  bool isInAcceptance(const float eta, const float pt, std::string muonType);
 
   bool isSoftMuonBase(const pat::Muon* aMuon);
   bool isHybridSoftMuon(const pat::Muon* aMuon);
@@ -157,7 +153,6 @@ private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override{};
 
-  //TLorentzVector lorentzMomentum(const reco::Candidate::LorentzVector& p);
   int muonIDmask(const pat::Muon* muon);
 
   // ----------member data ---------------------------
@@ -195,40 +190,6 @@ private:
 
   // TTree
   TTree* myTree;
-  /*
-  TClonesArray* Reco_mu_4mom;
-  TClonesArray* Reco_mu_L1_4mom;
-  TClonesArray* Reco_QQ_4mom;
-  TClonesArray* Reco_QQ_mumi_4mom;
-  TClonesArray* Reco_QQ_mupl_4mom;
-  TClonesArray* Reco_3mu_4mom;
-  TClonesArray* Reco_QQ_vtx;
-  TClonesArray* Reco_3mu_vtx;
-  TClonesArray* Reco_trk_4mom;
-  TClonesArray* Reco_trk_vtx;
-  TClonesArray* Gen_Bc_4mom;
-  TClonesArray* Gen_Bc_nuW_4mom;
-  TClonesArray* Gen_3mu_4mom;
-
-  TClonesArray* Gen_mu_4mom;
-  TClonesArray* Gen_QQ_4mom;
-  */
-
-  std::vector<LorentzVector> Reco_mu_4mom;
-  std::vector<LorentzVector> Reco_mu_L1_4mom;
-  std::vector<LorentzVector> Reco_QQ_4mom;
-  std::vector<LorentzVector> Reco_QQ_mumi_4mom;
-  std::vector<LorentzVector> Reco_QQ_mupl_4mom;
-  std::vector<LorentzVector> Reco_3mu_4mom;
-  //std::vector<TVector3> Reco_QQ_vtx;
-  //std::vector<TVector3> Reco_3mu_vtx;
-  std::vector<LorentzVector> Reco_trk_4mom;
-  //std::vector<TVector3> Reco_trk_vtx;
-  std::vector<LorentzVector> Gen_Bc_4mom;
-  std::vector<LorentzVector> Gen_Bc_nuW_4mom;
-  std::vector<LorentzVector> Gen_3mu_4mom;
-  std::vector<LorentzVector> Gen_mu_4mom;
-  std::vector<LorentzVector> Gen_QQ_4mom;
 
 
   std::vector<float> Reco_QQ_vtx_xpos;
@@ -569,7 +530,6 @@ private:
   edm::EDGetTokenT<reco::EvtPlaneCollection> _evtPlaneTagToken;
   std::string _histfilename;
   std::string _datasetname;
-  std::string _mom4format;
   std::string _muonSel;
 
   std::vector<double> _centralityranges;

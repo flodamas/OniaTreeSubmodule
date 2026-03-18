@@ -25,7 +25,6 @@ keepExtraColl  = False # General Tracks + Stand Alone Muons + Converted Photon c
 useSVfinder    = False # External SV finder to check if the muons are from a resolved SV
 miniAOD        = True # whether the input file is in miniAOD format (default is AOD)
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
-useMomFormat = "vector" # default "array" for TClonesArray of TLorentzVector. Use "vector" for std::vector<float> of pt, eta, phi, M
 #----------------------------------------------------------------------------
 
 # Print Onia Tree settings:
@@ -140,7 +139,6 @@ process.hionia.AtLeastOneCand   = cms.bool(atLeastOneCand)
 process.hionia.OneMatchedHLTMu  = cms.int32(OneMatchedHLTMu)
 process.hionia.useSVfinder      = cms.bool(useSVfinder)
 process.hionia.checkTrigNames   = cms.bool(False)
-process.hionia.mom4format       = cms.string(useMomFormat)
 
 process.oniaTreeAna.replace(process.hionia, process.centralityBin * process.hionia )
 

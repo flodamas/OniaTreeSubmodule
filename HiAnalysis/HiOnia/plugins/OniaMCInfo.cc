@@ -63,9 +63,7 @@ void HiOniaAnalyzer::fillGenInfo() {
         Gen_mu_type[Gen_mu_size] = _isPromptMC ? 0 : 1;  // prompt: 0, non-prompt: 1
         Gen_mu_charge[Gen_mu_size] = gen->charge();
 
-        LorentzVector muonLV = gen->p4();// lorentzMomentum(gen->p4());
-        //new ((*Gen_mu_4mom)[Gen_mu_size]) LorentzVector(muonLV);
-	Gen_mu_4mom.emplace_back(muonLV);
+        LorentzVector muonLV = gen->p4();
         Gen_mu_4mom_pt.push_back(muonLV.Pt());
         Gen_mu_4mom_eta.push_back(muonLV.Eta());
         Gen_mu_4mom_phi.push_back(muonLV.Phi());
@@ -100,24 +98,19 @@ void HiOniaAnalyzer::fillGenInfo() {
             Gen_QQ_momId[Gen_QQ_size] = _Gen_QQ_MomAndTrkBro[Gen_QQ_size][0]->pdgId();
           }
 
-          LorentzVector quarkoniumLV = gen->p4(); // lorentzMomentum(gen->p4());
-          //new ((*Gen_QQ_4mom)[Gen_QQ_size]) LorentzVector(quarkoniumLV);
-	  Gen_QQ_4mom.emplace_back(quarkoniumLV);
-	  Gen_QQ_4mom_pt.push_back(quarkoniumLV.Pt());
+          LorentzVector quarkoniumLV = gen->p4();
+      	  Gen_QQ_4mom_pt.push_back(quarkoniumLV.Pt());
           Gen_QQ_4mom_eta.push_back(quarkoniumLV.Eta());
           Gen_QQ_4mom_y.push_back(quarkoniumLV.Rapidity());
           Gen_QQ_4mom_phi.push_back(quarkoniumLV.Phi());
           Gen_QQ_4mom_m.push_back(quarkoniumLV.M());
 
-          LorentzVector vMuon1 = genMuon1->p4(); // lorentzMomentum(genMuon1->p4());
-          LorentzVector vMuon2 = genMuon2->p4(); // lorentzMomentum(genMuon2->p4());
-
           if (genMuon1->charge() > genMuon2->charge()) {
-            Gen_QQ_mupl_idx[Gen_QQ_size] = IndexOfThisMuon(&vMuon1, true);
-            Gen_QQ_mumi_idx[Gen_QQ_size] = IndexOfThisMuon(&vMuon2, true);
+            Gen_QQ_mupl_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon1->pt(), true);
+            Gen_QQ_mumi_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon2->pt(), true);
           } else {
-            Gen_QQ_mupl_idx[Gen_QQ_size] = IndexOfThisMuon(&vMuon2, true);
-            Gen_QQ_mumi_idx[Gen_QQ_size] = IndexOfThisMuon(&vMuon1, true);
+            Gen_QQ_mupl_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon2->pt(), true);
+            Gen_QQ_mumi_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon1->pt(), true);
           }
 
           if (_doTrimuons) {
@@ -160,22 +153,17 @@ void HiOniaAnalyzer::fillGenInfo() {
                   std::pair<int, std::pair<float, float> > MCinfo = findGenBcInfo(genBc, gen);
                   Gen_Bc_ctau[Gen_Bc_size] = 10.0 * MCinfo.second.first;
 
-                  LorentzVector BcLV = genBc->p4(); // lorentzMomentum(genBc->p4());
-                  //new ((*Gen_Bc_4mom)[Gen_Bc_size]) LorentzVector(BcLV);
-		  Gen_Bc_4mom.emplace_back(BcLV);
+                  LorentzVector BcLV = genBc->p4();
                   Gen_Bc_4mom_pt.push_back(BcLV.Pt());
                   Gen_Bc_4mom_eta.push_back(BcLV.Eta());
                   Gen_Bc_4mom_y.push_back(BcLV.Rapidity());
                   Gen_Bc_4mom_phi.push_back(BcLV.Phi());
                   Gen_Bc_4mom_m.push_back(BcLV.M());
 
-                  LorentzVector vmuW = genmuW->p4(); // lorentzMomentum(genmuW->p4());
-                  Gen_Bc_muW_idx[Gen_Bc_size] = IndexOfThisMuon(&vmuW, true);
+                  Gen_Bc_muW_idx[Gen_Bc_size] = IndexOfThisMuon(genmuW->pt(), true);
 
-                  LorentzVector vnuW = gennuW->p4(); // lorentzMomentum(gennuW->p4());
-                  //new ((*Gen_Bc_nuW_4mom)[Gen_Bc_size]) LorentzVector(vnuW);
-		  Gen_Bc_nuW_4mom.emplace_back(vnuW);
-		  Gen_Bc_nuW_4mom_pt.push_back(vnuW.Pt());
+                  LorentzVector vnuW = gennuW->p4();
+		              Gen_Bc_nuW_4mom_pt.push_back(vnuW.Pt());
                   Gen_Bc_nuW_4mom_eta.push_back(vnuW.Eta());
                   Gen_Bc_nuW_4mom_y.push_back(vnuW.Rapidity());
                   Gen_Bc_nuW_4mom_phi.push_back(vnuW.Phi());
@@ -371,7 +359,7 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
     }
 
     auto vdiff = trueVtx - trueVtxMom;
-    trueLife = std::sqrt(vdiff.Perp2()) * genJpsi->mass() / genJpsi->pt();// trueP.Perp();
+    trueLife = std::sqrt(vdiff.Perp2()) * genJpsi->mass() / genJpsi->pt();
     trueLife3D = std::sqrt(vdiff.Mag2()) * genJpsi->mass() / genJpsi->p();
   }
 
