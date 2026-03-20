@@ -101,8 +101,8 @@ private:
                         bool (HiOniaAnalyzer::*callFunc3)(const reco::TrackRef));
 
   reco::GenParticleRef findDaughterRef(reco::GenParticleRef GenParticleDaughter, int GenParticlePDG);
-  int IndexOfThisMuon(const float pt,, bool isGen = false);
-  int IndexOfThisTrack(const float pt,, bool isGen = false);
+  int IndexOfThisMuon(const float pt, bool isGen = false);
+  int IndexOfThisTrack(const float pt, bool isGen = false);
   int IndexOfThisJpsi(int mu1_idx, int mu2_idx, int flipJpsi = 0);
   void fillGenInfo();
   void fillMuMatchingInfo();
@@ -191,6 +191,9 @@ private:
   // TTree
   TTree* myTree;
 
+  std::vector<LorentzVector> Gen_mu_4mom;
+  std::vector<LorentzVector> Gen_QQ_4mom;
+  std::vector<LorentzVector> Reco_mu_4mom;
 
   std::vector<float> Reco_QQ_vtx_xpos;
   std::vector<float> Reco_QQ_vtx_ypos;

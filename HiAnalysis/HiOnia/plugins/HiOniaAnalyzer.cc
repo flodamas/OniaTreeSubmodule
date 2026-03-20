@@ -467,7 +467,8 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
     Reco_mu_charge[Reco_mu_size] = muon->charge();
     Reco_mu_type[Reco_mu_size] = iType;
 
-    LorentzVector vMuon = muon->p4(); // lorentzMomentum(muon->p4());
+    LorentzVector vMuon = muon->p4();
+    Reco_mu_4mom.emplace_back(vMuon);
     
     Reco_mu_4mom_pt.push_back(vMuon.pt());
     Reco_mu_4mom_eta.push_back(vMuon.eta());
@@ -495,8 +496,8 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
     reco::TrackRef bestTrack = muon->muonBestTrack();
 
     if (!_theMinimumFlag) {
-      Reco_mu_InTightAcc[Reco_mu_size] = isMuonInAccept(muon, "GLB");
-      Reco_mu_InLooseAcc[Reco_mu_size] = isMuonInAccept(muon, "GLBSOFT");
+      Reco_mu_InTightAcc[Reco_mu_size] = isInAcceptance(vMuon.eta(), vMuon.pt(), "GLB");
+      Reco_mu_InLooseAcc[Reco_mu_size] = isInAcceptance(vMuon.eta(), vMuon.pt(), "GLBSOFT");
       Reco_mu_SelectionType[Reco_mu_size] = muonIDmask(muon);
       Reco_mu_StationsMatched[Reco_mu_size] = muon->numberOfMatchedStations();
       Reco_mu_isPF[Reco_mu_size] = muon->isPFMuon();
@@ -989,11 +990,11 @@ void HiOniaAnalyzer::InitEvent() {
   Reco_QQ_vtx_ypos.clear();
   Reco_QQ_vtx_zpos.clear();
   
+  Reco_mu_4mom.clear();
   Reco_mu_4mom_pt.clear();
   Reco_mu_4mom_eta.clear();
   Reco_mu_4mom_phi.clear();
   Reco_mu_4mom_m.clear();
-  Reco_mu_L1_4mom.clear();
   Reco_mu_L1_4mom_pt.clear();
   Reco_mu_L1_4mom_eta.clear();
   Reco_mu_L1_4mom_phi.clear();
@@ -1010,6 +1011,7 @@ void HiOniaAnalyzer::InitEvent() {
   }
 
   if (_isMC) {
+    Gen_QQ_4mom.clear();
     Gen_QQ_4mom_pt.clear();
     Gen_QQ_4mom_eta.clear();
     Gen_QQ_4mom_y.clear();
@@ -1146,8 +1148,8 @@ void HiOniaAnalyzer::fillRecoTracks() {
       
       mapTrkMomToIndex_[FloatToIntkey(vTrack.Pt())] = Reco_trk_size;
 
-      Reco_trk_InLooseAcc[Reco_trk_size] = isTrkInMuonAccept(vTrack, "GLBSOFT");
-      Reco_trk_InTightAcc[Reco_trk_size] = isTrkInMuonAccept(vTrack, "GLB");
+      Reco_trk_InLooseAcc[Reco_trk_size] = isInAcceptance(vTrack.Eta(), vTrack.Pt(), "GLBSOFT");
+      Reco_trk_InTightAcc[Reco_trk_size] = isInAcceptance(vTrack.Eta(), vTrack.Pt(), "GLB");
 
       Reco_trk_4mom_pt.push_back(vTrack.Pt());
       Reco_trk_4mom_eta.push_back(vTrack.Eta());

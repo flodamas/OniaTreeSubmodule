@@ -64,6 +64,7 @@ void HiOniaAnalyzer::fillGenInfo() {
         Gen_mu_charge[Gen_mu_size] = gen->charge();
 
         LorentzVector muonLV = gen->p4();
+        Gen_mu_4mom.emplace_back(muonLV);
         Gen_mu_4mom_pt.push_back(muonLV.Pt());
         Gen_mu_4mom_eta.push_back(muonLV.Eta());
         Gen_mu_4mom_phi.push_back(muonLV.Phi());
@@ -99,6 +100,7 @@ void HiOniaAnalyzer::fillGenInfo() {
           }
 
           LorentzVector quarkoniumLV = gen->p4();
+          Gen_QQ_4mom.emplace_back(quarkoniumLV);
       	  Gen_QQ_4mom_pt.push_back(quarkoniumLV.Pt());
           Gen_QQ_4mom_eta.push_back(quarkoniumLV.Eta());
           Gen_QQ_4mom_y.push_back(quarkoniumLV.Rapidity());
