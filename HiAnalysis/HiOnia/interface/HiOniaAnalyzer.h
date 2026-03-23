@@ -115,8 +115,8 @@ private:
   bool isChargedTrack(int pdgId);
   std::vector<reco::GenParticleRef> GenBrothers(reco::GenParticleRef GenParticleMother, int GenJpsiPDG);
   reco::GenParticleRef findMotherRef(reco::GenParticleRef GenParticleMother, int GenParticlePDG);
-  std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > findGenMCInfo(const reco::GenParticle* genJpsi);
-  std::pair<int, std::pair<float, float> > findGenBcInfo(reco::GenParticleRef genBc, const reco::GenParticle* genJpsi);
+  std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > findGenMCInfo(const reco::GenParticle& genJpsi);
+  std::pair<int, std::pair<float, float> > findGenBcInfo(reco::GenParticleRef genBc, const reco::GenParticle genJpsi);
 
   void fillRecoMuons(int theCentralityBin);
   bool isInAcceptance(const float eta, const float pt, std::string muonType);

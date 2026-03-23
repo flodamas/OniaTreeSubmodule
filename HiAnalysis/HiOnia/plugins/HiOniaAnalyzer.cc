@@ -787,54 +787,57 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
       Reco_QQ_NtrkPt04[Reco_QQ_size] = 0;
 
       //--- counting tracks around Jpsi direction ---
-      if (_useGeTracks && !_doDimuTrk && collTracks.isValid()) {
-        for (std::vector<reco::Track>::const_iterator it = collTracks->begin(); it != collTracks->end(); ++it) {
-          const reco::Track* track = &(*it);
 
+      // use deltaR squared, to not compute square roots in the backgroudn!!
+      if (_useGeTracks && !_doDimuTrk && collTracks.isValid()) {
+	for (const auto& track : *collTracks){
+	//for (std::vector<reco::Track>::const_iterator it = collTracks->begin(); it != collTracks->end(); ++it) {
+          //const reco::Track* track = &(*it);
+	  /*
           if (track == nullptr) {
             std::cout << "ERROR: 'track' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
             return;
-          } else {
-            double dz = track->dz(RefVtx);
-            double dzsigma = sqrt(track->dzError() * track->dzError() + RefVtx_zError * RefVtx_zError);
-            double dxy = track->dxy(RefVtx);
-            double dxysigma = sqrt(track->dxyError() * track->dxyError() + RefVtx_xError * RefVtx_yError);
+	    } else {*/
+            double dz = track.dz(RefVtx);
+            double dzsigma = sqrt(track.dzError() * track.dzError() + RefVtx_zError * RefVtx_zError);
+            double dxy = track.dxy(RefVtx);
+            double dxysigma = sqrt(track.dxyError() * track.dxyError() + RefVtx_xError * RefVtx_yError);
 
-            if (track->qualityByName("highPurity") && track->pt() > 0.2 && std::abs(track->eta()) < 2.4 &&
-                track->ptError() / track->pt() < 0.1 && std::abs(dz / dzsigma) < 3.0 && std::abs(dxy / dxysigma) < 3.0) {
+            if (track.qualityByName("highPurity") && track.pt() > 0.2 && std::abs(track.eta()) < 2.4 &&
+                track.ptError() / track.pt() < 0.1 && std::abs(dz / dzsigma) < 3.0 && std::abs(dxy / dxysigma) < 3.0) {
               Reco_QQ_NtrkPt02[Reco_QQ_size]++;
-              if (track->pt() > 0.3)
+              if (track.pt() > 0.3)
                 Reco_QQ_NtrkPt03[Reco_QQ_size]++;
-              if (track->pt() > 0.4) {
+              if (track.pt() > 0.4) {
                 Reco_QQ_NtrkPt04[Reco_QQ_size]++;
 
-                if (iTrack_mupl.charge() == track->charge()) {
-                  double Reco_QQ_mupl_NtrkDeltaR =
-                      deltaR(iTrack_mupl.eta(), iTrack_mupl.phi(), track->eta(), track->phi());
-                  double Reco_QQ_mupl_RelDelPt = abs(1.0 - iTrack_mupl.pt() / track->pt());
+                if (iTrack_mupl.charge() == track.charge()) {
+                  double Reco_QQ_mupl_NtrkDeltaR2 =
+                      deltaR2(iTrack_mupl.eta(), iTrack_mupl.phi(), track.eta(), track.phi());
+                  double Reco_QQ_mupl_RelDelPt = abs(1.0 - iTrack_mupl.pt() / track.pt());
 
-                  if (Reco_QQ_mupl_NtrkDeltaR < 0.001 && Reco_QQ_mupl_RelDelPt < 0.001)
+                  if (Reco_QQ_mupl_NtrkDeltaR2 < 0.001 * 0.001 && Reco_QQ_mupl_RelDelPt < 0.001)
                     continue;
                 } else {
-                  double Reco_QQ_mumi_NtrkDeltaR =
-                      deltaR(iTrack_mumi.eta(), iTrack_mumi.phi(), track->eta(), track->phi());
-                  double Reco_QQ_mumi_RelDelPt = abs(1.0 - iTrack_mumi.pt() / track->pt());
-                  if (Reco_QQ_mumi_NtrkDeltaR < 0.001 && Reco_QQ_mumi_RelDelPt < 0.001)
+                  double Reco_QQ_mumi_NtrkDeltaR2 =
+                      deltaR2(iTrack_mumi.eta(), iTrack_mumi.phi(), track.eta(), track.phi());
+                  double Reco_QQ_mumi_RelDelPt = abs(1.0 - iTrack_mumi.pt() / track.pt());
+                  if (Reco_QQ_mumi_NtrkDeltaR2 < 0.001 * 0.001 && Reco_QQ_mumi_RelDelPt < 0.001)
                     continue;
                 }
 
-                double Reco_QQ_NtrkDeltaR = deltaR(aDimuonCandidate->eta(), aDimuonCandidate->phi(), track->eta(), track->phi());
-                if (Reco_QQ_NtrkDeltaR < 0.3)
+                double Reco_QQ_NtrkDeltaR2 = deltaR2(aDimuonCandidate->eta(), aDimuonCandidate->phi(), track.eta(), track.phi());
+                if (Reco_QQ_NtrkDeltaR2 < 0.3 * 0.3)
                   Reco_QQ_NtrkDeltaR03[Reco_QQ_size]++;
-                if (Reco_QQ_NtrkDeltaR < 0.4)
+                if (Reco_QQ_NtrkDeltaR2 < 0.4 * 0.4)
                   Reco_QQ_NtrkDeltaR04[Reco_QQ_size]++;
-                if (Reco_QQ_NtrkDeltaR < 0.5)
+                if (Reco_QQ_NtrkDeltaR2 < 0.5 * 0.5)
                   Reco_QQ_NtrkDeltaR05[Reco_QQ_size]++;
               }
             }
           }
         }
-      }
+      //}
     }
   } else {
     std::cout << "ERROR: 'aJpsiCand' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
@@ -1017,6 +1020,8 @@ void HiOniaAnalyzer::InitEvent() {
     Gen_QQ_4mom_y.clear();
     Gen_QQ_4mom_phi.clear();
     Gen_QQ_4mom_m.clear();
+
+    Gen_mu_4mom.clear();
     Gen_mu_4mom_pt.clear();
     Gen_mu_4mom_eta.clear();
     Gen_mu_4mom_phi.clear();
@@ -1113,15 +1118,15 @@ void HiOniaAnalyzer::fillRecoTracks() {
       if (_isMC) {
 	      Reco_trk_whichGenmu[Reco_trk_size] = -1;
 
-        float dRmax = 0.05;  //dR max of the matching to gen muons//same than for reco-gen muon matching
-        float dR;
+        float dRmax2 = 0.05 * 0.05;  //dR max of the matching to gen muons//same than for reco-gen muon matching
+        float dR2;
         float dPtmax = 0.5;
         for (int igen = 0; igen < Gen_mu_size; igen++) {
           LorentzVector genmu = Gen_mu_4mom.at(igen);
-          dR = deltaR(genmu.eta(), genmu.phi(), vTrack.eta(), vTrack.phi()); // genmu->DeltaR(vTrack);
-          if (dR <= dRmax && track->charge() == Gen_mu_charge[igen] &&
+          dR2 = deltaR2(genmu.eta(), genmu.phi(), vTrack.eta(), vTrack.phi()); // genmu->DeltaR(vTrack);
+          if (dR2 <= dRmax2 && track->charge() == Gen_mu_charge[igen] &&
               abs(genmu.Pt() - vTrack.Pt()) / genmu.Pt() < dPtmax) {
-            dRmax = dR;
+            dRmax2 = dR2;
             Reco_trk_whichGenmu[Reco_trk_size] = igen;
           }
         }

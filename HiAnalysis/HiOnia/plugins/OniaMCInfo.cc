@@ -55,16 +55,16 @@ void HiOniaAnalyzer::fillGenInfo() {
 
   if (collGenParticles.isValid()) {
     //Fill the single muons, before the dimuons (important)
-    for (std::vector<reco::GenParticle>::const_iterator it = collGenParticles->begin(); it != collGenParticles->end();
-         ++it) {
-      const reco::GenParticle* gen = &(*it);
+    //for (std::vector<reco::GenParticle>::const_iterator it = collGenParticles->begin(); it != collGenParticles->end(); ++it) {
+    for (const auto& gen : *collGenParticles){
+      //const reco::GenParticle* gen = &(*it);
 
-      if (abs(gen->pdgId()) == 13 && (gen->status() == 1)) {
+      if (abs(gen.pdgId()) == 13 && (gen.status() == 1)) {
         Gen_mu_type[Gen_mu_size] = _isPromptMC ? 0 : 1;  // prompt: 0, non-prompt: 1
-        Gen_mu_charge[Gen_mu_size] = gen->charge();
+        Gen_mu_charge[Gen_mu_size] = gen.charge();
 
-        LorentzVector muonLV = gen->p4();
-        Gen_mu_4mom.emplace_back(muonLV);
+        LorentzVector muonLV = gen.p4();
+	Gen_mu_4mom.emplace_back(muonLV);
         Gen_mu_4mom_pt.push_back(muonLV.Pt());
         Gen_mu_4mom_eta.push_back(muonLV.Eta());
         Gen_mu_4mom_phi.push_back(muonLV.Phi());
@@ -77,14 +77,16 @@ void HiOniaAnalyzer::fillGenInfo() {
       }
     }
 
-    for (std::vector<reco::GenParticle>::const_iterator it = collGenParticles->begin(); it != collGenParticles->end();
-         ++it) {
-      const reco::GenParticle* gen = &(*it);
-
-      if (abs(gen->pdgId()) == _oniaPDG && (gen->status() == 2 || (abs(gen->pdgId()) == 23 && gen->status() == 62)) &&
-          gen->numberOfDaughters() >= 2) {
-        reco::GenParticleRef genMuon1 = findDaughterRef(gen->daughterRef(0), gen->pdgId());
-        reco::GenParticleRef genMuon2 = findDaughterRef(gen->daughterRef(1), gen->pdgId());
+    for (const auto& gen : *collGenParticles){
+    
+      //for (std::vector<reco::GenParticle>::const_iterator it = collGenParticles->begin(); it != collGenParticles->end(); ++it) {
+      //const reco::GenParticle* gen = &(*it);
+      
+      
+      if (abs(gen.pdgId()) == _oniaPDG && (gen.status() == 2 || (abs(gen.pdgId()) == 23 && gen.status() == 62)) &&
+          gen.numberOfDaughters() >= 2) {
+        reco::GenParticleRef genMuon1 = findDaughterRef(gen.daughterRef(0), gen.pdgId());
+        reco::GenParticleRef genMuon2 = findDaughterRef(gen.daughterRef(1), gen.pdgId());
 
         if (abs(genMuon1->pdgId()) == 13 && abs(genMuon2->pdgId()) == 13 && (genMuon1->status() == 1) &&
             (genMuon2->status() == 1)) {
@@ -99,8 +101,8 @@ void HiOniaAnalyzer::fillGenInfo() {
             Gen_QQ_momId[Gen_QQ_size] = _Gen_QQ_MomAndTrkBro[Gen_QQ_size][0]->pdgId();
           }
 
-          LorentzVector quarkoniumLV = gen->p4();
-          Gen_QQ_4mom.emplace_back(quarkoniumLV);
+          LorentzVector quarkoniumLV = gen.p4();
+	  Gen_QQ_4mom.emplace_back(quarkoniumLV);
       	  Gen_QQ_4mom_pt.push_back(quarkoniumLV.Pt());
           Gen_QQ_4mom_eta.push_back(quarkoniumLV.Eta());
           Gen_QQ_4mom_y.push_back(quarkoniumLV.Rapidity());
@@ -118,7 +120,7 @@ void HiOniaAnalyzer::fillGenInfo() {
           if (_doTrimuons) {
             //GenInfo for the Bc and the daughter muon from the W daughter of the Bc. Beware, this is designed for generated Bc's having QQ as a daughter!!
             std::pair<bool, reco::GenParticleRef> findBcMom = findBcMotherRef(
-                findMotherRef(gen->motherRef(), gen->pdgId()), _BcPDG);  //the boolean says if the Bc mother was found
+                findMotherRef(gen.motherRef(), gen.pdgId()), _BcPDG);  //the boolean says if the Bc mother was found
 
             if (findBcMom.first) {
               if (Gen_QQ_Bc_idx[Gen_QQ_size] > -1) {
@@ -165,7 +167,7 @@ void HiOniaAnalyzer::fillGenInfo() {
                   Gen_Bc_muW_idx[Gen_Bc_size] = IndexOfThisMuon(genmuW->pt(), true);
 
                   LorentzVector vnuW = gennuW->p4();
-		              Gen_Bc_nuW_4mom_pt.push_back(vnuW.Pt());
+		  Gen_Bc_nuW_4mom_pt.push_back(vnuW.Pt());
                   Gen_Bc_nuW_4mom_eta.push_back(vnuW.Eta());
                   Gen_Bc_nuW_4mom_y.push_back(vnuW.Rapidity());
                   Gen_Bc_nuW_4mom_phi.push_back(vnuW.Phi());
@@ -282,12 +284,12 @@ std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleR
 };
 
 std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAnalyzer::findGenMCInfo(
-    const reco::GenParticle* genJpsi) {
+    const reco::GenParticle& genJpsi) {
   float trueLife = -99.;
   float trueLife3D = -99.;
   std::vector<reco::GenParticleRef> JpsiBrothers;
 
-  if (genJpsi->numberOfMothers() > 0) {
+  if (genJpsi.numberOfMothers() > 0) {
     //TVector3 trueVtx(0.0, 0.0, 0.0);
     //TVector3 trueP(0.0, 0.0, 0.0);
     math::XYZPoint trueVtxMom(0.0, 0.0, 0.0);
@@ -296,11 +298,11 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
     //trueP.SetXYZ(genJpsi->momentum().x(), genJpsi->momentum().y(), genJpsi->momentum().z());
     
 
-    math::XYZPoint trueVtx = genJpsi->vertex(); //(genJpsi->vertex().x(), genJpsi->vertex().y(), genJpsi->vertex().z());
+    math::XYZPoint trueVtx = genJpsi.vertex(); //(genJpsi->vertex().x(), genJpsi->vertex().y(), genJpsi->vertex().z());
     
     bool aBhadron = false;
     reco::GenParticleRef Jpsimom_final;
-    reco::GenParticleRef Jpsimom = findMotherRef(genJpsi->motherRef(), genJpsi->pdgId());
+    reco::GenParticleRef Jpsimom = findMotherRef(genJpsi.motherRef(), genJpsi.pdgId());
 
     if (Jpsimom.isNull()) {
       std::pair<float, float> trueLifePair = std::make_pair(trueLife, trueLife3D);
@@ -355,14 +357,14 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
     if (Jpsimom_final.isNonnull()) {
       trueVtxMom = Jpsimom_final->vertex(); //math::XYZPoint(Jpsimom_final->vertex().x(), Jpsimom_final->vertex().y(), Jpsimom_final->vertex().z());
       if (_genealogyInfo && Reco_3mu_size > 0) {
-        JpsiBrothers = GenBrothers(Jpsimom_final, genJpsi->pdgId());
+        JpsiBrothers = GenBrothers(Jpsimom_final, genJpsi.pdgId());
       }
       JpsiBrothers.insert(JpsiBrothers.begin(), Jpsimom_final);
     }
 
     auto vdiff = trueVtx - trueVtxMom;
-    trueLife = std::sqrt(vdiff.Perp2()) * genJpsi->mass() / genJpsi->pt();
-    trueLife3D = std::sqrt(vdiff.Mag2()) * genJpsi->mass() / genJpsi->p();
+    trueLife = std::sqrt(vdiff.Perp2()) * genJpsi.mass() / genJpsi.pt();
+    trueLife3D = std::sqrt(vdiff.Mag2()) * genJpsi.mass() / genJpsi.p();
   }
 
   std::pair<float, float> trueLifePair = std::make_pair(trueLife, trueLife3D);

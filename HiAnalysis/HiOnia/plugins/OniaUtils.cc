@@ -21,6 +21,8 @@ void HiOniaAnalyzer::fillMuMatchingInfo() {
 	
         auto genmuMom = Gen_mu_4mom.at(igen).P();
 
+	std::cout << "\n Gen momentum = " << genmuMom << " , Reco momentum = " << Reco_mu_pTrue[irec] << std::endl;
+	
         if (std::abs(genmuMom - Reco_mu_pTrue[irec]) / Reco_mu_pTrue[irec] < 1e-6 &&
             Gen_mu_charge[igen] == Reco_mu_charge[irec]) {
           foundGen = igen;

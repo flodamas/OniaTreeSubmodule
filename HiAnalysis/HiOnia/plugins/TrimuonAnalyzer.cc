@@ -546,7 +546,7 @@ void HiOniaAnalyzer::fillBcMatchingInfo() {
 
           if (isChargedTrack(gen->pdgId())  //&& gen->status() == 1
           ) {
-            LorentzVector genP = gen->p4();
+            LorentzVector genP = gen->p4(); // lorentzMomentum(gen->p4());
             auto dR = deltaR(recmuW.Eta(),recmuW.Phi(),genP.Eta(),genP.Phi()); // recmuW->DeltaR(genP);
             if (dR < dRmin &&
                 (!Unmatched ||
@@ -597,11 +597,11 @@ void HiOniaAnalyzer::fillBcMatchingInfo() {
 };
 
 std::pair<int, std::pair<float, float> > HiOniaAnalyzer::findGenBcInfo(reco::GenParticleRef genBc,
-                                                                       const reco::GenParticle* genJpsi) {
+                                                                       const reco::GenParticle genJpsi) {
   int momBcID = 0;
   float trueLife = -99.;
 
-  math::XYZPoint trueVtx = genJpsi->vertex();
+  math::XYZPoint trueVtx = genJpsi.vertex();
   math::XYZPoint trueVtxMom = genBc->vertex();
   
   auto vdiff = trueVtx - trueVtxMom;
