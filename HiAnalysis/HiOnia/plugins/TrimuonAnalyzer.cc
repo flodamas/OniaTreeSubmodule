@@ -546,8 +546,8 @@ void HiOniaAnalyzer::fillBcMatchingInfo() {
 
           if (isChargedTrack(gen->pdgId())  //&& gen->status() == 1
           ) {
-            LorentzVector genP = gen->p4(); // lorentzMomentum(gen->p4());
-            auto dR = deltaR(recmuW.Eta(),recmuW.Phi(),genP.Eta(),genP.Phi()); // recmuW->DeltaR(genP);
+            LorentzVector genP = gen->p4();
+            auto dR = deltaR(recmuW.Eta(),recmuW.Phi(),genP.Eta(),genP.Phi());
             if (dR < dRmin &&
                 (!Unmatched ||
                  (genP.Pt() >

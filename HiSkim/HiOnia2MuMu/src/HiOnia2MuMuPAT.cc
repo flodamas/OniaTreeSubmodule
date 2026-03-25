@@ -11,7 +11,6 @@
 #include <DataFormats/VertexReco/interface/VertexFwd.h>
 
 //Headers for services and tools
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducer.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
@@ -70,7 +69,6 @@ HiOnia2MuMuPAT::HiOnia2MuMuPAT(const edm::ParameterSet &iConfig)
   produces<pat::CompositeCandidateCollection>("dimutrk");
 };
 
-HiOnia2MuMuPAT::~HiOnia2MuMuPAT(){};
 //
 // member functions
 //
@@ -180,7 +178,7 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
   Vertex thePrimaryV;
   Vertex theBeamSpotV;
 
-  const auto &bField = iSetup.getHandle(magFieldToken_);
+  const auto &bField = iSetup.getData(magFieldToken_);
 
   // get the stored reco BS, and copy its position in a Vertex object (theBeamSpotV)
   Handle<BeamSpot> theBeamSpot;
@@ -214,7 +212,7 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
   MultiTrackKinematicConstraint *jpsi_c = new TwoTrackMassKinematicConstraint(jp_mass);
   KinematicConstrainedVertexFitter KCfitter;
 
-  float BcMass = 6.2745;
+  const float BcMass = 6.2745;
 
   TrackCollection muonLess;  // track collection related to PV, minus the 2 muons (if muonLessPV option is activated)
 
@@ -239,9 +237,9 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
   }
 
   std::vector<pat::Muon> ourMuons;
-  for (View<pat::Muon>::const_iterator it = muons->begin(), itend = muons->end(); it != itend; ++it) {
-    if (lowerPuritySelection_(*it) && (!onlySoftMuons_ || isSoftMuonBase(&(*it)))) {
-      ourMuons.push_back(*it);
+  for (const auto& muon : *muons) {
+    if (lowerPuritySelection_(muon) && (!onlySoftMuons_ || isSoftMuonBase(&(muon)))) {
+      ourMuons.push_back(muon);
     }
   }
   int ourMuNb = ourMuons.size();
@@ -306,10 +304,17 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
       t_tks.push_back(theTTBuilder->build(muon2Trk));  // otherwise the vertex will have transient refs inside.
 
       VtxForInvMass = vtxFitter.vertex(t_tks);
-      MassWErr = massCalculator.invariantMass(VtxForInvMass, muMasses);
-      userFloat["MassErr"] = MassWErr.error();
-
+      
       myVertex = vtxFitter.vertex(t_tks);
+
+      MassWErr = Measurement1D(jpsi.M(), -9999.);
+      if (bField.nominalValue() > 0) {
+	      MassWErr = massCalculator.invariantMass(VtxForInvMass, muMasses);
+      } else {
+	      myVertex = TransientVertex();  // with no arguments it is invalid
+      }
+
+      userFloat["MassErr"] = MassWErr.error();
 
       if (myVertex.isValid()) {
         if (resolveAmbiguity_) {
@@ -321,11 +326,11 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
                   GlobalPoint(myVertex.position().x(), myVertex.position().y(), myVertex.position().z()),
                   GlobalVector(myCand.px(), myCand.py(), myCand.pz()),
                   TrackCharge(0),
-                  &(*bField)),
+                  &(bField)),
               GlobalTrajectoryParameters(GlobalPoint(bs.position().x(), bs.position().y(), bs.position().z()),
                                          GlobalVector(bs.dxdz(), bs.dydz(), 1.),
                                          TrackCharge(0),
-                                         &(*bField)));
+                                         &(bField)));
           float extrapZ = -9E20;
           if (status)
             extrapZ = ttmd.points().first.z();
@@ -923,9 +928,9 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
           bool KCvtxNotFound = true;
           ///////////////// Begin Kinematic Constrained Vertex Fit
           std::vector<RefCountedKinematicParticle> BcDaughters;
-          reco::TransientTrack muon1TT(it.track(), &(*bField));
-          reco::TransientTrack muon2TT(it2.track(), &(*bField));
-          reco::TransientTrack pion3TT(piCand3.track(), &(*bField));
+          reco::TransientTrack muon1TT(it.track(), &(bField));
+          reco::TransientTrack muon2TT(it2.track(), &(bField));
+          reco::TransientTrack pion3TT(piCand3.track(), &(bField));
 
           if (muon1TT.isValid() && muon2TT.isValid() && pion3TT.isValid()) {
             float chi = 0.;
@@ -943,7 +948,6 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
                 KCvtxNotFound = false;
                 //////////////////End Kinematic Constrained Vertex Fit
 
-                //double vtxProb = TMath::Prob(BcVtx->chiSquared(), BcVtx->degreesOfFreedom());
                 userBcFloat["KinConstrainedVtxProb"] = ROOT::Math::chisquared_cdf_c(BcVtx->chiSquared(), BcVtx->degreesOfFreedom());
 
                 // lifetime using PV and vertex from kinematic constrained fit
@@ -1358,12 +1362,6 @@ skipMuonLoop:
   //smart pointer does not work for this variable
   delete jpsi_c;
 };
-
-// ------------ method called once each job just before starting event loop  ------------
-void HiOnia2MuMuPAT::beginJob(){};
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HiOnia2MuMuPAT::endJob(){};
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HiOnia2MuMuPAT);

@@ -55,16 +55,14 @@ void HiOniaAnalyzer::fillGenInfo() {
 
   if (collGenParticles.isValid()) {
     //Fill the single muons, before the dimuons (important)
-    //for (std::vector<reco::GenParticle>::const_iterator it = collGenParticles->begin(); it != collGenParticles->end(); ++it) {
     for (const auto& gen : *collGenParticles){
-      //const reco::GenParticle* gen = &(*it);
 
       if (abs(gen.pdgId()) == 13 && (gen.status() == 1)) {
         Gen_mu_type[Gen_mu_size] = _isPromptMC ? 0 : 1;  // prompt: 0, non-prompt: 1
         Gen_mu_charge[Gen_mu_size] = gen.charge();
 
         LorentzVector muonLV = gen.p4();
-	Gen_mu_4mom.emplace_back(muonLV);
+	      Gen_mu_4mom.emplace_back(muonLV);
         Gen_mu_4mom_pt.push_back(muonLV.Pt());
         Gen_mu_4mom_eta.push_back(muonLV.Eta());
         Gen_mu_4mom_phi.push_back(muonLV.Phi());
@@ -78,10 +76,6 @@ void HiOniaAnalyzer::fillGenInfo() {
     }
 
     for (const auto& gen : *collGenParticles){
-    
-      //for (std::vector<reco::GenParticle>::const_iterator it = collGenParticles->begin(); it != collGenParticles->end(); ++it) {
-      //const reco::GenParticle* gen = &(*it);
-      
       
       if (abs(gen.pdgId()) == _oniaPDG && (gen.status() == 2 || (abs(gen.pdgId()) == 23 && gen.status() == 62)) &&
           gen.numberOfDaughters() >= 2) {
@@ -102,7 +96,7 @@ void HiOniaAnalyzer::fillGenInfo() {
           }
 
           LorentzVector quarkoniumLV = gen.p4();
-	  Gen_QQ_4mom.emplace_back(quarkoniumLV);
+	        Gen_QQ_4mom.emplace_back(quarkoniumLV);
       	  Gen_QQ_4mom_pt.push_back(quarkoniumLV.Pt());
           Gen_QQ_4mom_eta.push_back(quarkoniumLV.Eta());
           Gen_QQ_4mom_y.push_back(quarkoniumLV.Rapidity());
@@ -167,7 +161,7 @@ void HiOniaAnalyzer::fillGenInfo() {
                   Gen_Bc_muW_idx[Gen_Bc_size] = IndexOfThisMuon(genmuW->pt(), true);
 
                   LorentzVector vnuW = gennuW->p4();
-		  Gen_Bc_nuW_4mom_pt.push_back(vnuW.Pt());
+		              Gen_Bc_nuW_4mom_pt.push_back(vnuW.Pt());
                   Gen_Bc_nuW_4mom_eta.push_back(vnuW.Eta());
                   Gen_Bc_nuW_4mom_y.push_back(vnuW.Rapidity());
                   Gen_Bc_nuW_4mom_phi.push_back(vnuW.Phi());
@@ -290,15 +284,9 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
   std::vector<reco::GenParticleRef> JpsiBrothers;
 
   if (genJpsi.numberOfMothers() > 0) {
-    //TVector3 trueVtx(0.0, 0.0, 0.0);
-    //TVector3 trueP(0.0, 0.0, 0.0);
     math::XYZPoint trueVtxMom(0.0, 0.0, 0.0);
 
-    //trueVtx.SetXYZ(genJpsi->vertex().x(), genJpsi->vertex().y(), genJpsi->vertex().z());
-    //trueP.SetXYZ(genJpsi->momentum().x(), genJpsi->momentum().y(), genJpsi->momentum().z());
-    
-
-    math::XYZPoint trueVtx = genJpsi.vertex(); //(genJpsi->vertex().x(), genJpsi->vertex().y(), genJpsi->vertex().z());
+    math::XYZPoint trueVtx = genJpsi.vertex();
     
     bool aBhadron = false;
     reco::GenParticleRef Jpsimom_final;
@@ -355,7 +343,7 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
     }
 
     if (Jpsimom_final.isNonnull()) {
-      trueVtxMom = Jpsimom_final->vertex(); //math::XYZPoint(Jpsimom_final->vertex().x(), Jpsimom_final->vertex().y(), Jpsimom_final->vertex().z());
+      trueVtxMom = Jpsimom_final->vertex();
       if (_genealogyInfo && Reco_3mu_size > 0) {
         JpsiBrothers = GenBrothers(Jpsimom_final, genJpsi.pdgId());
       }

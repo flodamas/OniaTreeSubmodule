@@ -43,19 +43,16 @@ struct GreaterByVProb {
 class HiOnia2MuMuPAT : public edm::stream::EDProducer<> {
 public:
   explicit HiOnia2MuMuPAT(const edm::ParameterSet&);
-  ~HiOnia2MuMuPAT() override;
 
 private:
-  virtual void beginJob();
   void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
   bool isSoftMuonBase(const pat::Muon*);
   const reco::TrackBase::Point rotatePoint(reco::TrackBase::Point PV, reco::TrackBase::Point TrkPoint, int flipJpsi);
   const reco::TrackBase::Vector rotateMomentum(reco::Track trk, int flipJpsi);
-  bool isAbHadron(int pdgID);
-  bool isAMixedbHadron(int pdgID, int momPdgID);
+  bool isAbHadron(int pdgID) const;
+  bool isAMixedbHadron(int pdgID, int momPdgID) const;
   reco::GenParticleRef findMotherRef(reco::GenParticleRef GenParticle, int GenParticlePDG);
-  std::pair<int, std::pair<float, float> > findJpsiMCInfo(reco::GenParticleRef genJpsi);
+  std::pair<int, std::pair<float, float> > findJpsiMCInfo(reco::GenParticleRef genJpsi) const;
 
   // ----------member data ---------------------------
 private:

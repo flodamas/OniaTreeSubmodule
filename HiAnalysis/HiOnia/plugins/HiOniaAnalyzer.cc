@@ -790,14 +790,7 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
 
       // use deltaR squared, to not compute square roots in the backgroudn!!
       if (_useGeTracks && !_doDimuTrk && collTracks.isValid()) {
-	for (const auto& track : *collTracks){
-	//for (std::vector<reco::Track>::const_iterator it = collTracks->begin(); it != collTracks->end(); ++it) {
-          //const reco::Track* track = &(*it);
-	  /*
-          if (track == nullptr) {
-            std::cout << "ERROR: 'track' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
-            return;
-	    } else {*/
+	      for (const auto& track : *collTracks){
             double dz = track.dz(RefVtx);
             double dzsigma = sqrt(track.dzError() * track.dzError() + RefVtx_zError * RefVtx_zError);
             double dxy = track.dxy(RefVtx);
@@ -837,7 +830,6 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
             }
           }
         }
-      //}
     }
   } else {
     std::cout << "ERROR: 'aJpsiCand' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
