@@ -18,7 +18,7 @@ config.JobType.maxJobRuntimeMin = 1200 #2750    # request longer runtime, ~48 ho
 
 
 config.section_("Data")
-config.Data.inputDataset = '/JpsiDimuon_pTHatMin3_HydjetEmbedded_Pythia8_TuneCP5_1510pre6/fdamas-PAT_151X_mcRun3_2025_realistic_HI_v1-5249b5d2d214ceff3b59bef72e572410/USER'
+config.Data.inputDataset = '/DrellYan_HighMass_MadGraph_HydjetEmbedded_1610pre3/fdamas-PATwith161pre4_151X_mcRun3_2025_realistic_HI_v5-eaa0399b9218a690ee453ab5f1aeb831/USER'
 config.Data.inputDBS = 'phys03'
 config.Data.unitsPerJob = 40
 #config.Data.totalUnits = -1
@@ -31,4 +31,4 @@ config.Data.publication = False
 
 config.section_("Site")
 config.Site.storageSite = "T3_CH_CERNBOX"
-config.Site.whitelist = ["T2_US_*","T1_US_*","T2_CH_CERN","T2_FR_*"]
+config.Site.whitelist = ["T2_US_Vanderbilt"]

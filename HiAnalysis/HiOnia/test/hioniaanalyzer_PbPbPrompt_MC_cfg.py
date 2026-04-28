@@ -22,7 +22,7 @@ OneMatchedHLTMu = -1   # Keep only di(tri)muons of which the one(two) muon(s) ar
 keepExtraColl  = False # General Tracks + Stand Alone Muons + Converted Photon collections
 miniAOD        = True # whether the input file is in miniAOD format (default is AOD)
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
-pdgId = 443 # J/Psi : 443, Y(1S) : 553
+pdgId = 23 # J/Psi : 443, Y(1S) : 553
 #----------------------------------------------------------------------------
 
 # Print Onia Tree settings:
@@ -45,7 +45,7 @@ print( "[INFO] UsePropToMuonSt      = " + ("True" if UsePropToMuonSt else "False
 print( " " )
 
 # set up process
-process = cms.Process("HIOnia", eras.Run3_pp_on_PbPb_2025)
+process = cms.Process("HIOnia", eras.Run3_pp_on_PbPb_2026)
 
 # setup 'analysis'  options
 options = VarParsing.VarParsing ('analysis')
@@ -54,9 +54,9 @@ options = VarParsing.VarParsing ('analysis')
 options.outputFile = "Oniatree_MC_miniAOD.root"
 options.secondaryOutputFile = "Jpsi_DataSet.root"
 options.inputFiles =[
-  '/store/user/fdamas/PbPb2025/RunPrepMC/JpsiDimuon_pTHatMin3_HydjetEmbedded_Pythia8_TuneCP5_1510pre6/PAT_151X_mcRun3_2025_realistic_HI_v1/251001_111608/0000/step4_PAT_102.root'
+  '/store/user/fdamas/PbPb2026/RunPrepMC/DrellYan_HighMass_MadGraph_HydjetEmbedded_1610pre3/PATwith161pre4_151X_mcRun3_2025_realistic_HI_v5/260420_113941/0000/step4_PAT_102.root'
 ]
-options.maxEvents = 100 # -1 means all events
+options.maxEvents = -1 # -1 means all events
 
 # Get and parse the command line arguments
 options.parseArguments()
@@ -69,33 +69,21 @@ triggerList    = {
                         "HLT_HIL1DoubleMu0_SQ_v",#2
                         "HLT_HIL2DoubleMu0_Open_v",#3
                         "HLT_HIL2DoubleMu0_SQ_v",#4
-                        "HLT_HIL2DoubleMuOpen_Centrality40to100_v",#5
-                        "HLT_HIL2DoubleMuOpen_OS_v",#6
-                        "HLT_HIL2DoubleMuOpen_SS_v",#7
                         ),
                 # Single Muon Trigger List
                 'SingleMuonTrigger' : cms.vstring(
-                        "HLT_HIL1SingleMu0_Open_v",#8
-                        "HLT_HIL1SingleMu0_v",#9
-                        "HLT_HIL1SingleMu0_Centrality40to100_v",#10
-                        "HLT_HIL1SingleMu0_Centrality30to100_v",#11
-                        "HLT_HIL1SingleMuOpen_Centrality40to100_v",#12
-                        "HLT_HIL1SingleMuOpen_Centrality30to100_v",#13
-                        "HLT_HIL2SingleMu3_Open_v",#14
-                        "HLT_HIL2SingleMu5_v",#15
-                        "HLT_HIL2SingleMu7_v",#16
-                        "HLT_HIL2SingleMu12_v",#17
-                        "HLT_HIL2SingleMu0_Centrality40to100_v",#18
-                        "HLT_HIL2SingleMu0_Centrality30to100_v",#19
-                        "HLT_HIL2SingleMuOpen_Centrality30to100_v",#20
-                        "HLT_HIMinimumBiasHF1AND_v", #21
-                        "HLT_HIMinimumBiasHF1ANDZDC1nOR_v", #22
+                        "HLT_HIL1SingleMu0_Open_v",#5
+                        "HLT_HIL1SingleMu0_v",#6
+                        "HLT_HIL2SingleMu3_Open_v",#7
+                        "HLT_HIL2SingleMu5_v",#8
+                        "HLT_HIL2SingleMu7_v",#9
+                        "HLT_HIL2SingleMu12_v",#10
 			)
 }
 
 ## Global tag
 if isMC:
-  globalTag = '151X_mcRun3_2025_realistic_HI_v3' #for Run3 MC : phase1_2023_realistic_hi
+  globalTag = '151X_mcRun3_2025_realistic_HI_v5' #for Run3 MC : phase1_2023_realistic_hi
 else:
   globalTag = '132X_dataRun3_Prompt_v7' # 'auto:run3_data_prompt'
 
@@ -135,7 +123,7 @@ oniaTreeAnalyzer(process,
                  OnlySingleMuons=False
 )
 
-#process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("8 < mass && mass < 14 && charge==0 && abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 25")
+process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 20 && charge==0 && abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 25")
 #process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 5 || isPFMuon || (pt>1.2 && (isGlobalMuon || isStandAloneMuon)) || (isTrackerMuon && track.quality('highPurity'))")
 #process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("") ## No need to repeat lowerPuritySelection in there, already included
 if applyCuts:
@@ -201,7 +189,7 @@ process.oniaTreeAna.replace(process.hionia, process.centralityBin * process.hion
 if applyEventSel:
   process.load('HeavyIonsAnalysis.EventAnalysis.collisionEventSelection_cff')
   process.load('HeavyIonsAnalysis.EventAnalysis.hffilter_cfi')
-  process.oniaTreeAna.replace(process.patMuonSequence, process.phfCoincFilter2Th4 * process.primaryVertexFilter * process.clusterCompatibilityFilter * process.patMuonSequence )
+  process.oniaTreeAna.replace(process.patMuonSequence, process.phfCoincFilter2Th4 * process.primaryVertexFilter * process.patMuonSequence )
 
 if atLeastOneCand:
   if doTrimuons:
