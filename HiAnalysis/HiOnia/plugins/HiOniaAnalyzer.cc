@@ -42,7 +42,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _fillHistos(iConfig.getParameter<bool>("fillHistos")),
       _theMinimumFlag(iConfig.getParameter<bool>("minimumFlag")),
       _fillSingleMuons(iConfig.getParameter<bool>("fillSingleMuons")),
-      _onlySingleMuons(iConfig.getParameter<bool>("onlySingleMuons")),
       _fillRecoTracks(iConfig.getParameter<bool>("fillRecoTracks")),
       _isHI(iConfig.getUntrackedParameter<bool>("isHI", false)),
       _isPA(iConfig.getUntrackedParameter<bool>("isPA", true)),
@@ -303,11 +302,10 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (_useSVfinder)
     iEvent.getByToken(_SVToken, SVs);
 
-  if (!_onlySingleMuons) {
     // APPLY CUTS
     this->makeCuts(_storeSs);
 
-  }
+  
 
   if (_fillSingleMuons || !_AtLeastOneCand  || !_isMC) {  //not storing the mu reconstructed info if we do a trimuon MC and there is no reco trimuon
     //_fillSingleMuons is checked within the fillRecoMuons function: the info on the wanted muons was stored in the makeCuts function
@@ -324,8 +322,7 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
-  if (!_onlySingleMuons)
-    this->fillRecoHistos();
+  this->fillRecoHistos();
 
   //for pp, record Ntracks as well
   if (!(_isHI) && !(_isPA)) {
@@ -350,8 +347,7 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     //MC MATCHING info
     this->fillMuMatchingInfo();  //Needs to be done after fillGenInfo, and the filling of reco muons collections
-    if (!_onlySingleMuons)
-      this->fillQQMatchingInfo();  //Needs to be done after fillMuMatchingInfo
+    this->fillQQMatchingInfo();  //Needs to be done after fillMuMatchingInfo
     
   }
 
@@ -375,8 +371,6 @@ void HiOniaAnalyzer::fillRecoHistos() {
     if (_onlythebest) {  // yes, fill simply the best (possibly same-sign)
 
       pair<unsigned int, const pat::CompositeCandidate*> theBest = theBestQQ();
-      if (theBest.first < 10)
-        this->fillHistosAndDS(theBest.first, theBest.second);
 
     } else {  // no, fill all candidates passing cuts (possibly same-sign)
 
@@ -805,55 +799,16 @@ void HiOniaAnalyzer::fillRecoJpsi(int count, std::string trigName, std::string c
 
   std::string theLabel = trigName + "_" + centName + "_" + theSign.at(iSign);
 
-  bool isBarrel = (std::abs(aJpsiCand->rapidity()) < 1.2);
 
   if (iSign == 0 && aJpsiCand->mass() >= JpsiMassMin && aJpsiCand->mass() < JpsiMassMax &&
       aJpsiCand->pt() >= JpsiPtMin && aJpsiCand->pt() < JpsiPtMax && abs(aJpsiCand->rapidity()) >= JpsiRapMin &&
       abs(aJpsiCand->rapidity()) < JpsiRapMax)
     passedCandidates++;
 
-  if (_fillHistos) {
-    if (_combineCategories &&
-        _thePassedCats.at(count) <= Trk_Trk) {  // for the moment consider Glb+Glb, GlbTrk+GlbTrk, Trk+Trk
-      myRecoJpsiHistos->Fill(aJpsiCand, "All_" + theLabel);
-      if (isBarrel)
-        myRecoJpsiHistos->Fill(aJpsiCand, "Barrel_" + theLabel);
-      else
-        myRecoJpsiHistos->Fill(aJpsiCand, "EndCap_" + theLabel);
-    } else {
-      switch (_thePassedCats.at(count)) {
-        case Glb_Glb:
-          myRecoJpsiGlbGlbHistos->Fill(aJpsiCand, "All_" + theLabel);
-          if (isBarrel)
-            myRecoJpsiGlbGlbHistos->Fill(aJpsiCand, "Barrel_" + theLabel);
-          else
-            myRecoJpsiGlbGlbHistos->Fill(aJpsiCand, "EndCap_" + theLabel);
-          break;
-        case GlbTrk_GlbTrk:
-          myRecoJpsiGlbTrkHistos->Fill(aJpsiCand, "All_" + theLabel);
-          if (isBarrel)
-            myRecoJpsiGlbTrkHistos->Fill(aJpsiCand, "Barrel_" + theLabel);
-          else
-            myRecoJpsiGlbTrkHistos->Fill(aJpsiCand, "EndCap_" + theLabel);
-          break;
-        case Trk_Trk:
-          myRecoJpsiTrkTrkHistos->Fill(aJpsiCand, "All_" + theLabel);
-          if (isBarrel)
-            myRecoJpsiTrkTrkHistos->Fill(aJpsiCand, "Barrel_" + theLabel);
-          else
-            myRecoJpsiTrkTrkHistos->Fill(aJpsiCand, "EndCap_" + theLabel);
-          break;
-        default:
-          break;
-      }
-    }
-  }
-  this->fillHistosAndDS(_thePassedCats.at(count), aJpsiCand);
   delete aJpsiCand;
   return;
 };
 
-void HiOniaAnalyzer::fillHistosAndDS(unsigned int theCat, const pat::CompositeCandidate* aJpsiCand) { return; };
 
 void HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
   if (aJpsiCand == nullptr) {
@@ -1002,8 +957,6 @@ void HiOniaAnalyzer::fillRecoTracks() {
         break;
       }
     }
-    if (_doDimuTrk && !WantedTrack)
-      continue;
 
     if (selTrk(track)) {
       if (Reco_trk_size >= Max_trk_size) {
@@ -1102,34 +1055,8 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
           continue;
       }
 
-      bool isBarrel = abs(muon->eta() < 1.2);
       std::string theLabel = theTriggerNames.at(0) + "_" + theCentralities.at(iCent);
 
-      if (_fillHistos) {
-        if (_combineCategories) {
-          if (selGlobalMuon(muon) || selTrackerMuon(muon)) {
-            myRecoMuonHistos->Fill(muon, "All_" + theLabel);
-            if (isBarrel)
-              myRecoMuonHistos->Fill(muon, "Barrel_" + theLabel);
-            else
-              myRecoMuonHistos->Fill(muon, "EndCap_" + theLabel);
-          }
-        } else {
-          if (selGlobalMuon(muon)) {
-            myRecoGlbMuonHistos->Fill(muon, "All_" + theLabel);
-            if (isBarrel)
-              myRecoGlbMuonHistos->Fill(muon, "Barrel_" + theLabel);
-            else
-              myRecoGlbMuonHistos->Fill(muon, "EndCap_" + theLabel);
-          } else if (selTrackerMuon(muon)) {
-            myRecoTrkMuonHistos->Fill(muon, "All_" + theLabel);
-            if (isBarrel)
-              myRecoTrkMuonHistos->Fill(muon, "Barrel_" + theLabel);
-            else
-              myRecoTrkMuonHistos->Fill(muon, "EndCap_" + theLabel);
-          }
-        }
-      }
 
       muType = -99;
       if (_muonSel == (std::string)("Glb") && selGlobalMuon(muon))
@@ -1157,27 +1084,6 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
           if (!muHLTMatchesFilter.empty()) {
             std::string theLabel = theTriggerNames.at(iTr) + "_" + theCentralities.at(iCent);
 
-            if (_fillHistos) {
-              if (_combineCategories) {
-                myRecoMuonHistos->Fill(muon, "All_" + theLabel);
-                if (isBarrel)
-                  myRecoMuonHistos->Fill(muon, "Barrel_" + theLabel);
-                else
-                  myRecoMuonHistos->Fill(muon, "EndCap_" + theLabel);
-              } else if (muType == Glb || muType == GlbTrk) {
-                myRecoGlbMuonHistos->Fill(muon, "All_" + theLabel);
-                if (isBarrel)
-                  myRecoGlbMuonHistos->Fill(muon, "Barrel_" + theLabel);
-                else
-                  myRecoGlbMuonHistos->Fill(muon, "EndCap_" + theLabel);
-              } else if (muType == Trk || muType == GlbOrTrk || muType == All) {
-                myRecoTrkMuonHistos->Fill(muon, "All_" + theLabel);
-                if (isBarrel)
-                  myRecoTrkMuonHistos->Fill(muon, "Barrel_" + theLabel);
-                else
-                  myRecoTrkMuonHistos->Fill(muon, "EndCap_" + theLabel);
-              }
-            }
             trigBits += pow(2, iTr - 1);
             if (iTr == 1)
               nL1DoubleMu0Muons++;
@@ -1246,7 +1152,6 @@ void HiOniaAnalyzer::InitTree() {
     myTree->Branch("rpCos_origin", &rpCos_origin, "rpCos_origin[nEP]/F");
   }
 
-  if (!_onlySingleMuons) {
 
     myTree->Branch("Reco_QQ_size", &Reco_QQ_size, "Reco_QQ_size/S");
     myTree->Branch("Reco_QQ_type", Reco_QQ_type, "Reco_QQ_type[Reco_QQ_size]/S");
@@ -1274,7 +1179,7 @@ void HiOniaAnalyzer::InitTree() {
     }
     myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb, "Reco_QQ_VtxProb[Reco_QQ_size]/F");
     myTree->Branch("Reco_QQ_dca", Reco_QQ_dca, "Reco_QQ_dca[Reco_QQ_size]/F");
-    //myTree->Branch("Reco_QQ_MassErr", Reco_QQ_MassErr, "Reco_QQ_MassErr[Reco_QQ_size]/F");
+    myTree->Branch("Reco_QQ_MassErr", Reco_QQ_MassErr, "Reco_QQ_MassErr[Reco_QQ_size]/F");
 
     myTree->Branch("Reco_QQ_vtx_xpos", &Reco_QQ_vtx_xpos, 32000, 0);
     myTree->Branch("Reco_QQ_vtx_ypos", &Reco_QQ_vtx_ypos, 32000, 0);
@@ -1300,7 +1205,7 @@ void HiOniaAnalyzer::InitTree() {
       myTree->Branch("Reco_QQ_mupl_4mom_m", &Reco_QQ_mupl_4mom_m, 32000, 0);
       
     }
-  }
+  
 
   myTree->Branch("Reco_mu_size", &Reco_mu_size, "Reco_mu_size/S");
   myTree->Branch("Reco_mu_type", Reco_mu_type, "Reco_mu_type[Reco_mu_size]/S");
@@ -1405,7 +1310,6 @@ genOnly2:
     myTree->Branch("Gen_weight", &Gen_weight, "Gen_weight/F");
     myTree->Branch("Gen_pthat", &Gen_pthat, "Gen_pthat/F");
 
-    if (!_onlySingleMuons) {
       myTree->Branch("Gen_QQ_size", &Gen_QQ_size, "Gen_QQ_size/S");
       //myTree->Branch("Gen_QQ_type",      Gen_QQ_type,    "Gen_QQ_type[Gen_QQ_size]/S");
 	    myTree->Branch("Gen_QQ_4mom_pt", &Gen_QQ_4mom_pt, 32000, 0);
@@ -1423,7 +1327,7 @@ genOnly2:
         myTree->Branch("Gen_QQ_momId", Gen_QQ_momId, "Gen_QQ_momId[Gen_QQ_size]/I");
       }
 
-    }
+    
 
     myTree->Branch("Gen_mu_size", &Gen_mu_size, "Gen_mu_size/S");
     //myTree->Branch("Gen_mu_type",   Gen_mu_type,   "Gen_mu_type[Gen_mu_size]/S");

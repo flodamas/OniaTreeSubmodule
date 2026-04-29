@@ -78,27 +78,11 @@ private:
   void InitTree();
 
   void makeCuts(bool keepSameSign);
-  void makeBcCuts(bool keepWrongSign);
-  void makeDimutrkCuts(bool keepWrongSign);
   bool checkCuts(const pat::CompositeCandidate* cand,
                  const pat::Muon* muon1,
                  const pat::Muon* muon2,
                  bool (HiOniaAnalyzer::*callFunc1)(const pat::Muon*),
                  bool (HiOniaAnalyzer::*callFunc2)(const pat::Muon*));
-  bool checkBcCuts(const pat::CompositeCandidate* cand,
-                   const pat::Muon* muon1,
-                   const pat::Muon* muon2,
-                   const pat::Muon* muon3,
-                   bool (HiOniaAnalyzer::*callFunc1)(const pat::Muon*),
-                   bool (HiOniaAnalyzer::*callFunc2)(const pat::Muon*),
-                   bool (HiOniaAnalyzer::*callFunc3)(const pat::Muon*));
-  bool checkDimuTrkCuts(const pat::CompositeCandidate* cand,
-                        const pat::Muon* muon1,
-                        const pat::Muon* muon2,
-                        const reco::RecoChargedCandidate* trk,
-                        bool (HiOniaAnalyzer::*callFunc1)(const pat::Muon*),
-                        bool (HiOniaAnalyzer::*callFunc2)(const pat::Muon*),
-                        bool (HiOniaAnalyzer::*callFunc3)(const reco::TrackRef));
 
   reco::GenParticleRef findDaughterRef(reco::GenParticleRef GenParticleDaughter, int GenParticlePDG);
   int IndexOfThisMuon(const float pt, bool isGen = false);
@@ -107,7 +91,6 @@ private:
   void fillGenInfo();
   void fillMuMatchingInfo();
   void fillQQMatchingInfo();
-  void fillBcMatchingInfo();
   bool isAbHadron(int pdgID);
   bool isNeutrino(int pdgID);
   bool isAMixedbHadron(int pdgID, int momPdgID);
@@ -135,11 +118,9 @@ private:
   bool selGlobalOrTrackerMuon(const pat::Muon* aMuon);
   bool selAllMuon(const pat::Muon* aMuon);
   bool selTrk(const reco::TrackRef aTrk);
-  bool PassMiniAODcut(const pat::Muon* aMuon);
 
   void fillRecoHistos();
   void fillRecoJpsi(int count, std::string trigName, std::string centName);
-  void fillHistosAndDS(unsigned int theCat, const pat::CompositeCandidate* aJpsiCand);
 
   void fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t trigBits);
   void fillTreeJpsi(int count);
@@ -355,7 +336,7 @@ private:
   float Reco_mu_ptErr_global[Max_mu_size];     // pT error for global muons
   float Reco_mu_pTrue[Max_mu_size];  // P of the associated generated muon, used to match the Reco_mu with the Gen_mu
   float Reco_mu_validFraction[Max_mu_size];
-  int Reco_mu_simExtType[Max_Bc_size];  //
+  int Reco_mu_simExtType[Max_mu_size];  //
 
   Short_t muType;  // type of muon (GlbTrk=0, Trk=1, Glb=2, none=-1)
   std::vector<float>
@@ -478,7 +459,6 @@ private:
   bool _fillHistos;
   bool _theMinimumFlag;
   bool _fillSingleMuons;
-  bool _onlySingleMuons;
   bool _fillRecoTracks;
   bool _isHI;
   bool _isPA;
@@ -516,7 +496,6 @@ private:
   float JpsiRapMin;  // OF BIN
   float JpsiRapMax;  // LIMITS
   float JpsiPDGMass = 3.09609;
-  float BcPDGMass = 6.2745;
 
   math::XYZPoint RefVtx;
   float RefVtx_xError;

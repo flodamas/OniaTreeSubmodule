@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], HLTProName='HLT', muonSelection="Trk", L1Stage=2, isMC=True, pdgID=443, outputFileName="OniaTree.root", muonlessPV = False, flipJpsiDir=0, OnlySingleMuons=False):
+def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], HLTProName='HLT', muonSelection="Trk", L1Stage=2, isMC=True, pdgID=443, outputFileName="OniaTree.root", muonlessPV = False, flipJpsiDir=0):
 
     process.load("FWCore.MessageService.MessageLogger_cfi")
     process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -14,7 +14,6 @@ def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], HLTProName='HLT', m
 
 ##### Onia2MuMuPAT input collections/options
     process.onia2MuMuPatGlbGlb.dimuonSelection = cms.string("mass > 0")
-    process.onia2MuMuPatGlbGlb.onlySingleMuons = cms.bool(OnlySingleMuons)
     process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = cms.bool(True)
     process.onia2MuMuPatGlbGlb.srcTracks = cms.InputTag("generalTracks")
     process.onia2MuMuPatGlbGlb.primaryVertexTag = cms.InputTag("offlinePrimaryVertices")
@@ -64,7 +63,6 @@ def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], HLTProName='HLT', m
             oniaPDG             = cms.int32(pdgID),
             muonSel             = cms.string(muonSelection),
             isMC                = cms.untracked.bool(isMC),
-            onlySingleMuons     = cms.bool(OnlySingleMuons),
             histFileName        = cms.string(outputFileName),
             dblTriggerPathNames = muonTriggerList['DoubleMuonTrigger'],
             sglTriggerPathNames = muonTriggerList['SingleMuonTrigger'],

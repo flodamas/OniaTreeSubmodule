@@ -70,7 +70,6 @@ private:
   bool addCommonVertex_, addMuonlessPrimaryVertex_;
   bool resolveAmbiguity_;
   bool onlySoftMuons_;
-  bool onlySingleMuons_;
   int flipJpsiDirection_;
   converter::TrackToCandidate Converter_;
   int trackType_;

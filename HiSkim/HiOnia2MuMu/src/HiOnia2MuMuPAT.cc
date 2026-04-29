@@ -47,7 +47,6 @@ HiOnia2MuMuPAT::HiOnia2MuMuPAT(const edm::ParameterSet &iConfig)
       addMuonlessPrimaryVertex_(iConfig.getParameter<bool>("addMuonlessPrimaryVertex")),
       resolveAmbiguity_(iConfig.getParameter<bool>("resolvePileUpAmbiguity")),
       onlySoftMuons_(iConfig.getParameter<bool>("onlySoftMuons")),
-      onlySingleMuons_(iConfig.getParameter<bool>("onlySingleMuons")),
       flipJpsiDirection_(iConfig.getParameter<int>("flipJpsiDirection")),
       Converter_(converter::TrackToCandidate(iConfig, consumesCollector())),
       trackType_(iConfig.getParameter<int>("particleType")),
@@ -215,10 +214,7 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
   int ourMuNb = ourMuons.size();
   //std::cout<<"number of soft muons = "<<ourMuNb<<std::endl;
 
-  if (onlySingleMuons_)
-    goto skipMuonLoop;
-
-  // Quarkonia candidates only from muons
+  // Dimuon candidates only from muons
   for (int i = 0; i < ourMuNb; i++) {
     const pat::Muon &it = ourMuons[i];
     for (int j = i + 1; j < ourMuNb; j++) {
@@ -676,7 +672,6 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
     }    //it2 muon
   }      //it muon
 
-skipMuonLoop:
   //  std::sort(oniaOutput->begin(),oniaOutput->end(),pTComparator_);
   std::sort(oniaOutput->begin(), oniaOutput->end(), vPComparator_);
   iEvent.put(std::move(oniaOutput), "");

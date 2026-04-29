@@ -115,8 +115,7 @@ process.GlobalTag.toGet.extend([
 from HiAnalysis.HiOnia.oniaTreeAnalyzer_cff import oniaTreeAnalyzer
 oniaTreeAnalyzer(process,
                  muonTriggerList=triggerList, HLTProName=HLTProcess,
-                 muonSelection=muonSelection, L1Stage=2, isMC=isMC, pdgID=pdgId, outputFileName=options.outputFile,
-                 OnlySingleMuons=False
+                 muonSelection=muonSelection, L1Stage=2, isMC=isMC, pdgID=pdgId, outputFileName=options.outputFile
 )
 
 process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 20 && charge==0")
