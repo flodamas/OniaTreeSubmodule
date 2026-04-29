@@ -47,8 +47,6 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   bool isSoftMuonBase(const pat::Muon*);
-  const reco::TrackBase::Point rotatePoint(reco::TrackBase::Point PV, reco::TrackBase::Point TrkPoint, int flipJpsi);
-  const reco::TrackBase::Vector rotateMomentum(reco::Track trk, int flipJpsi);
   bool isAbHadron(int pdgID) const;
   bool isAMixedbHadron(int pdgID, int momPdgID) const;
   reco::GenParticleRef findMotherRef(reco::GenParticleRef GenParticle, int GenParticlePDG);
@@ -70,7 +68,6 @@ private:
   bool addCommonVertex_, addMuonlessPrimaryVertex_;
   bool resolveAmbiguity_;
   bool onlySoftMuons_;
-  int flipJpsiDirection_;
   converter::TrackToCandidate Converter_;
   double dimuonMass_;
   GreaterByPt<pat::CompositeCandidate> pTComparator_;

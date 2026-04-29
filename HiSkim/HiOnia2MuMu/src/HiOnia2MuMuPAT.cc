@@ -47,7 +47,6 @@ HiOnia2MuMuPAT::HiOnia2MuMuPAT(const edm::ParameterSet &iConfig)
       addMuonlessPrimaryVertex_(iConfig.getParameter<bool>("addMuonlessPrimaryVertex")),
       resolveAmbiguity_(iConfig.getParameter<bool>("resolvePileUpAmbiguity")),
       onlySoftMuons_(iConfig.getParameter<bool>("onlySoftMuons")),
-      flipJpsiDirection_(iConfig.getParameter<int>("flipJpsiDirection")),
       Converter_(converter::TrackToCandidate(iConfig, consumesCollector())),
       dimuonMass_(iConfig.getParameter<double>("dimuonMassHypothesis")) {
   produces<pat::CompositeCandidateCollection>("");
@@ -63,70 +62,6 @@ bool HiOnia2MuMuPAT::isSoftMuonBase(const pat::Muon *aMuon) {
           std::abs(aMuon->innerTrack()->dxy(RefVtx)) < 0.3 && std::abs(aMuon->innerTrack()->dz(RefVtx)) < 20.);
 }
 
-//1: $z -> -z$ and $\phi -> \phi+\pi$ (mirror)
-//2: $z -> -z$ and $\phi -> \phi+\pi/2$
-//3: $z -> -z$
-//4: $z -> -z$ and $\phi -> \phi-\pi/2$
-//5: $\phi -> \phi+\pi/2$
-//6: $\phi -> \phi+\pi$
-//7: $\phi -> \phi-\pi/2$
-const reco::TrackBase::Point HiOnia2MuMuPAT::rotatePoint(reco::TrackBase::Point PV,
-                                                         reco::TrackBase::Point TrkPoint,
-                                                         int flipJpsi) {
-  float x = TrkPoint.x(), y = TrkPoint.y(), z = TrkPoint.z();
-  float vx = PV.x(), vy = PV.y(), vz = PV.z();
-
-  if (flipJpsi <= 4) {
-    z = 2 * vz - z;
-  }
-
-  switch (flipJpsi) {
-    case 1:
-    case 6:
-      x = 2 * vx -
-          TrkPoint
-              .x();  //change frame of reference to place the origin at the PV, rotate, then come back to (0,0,0) origin
-      y = 2 * vy - TrkPoint.y();
-      break;
-    case 2:
-    case 5:
-      x = vx - (TrkPoint.y() - vy);
-      y = vy + TrkPoint.x() - vx;
-      break;
-    case 4:
-    case 7:
-      x = vx + TrkPoint.y() - vy;
-      y = vy - (TrkPoint.x() - vx);
-  }
-  return reco::TrackBase::Point(x, y, z);
-};
-
-const reco::TrackBase::Vector HiOnia2MuMuPAT::rotateMomentum(reco::Track trk, int flipJpsi) {
-  float px = trk.px(), py = trk.py(), pz = trk.pz();
-
-  if (flipJpsi <= 4) {
-    pz = -trk.pz();
-  }
-
-  switch (flipJpsi) {
-    case 1:
-    case 6:
-      px = -trk.px();
-      py = -trk.py();
-      break;
-    case 2:
-    case 5:
-      px = -trk.py();
-      py = trk.px();
-      break;
-    case 4:
-    case 7:
-      px = trk.py();
-      py = -trk.px();
-  }
-
-  return reco::TrackBase::Vector(px, py, pz);
-};
 
 // ------------ method called to produce the data  ------------
 void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
@@ -203,7 +138,6 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
       std::map<std::string, reco::Vertex> userVertex;
       std::map<std::string, reco::Track> userTrack;
       Vertex theOriginalPV;
-      int flipJpsi = 0;  //loop iterator in case of flipJpsiDirection_>0
       TransientVertex myVertex;
       CachingVertex<5> VtxForInvMass;
       Measurement1D MassWErr;
@@ -568,78 +502,19 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
       if (!LateDimuonSel_(myCand)) {
         continue;
       }
-      goodMu1Mu2 = true;
-      for (; flipJpsi < (1 + flipJpsiDirection_);
-           flipJpsi++) {  //'int flipJpsi=0' must be declared before the 'goto' statements
-        if (flipJpsiDirection_ > 0 && flipJpsi == 0)
-          continue;
 
-        myCandTmp = myCand;
-        // --- Build the flipped tracks, change the vertex accordingly ---
-        if (flipJpsiDirection_ > 0) {
-          const reco::TrackBase::Point &refPoint1 = rotatePoint(
-              thePrimaryV.position(), (it.track())->referencePoint(), flipJpsi);  //catch tracks of original muons
-          const reco::TrackBase::Vector &Momentum1 = rotateMomentum(*it.track(), flipJpsi);
-          muon1Trk = reco::Track(muon1Trk.chi2(),
-                                 muon1Trk.ndof(),
-                                 refPoint1,
-                                 Momentum1,
-                                 it.charge(),
-                                 muon1Trk.covariance(),
-                                 muon1Trk.originalAlgo());  //forget TrackQuality info here
-          mu1 = LorentzVector(
-              muon1Trk.px(), muon1Trk.py(), muon1Trk.pz(), sqrt(pow(muon1Trk.p(), 2) + pow(muMasses[0], 2)));
+      myCandTmp = myCand;
 
-          const reco::TrackBase::Point &refPoint2 =
-              rotatePoint(thePrimaryV.position(), (it2.track())->referencePoint(), flipJpsi);
-          const reco::TrackBase::Vector &Momentum2 = rotateMomentum(*it2.track(), flipJpsi);
-          muon2Trk = reco::Track(muon2Trk.chi2(),
-                                 muon2Trk.ndof(),
-                                 refPoint2,
-                                 Momentum2,
-                                 it2.charge(),
-                                 muon2Trk.covariance(),
-                                 muon2Trk.originalAlgo());
-          mu2 = LorentzVector(
-              muon2Trk.px(), muon2Trk.py(), muon2Trk.pz(), sqrt(pow(muon2Trk.p(), 2) + pow(muMasses[1], 2)));
-          // cout<<"PV x, y,, z = "<<thePrimaryV.position().x()<<" "<<thePrimaryV.position().y()<<" "<<thePrimaryV.position().z()<<" "<<endl;
-          // cout<<"old track x, y, z, px, py, pz = "<<(*it.track()).referencePoint().x()<<" "<<(*it.track()).referencePoint().y()<<" "<<(*it.track()).referencePoint().z()<<" "<<(*it.track()).px()<<" "<<(*it.track()).py()<<" "<<(*it.track()).pz()<<endl;
-          // cout<<"new track x, y, z, px, py, pz = "<<muon1Trk.referencePoint().x()<<" "<<muon1Trk.referencePoint().y()<<" "<<muon1Trk.referencePoint().z()<<" "<<muon1Trk.px()<<" "<<muon1Trk.py()<<" "<<muon1Trk.pz()<<endl;
+      for (const auto &i : userInt) {
+        myCandTmp.addUserInt(i.first, i.second);
+      }
+      for (const auto &i : userVertex) {
+        myCandTmp.addUserData(i.first, i.second);
+      }
+      // ---- Push back output of this Jpsi candidate ----
+      oniaOutput->push_back(myCandTmp);
+        
 
-          jpsi = mu1 + mu2;
-          myCandTmp.setP4(jpsi);
-        }
-
-        if ((flipJpsiDirection_ == 0) && goodMu1Mu2) {
-          if (flipJpsiDirection_ > 0) {
-            userTrack["muon1Track"] = muon1Trk;
-            userTrack["muon2Track"] = muon2Trk;
-            if (myVertex.isValid() && addCommonVertex_) {
-              userVertex["commonVertex"] =
-                  Vertex(reco::Vertex::Point(2 * thePrimaryV.position().x() - myVertex.position().x(),
-                                             2 * thePrimaryV.position().y() - myVertex.position().y(),
-                                             2 * thePrimaryV.position().z() - myVertex.position().z()),
-                         userVertex["commonVertex"].error(),
-                         vChi2,
-                         vNDF,
-                         2);
-            }
-            userInt["flipJpsi"] = flipJpsi;
-            for (const auto &i : userTrack) {
-              myCandTmp.addUserData(i.first, i.second);
-            }
-          }
-          for (const auto &i : userInt) {
-            myCandTmp.addUserInt(i.first, i.second);
-          }
-          for (const auto &i : userVertex) {
-            myCandTmp.addUserData(i.first, i.second);
-          }
-          // ---- Push back output of this Jpsi candidate ----
-          oniaOutput->push_back(myCandTmp);
-        }
-
-      }  //flipJpsi (always 0 when flipJpsiDirection_==0, i.e. the loop runs only once)
     }    //it2 muon
   }      //it muon
 

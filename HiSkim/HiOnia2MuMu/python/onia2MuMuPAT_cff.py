@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stage2=False, flipJpsiDir=0):
+def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stage2=False):
     # Setup the process
     process.options = cms.untracked.PSet(
         wantSummary = cms.untracked.bool(True),
@@ -84,9 +84,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stag
 
     # Make dimuon candidates
     from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cfi import onia2MuMuPAT
-    process.onia2MuMuPatGlbGlb = onia2MuMuPAT.clone(
-        flipJpsiDirection = cms.int32(flipJpsiDir), ## flip the Jpsi direction, before combining it with a third muon
-    )
+    process.onia2MuMuPatGlbGlb = onia2MuMuPAT.clone()
 
     # check if there is at least one (inclusive) di-muon. BEWARE this can cause trouble in .root output if no event is selected by onia2MuMuPatGlbGlbFilter!
     process.onia2MuMuPatGlbGlbFilter = cms.EDFilter("CandViewCountFilter",
@@ -122,7 +120,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stag
             'keep *_genMuons_*_Onia2MuMuPAT',                      # generated muons and parents
             'keep patMuons_patMuonsWithTrigger_*_Onia2MuMuPAT',    # All PAT muons including matches to triggers
             'keep patCompositeCandidates_*__Onia2MuMuPAT',         # PAT di-muons
-            'keep *_dedxHarmonic2_*_*',                            # dE/dx estimator for tracks (to do PID when doDimuTrk)
             'keep *_offlineSlimmedPrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
             'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
             'keep *_inclusiveSecondaryVertices_*_*',      # Secondary vertices: to check if non-prompt muons come from a common SV

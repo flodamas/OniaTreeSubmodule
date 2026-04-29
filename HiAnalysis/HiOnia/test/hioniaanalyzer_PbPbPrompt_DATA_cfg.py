@@ -133,7 +133,6 @@ process.onia2MuMuPatGlbGlb.LateDimuonSel = cms.string("userFloat(\"vProb\")>0.00
 
 process.onia2MuMuPatGlbGlb.onlySoftMuons = cms.bool(OnlySoftMuons)
 process.hionia.minimumFlag      = cms.bool(keepExtraColl)           #for Reco_trk_*
-process.hionia.useGeTracks      = cms.untracked.bool(keepExtraColl) #for Reco_trk_*
 process.hionia.fillRecoTracks   = cms.bool(keepExtraColl)           #for Reco_trk_*
 process.hionia.CentralitySrc    = cms.InputTag("hiCentrality")
 process.hionia.CentralityBinSrc = cms.InputTag("centralityBin","HFtowers")
@@ -164,9 +163,8 @@ if applyEventSel:
   process.hltHI.andOr = True
 
   # Muon filtering
-  SuperLooseMuonCut = "(isTrackerMuon || isGlobalMuon) && pt > 1.0 && abs(eta) < 2.4"
 
-  MUONCUT = SuperLooseMuonCut
+  MUONCUT = "isGlobalMuon && pt > 10.0 && abs(eta) < 2.4"
   
   process.muonSelector = cms.EDFilter("PATMuonRefSelector",
                                         src = cms.InputTag("slimmedMuons"),
@@ -176,14 +174,14 @@ if applyEventSel:
 
   process.atLeastTwoMuons = cms.EDFilter("MuonRefPatCount",
                                  src = cms.InputTag("slimmedMuons"),
-                                  cut = cms.string(MUONCUT),
+                                cut = cms.string(MUONCUT),
                                  minNumber = cms.uint32(2)
                                  )
 
   process.dimuonSelection = cms.EDProducer("CandViewShallowCloneCombiner",
-                                    checkCharge = cms.bool(True),
+                                    checkCharge = cms.bool(False),
                                     cut = cms.string("mass > 2.0"),
-                                    decay = cms.string("muonSelector@+ muonSelector@-")
+                                    decay = cms.string("muonSelector muonSelector")
                                     )
 
   process.atLeastOneDimuon = cms.EDFilter("CandViewCountFilter",

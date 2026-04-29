@@ -1,17 +1,6 @@
 #ifndef __HIONIA__
 #define __HIONIA__
-// -*- C++ -*-
-//
-// Package:    HiOniaAnalyzer
-// Class:      HiOniaAnalyzer
-//
-/**\class HiOniaAnalyzer HiOniaAnalyzer.cc UserCode/tdahms/HiAnalysis/HiOnia/plugins/HiOniaAnalyzer.cc
 
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 
 // system include files
 #include <memory>
@@ -52,7 +41,6 @@
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#include "HiAnalysis/HiOnia/interface/MyCommonHistoManager.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -87,7 +75,7 @@ private:
   reco::GenParticleRef findDaughterRef(reco::GenParticleRef GenParticleDaughter, int GenParticlePDG);
   int IndexOfThisMuon(const float pt, bool isGen = false);
   int IndexOfThisTrack(const float pt, bool isGen = false);
-  int IndexOfThisJpsi(int mu1_idx, int mu2_idx, int flipJpsi = 0);
+  int IndexOfThisJpsi(int mu1_idx, int mu2_idx);
   void fillGenInfo();
   void fillMuMatchingInfo();
   void fillQQMatchingInfo();
@@ -272,19 +260,11 @@ private:
   float Reco_QQ_dca[Max_QQ_size];
   float Reco_QQ_MassErr[Max_QQ_size];
 
-  int Reco_QQ_NtrkPt02[Max_QQ_size];
-  int Reco_QQ_NtrkPt03[Max_QQ_size];
-  int Reco_QQ_NtrkPt04[Max_QQ_size];
-
-  int Reco_QQ_NtrkDeltaR03[Max_QQ_size];
-  int Reco_QQ_NtrkDeltaR04[Max_QQ_size];
-  int Reco_QQ_NtrkDeltaR05[Max_QQ_size];
 
   float Reco_QQ_mupl_dxy[Max_QQ_size];  // dxy for plus inner track muons
   float Reco_QQ_mumi_dxy[Max_QQ_size];  // dxy for minus inner track muons
   float Reco_QQ_mupl_dz[Max_QQ_size];   // dz for plus inner track muons
   float Reco_QQ_mumi_dz[Max_QQ_size];   // dz for minus inner track muons
-  Short_t Reco_QQ_flipJpsi[Max_QQ_size];
 
   Short_t Reco_mu_size;  // Number of reconstructed muons
   int Reco_mu_SelectionType[Max_mu_size];
@@ -451,8 +431,6 @@ private:
   bool _isMC;
   bool _isPromptMC;
   bool _useEvtPlane;
-  bool _useGeTracks;
-  int _flipJpsiDirection;
   bool _genealogyInfo;
 
   int _oniaPDG;

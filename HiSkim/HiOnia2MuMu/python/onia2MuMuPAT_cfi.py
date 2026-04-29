@@ -16,6 +16,6 @@ onia2MuMuPAT = cms.EDProducer('HiOnia2MuMuPAT',
         addMuonlessPrimaryVertex = cms.bool(False), ## Embed the primary vertex re-made from all the tracks except the two muons
         resolvePileUpAmbiguity   = cms.bool(True), ## Order PVs by their vicinity to the J/psi vertex, not by sumPt
         onlySoftMuons            = cms.bool(False), ## Keep only the isSoftMuons (without highPurity) for the single muons + the di(tri)muon combinations
-        flipJpsiDirection        = cms.int32(False), ## flip the Jpsi direction, before combining it with a third muon
-        dimuonMassHypothesis     = cms.double(3.09609) ## dimuon mass hypothesis for KinematicConstrainedVertexFitter and lifetime estimates
+        dimuonMassHypothesis     = cms.double(3.09609), ## dimuon mass hypothesis for KinematicConstrainedVertexFitter and lifetime estimates
+        particleType             = cms.int32(211) ## pdgInt assigned to the track to be combined with the dimuons
 )

@@ -35,7 +35,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         storeSameSign = cms.bool(True),
                         AtLeastOneCand = cms.bool(False),
 
-                        flipJpsiDirection = cms.int32(0),
                         genealogyInfo = cms.bool(False),
                         removeSignalEvents = cms.untracked.bool(False),
                         removeTrueMuons = cms.untracked.bool(False),
@@ -52,7 +51,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         isMC = cms.untracked.bool(False),
                         isPromptMC = cms.untracked.bool(True),
                         useEvtPlane = cms.untracked.bool(False),
-                        useGeTracks = cms.untracked.bool(False),
                         genOnly     = cms.bool(False),  # fill only generated info
 
                         #-- Histogram configuration

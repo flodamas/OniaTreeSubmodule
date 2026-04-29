@@ -47,8 +47,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _isMC(iConfig.getUntrackedParameter<bool>("isMC", false)),
       _isPromptMC(iConfig.getUntrackedParameter<bool>("isPromptMC", true)),
       _useEvtPlane(iConfig.getUntrackedParameter<bool>("useEvtPlane", false)),
-      _useGeTracks(iConfig.getUntrackedParameter<bool>("useGeTracks", false)),
-      _flipJpsiDirection(iConfig.getParameter<int>("flipJpsiDirection")),
       _genealogyInfo(iConfig.getParameter<bool>("genealogyInfo")),
       _oniaPDG(iConfig.getParameter<int>("oniaPDG")),
       _OneMatchedHLTMu(iConfig.getParameter<int>("OneMatchedHLTMu")),
@@ -308,15 +306,6 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     //_fillSingleMuons is checked within the fillRecoMuons function: the info on the wanted muons was stored in the makeCuts function
     this->fillRecoMuons(theCentralityBin);
 
-    if (_useGeTracks) {
-      iEvent.getByToken(_recoTracksToken, collTracks);
-      if (_fillRecoTracks) {
-        if (!collTracks.isValid()) {
-          cout << " collTrack is not valid !!!! Abandoning fillRecoTracks()" << endl;
-        } else
-          this->fillRecoTracks();
-      }
-    }
   }
 
   this->fillRecoHistos();
@@ -550,14 +539,11 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
       LorentzVector vMuon2 = muon2->p4();
 
       reco::Track iTrack_mupl, iTrack_mumi, mu1Trk, mu2Trk;
-      if (_flipJpsiDirection > 0 && aDimuonCandidate->hasUserData("muon1Track") && aDimuonCandidate->hasUserData("muon2Track")) {
+      if (aDimuonCandidate->hasUserData("muon1Track") && aDimuonCandidate->hasUserData("muon2Track")) {
         mu1Trk = *(aDimuonCandidate->userData<reco::Track>("muon1Track"));
         mu2Trk = *(aDimuonCandidate->userData<reco::Track>("muon2Track"));
       }
 
-      Reco_QQ_flipJpsi[Reco_QQ_size] = _flipJpsiDirection;
-      if (aDimuonCandidate->hasUserInt("flipJpsi"))
-        Reco_QQ_flipJpsi[Reco_QQ_size] = aDimuonCandidate->userInt("flipJpsi");
 
       if ((muon1->innerTrack()).isNull() || (muon2->innerTrack()).isNull()) {
         std::cout << "ERROR: 'iTrack_mupl' or 'iTrack_mumi' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
@@ -568,22 +554,21 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
         Reco_QQ_mupl_idx[Reco_QQ_size] = IndexOfThisMuon(muon1->pt());  //needs the non-flipped muon momentum
         Reco_QQ_mumi_idx[Reco_QQ_size] = IndexOfThisMuon(muon2->pt());
 
-        if (_flipJpsiDirection > 0) {
-          iTrack_mupl = mu1Trk;
-          iTrack_mumi = mu2Trk;
+        iTrack_mupl = mu1Trk;
+        iTrack_mumi = mu2Trk;
 	  	  
-	        Reco_QQ_mupl_4mom_pt.push_back(mu1Trk.pt());
-          Reco_QQ_mupl_4mom_eta.push_back(mu1Trk.eta());
-          Reco_QQ_mupl_4mom_phi.push_back(mu1Trk.phi());
-          Reco_QQ_mupl_4mom_m.push_back(vMuon1.mass());
+	      Reco_QQ_mupl_4mom_pt.push_back(mu1Trk.pt());
+        Reco_QQ_mupl_4mom_eta.push_back(mu1Trk.eta());
+        Reco_QQ_mupl_4mom_phi.push_back(mu1Trk.phi());
+        Reco_QQ_mupl_4mom_m.push_back(vMuon1.mass());
 
 
-          Reco_QQ_mumi_4mom_pt.push_back(mu2Trk.pt());
-          Reco_QQ_mumi_4mom_eta.push_back(mu2Trk.eta());
-          Reco_QQ_mumi_4mom_phi.push_back(mu2Trk.phi());
-          Reco_QQ_mumi_4mom_m.push_back(vMuon2.mass());
+        Reco_QQ_mumi_4mom_pt.push_back(mu2Trk.pt());
+        Reco_QQ_mumi_4mom_eta.push_back(mu2Trk.eta());
+        Reco_QQ_mumi_4mom_phi.push_back(mu2Trk.phi());
+        Reco_QQ_mumi_4mom_m.push_back(vMuon2.mass());
 
-        } else if (_muonLessPrimaryVertex || _useGeTracks) {
+        if (_muonLessPrimaryVertex) {
           iTrack_mupl = *(muon1->innerTrack());
           iTrack_mumi = *(muon2->innerTrack());
         }
@@ -592,31 +577,25 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
         Reco_QQ_mupl_idx[Reco_QQ_size] = IndexOfThisMuon(muon2->pt());  //needs the non-flipped muon momentum
         Reco_QQ_mumi_idx[Reco_QQ_size] = IndexOfThisMuon(muon1->pt());
 
-        if (_flipJpsiDirection > 0) {
-          iTrack_mupl = mu2Trk;
-          iTrack_mumi = mu1Trk;
+        iTrack_mupl = mu2Trk;
+        iTrack_mumi = mu1Trk;
 
-          Reco_QQ_mumi_4mom_pt.push_back(mu1Trk.pt());
-          Reco_QQ_mumi_4mom_eta.push_back(mu1Trk.eta());
-          Reco_QQ_mumi_4mom_phi.push_back(mu1Trk.phi());
-          Reco_QQ_mumi_4mom_m.push_back(vMuon1.mass());
+        Reco_QQ_mumi_4mom_pt.push_back(mu1Trk.pt());
+        Reco_QQ_mumi_4mom_eta.push_back(mu1Trk.eta());
+        Reco_QQ_mumi_4mom_phi.push_back(mu1Trk.phi());
+        Reco_QQ_mumi_4mom_m.push_back(vMuon1.mass());
 	  	  
-          Reco_QQ_mupl_4mom_pt.push_back(mu2Trk.pt());
-          Reco_QQ_mupl_4mom_eta.push_back(mu2Trk.eta());
-          Reco_QQ_mupl_4mom_phi.push_back(mu2Trk.phi());
-          Reco_QQ_mupl_4mom_m.push_back(vMuon2.mass());
-        } else if (_muonLessPrimaryVertex || _useGeTracks) {
+        Reco_QQ_mupl_4mom_pt.push_back(mu2Trk.pt());
+        Reco_QQ_mupl_4mom_eta.push_back(mu2Trk.eta());
+        Reco_QQ_mupl_4mom_phi.push_back(mu2Trk.phi());
+        Reco_QQ_mupl_4mom_m.push_back(vMuon2.mass());
+        
+        if (_muonLessPrimaryVertex) {
           iTrack_mupl = *(muon2->innerTrack());
           iTrack_mumi = *(muon1->innerTrack());
         }
       }
 
-      if ((!_theMinimumFlag && _muonLessPrimaryVertex) || (_flipJpsiDirection > 0)) {
-        Reco_QQ_mupl_dxy[Reco_QQ_size] = iTrack_mupl.dxy(RefVtx);
-        Reco_QQ_mumi_dxy[Reco_QQ_size] = iTrack_mumi.dxy(RefVtx);
-        Reco_QQ_mupl_dz[Reco_QQ_size] = iTrack_mupl.dz(RefVtx);
-        Reco_QQ_mumi_dz[Reco_QQ_size] = iTrack_mumi.dz(RefVtx);
-      }
 
       LorentzVector dimuonLV = aDimuonCandidate->p4();
       Reco_QQ_4mom_pt.push_back(dimuonLV.Pt());
@@ -707,58 +686,6 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
         std::cout << "Warning: User Float MassErr was not found" << std::endl;
       }
 
-      Reco_QQ_NtrkDeltaR03[Reco_QQ_size] = 0;
-      Reco_QQ_NtrkDeltaR04[Reco_QQ_size] = 0;
-      Reco_QQ_NtrkDeltaR05[Reco_QQ_size] = 0;
-
-      Reco_QQ_NtrkPt02[Reco_QQ_size] = 0;
-      Reco_QQ_NtrkPt03[Reco_QQ_size] = 0;
-      Reco_QQ_NtrkPt04[Reco_QQ_size] = 0;
-
-      //--- counting tracks around Jpsi direction ---
-
-      // use deltaR squared, to not compute square roots in the backgroudn!!
-      if (_useGeTracks && collTracks.isValid()) {
-	      for (const auto& track : *collTracks){
-            double dz = track.dz(RefVtx);
-            double dzsigma = sqrt(track.dzError() * track.dzError() + RefVtx_zError * RefVtx_zError);
-            double dxy = track.dxy(RefVtx);
-            double dxysigma = sqrt(track.dxyError() * track.dxyError() + RefVtx_xError * RefVtx_yError);
-
-            if (track.qualityByName("highPurity") && track.pt() > 0.2 && std::abs(track.eta()) < 2.4 &&
-                track.ptError() / track.pt() < 0.1 && std::abs(dz / dzsigma) < 3.0 && std::abs(dxy / dxysigma) < 3.0) {
-              Reco_QQ_NtrkPt02[Reco_QQ_size]++;
-              if (track.pt() > 0.3)
-                Reco_QQ_NtrkPt03[Reco_QQ_size]++;
-              if (track.pt() > 0.4) {
-                Reco_QQ_NtrkPt04[Reco_QQ_size]++;
-
-                if (iTrack_mupl.charge() == track.charge()) {
-                  double Reco_QQ_mupl_NtrkDeltaR2 =
-                      deltaR2(iTrack_mupl.eta(), iTrack_mupl.phi(), track.eta(), track.phi());
-                  double Reco_QQ_mupl_RelDelPt = abs(1.0 - iTrack_mupl.pt() / track.pt());
-
-                  if (Reco_QQ_mupl_NtrkDeltaR2 < 0.001 * 0.001 && Reco_QQ_mupl_RelDelPt < 0.001)
-                    continue;
-                } else {
-                  double Reco_QQ_mumi_NtrkDeltaR2 =
-                      deltaR2(iTrack_mumi.eta(), iTrack_mumi.phi(), track.eta(), track.phi());
-                  double Reco_QQ_mumi_RelDelPt = abs(1.0 - iTrack_mumi.pt() / track.pt());
-                  if (Reco_QQ_mumi_NtrkDeltaR2 < 0.001 * 0.001 && Reco_QQ_mumi_RelDelPt < 0.001)
-                    continue;
-                }
-
-                double Reco_QQ_NtrkDeltaR2 = deltaR2(aDimuonCandidate->eta(), aDimuonCandidate->phi(), track.eta(), track.phi());
-                if (Reco_QQ_NtrkDeltaR2 < 0.3 * 0.3)
-                  Reco_QQ_NtrkDeltaR03[Reco_QQ_size]++;
-                if (Reco_QQ_NtrkDeltaR2 < 0.4 * 0.4)
-                  Reco_QQ_NtrkDeltaR04[Reco_QQ_size]++;
-                if (Reco_QQ_NtrkDeltaR2 < 0.5 * 0.5)
-                  Reco_QQ_NtrkDeltaR05[Reco_QQ_size]++;
-              }
-            }
-          }
-        }
     }
   } else {
     std::cout << "ERROR: 'aJpsiCand' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
@@ -885,15 +812,6 @@ void HiOniaAnalyzer::InitEvent() {
   Reco_mu_L1_4mom_phi.clear();
   Reco_mu_L1_4mom_m.clear();
 
-  if (_useGeTracks && _fillRecoTracks) {
-    Reco_trk_4mom_pt.clear();
-    Reco_trk_4mom_eta.clear();
-    Reco_trk_4mom_phi.clear();
-    Reco_trk_4mom_m.clear();
-    Reco_trk_vtx_xpos.clear();
-    Reco_trk_vtx_ypos.clear();
-    Reco_trk_vtx_zpos.clear();
-  }
 
   if (_isMC) {
     Gen_QQ_4mom.clear();
@@ -1155,14 +1073,12 @@ void HiOniaAnalyzer::InitTree() {
     myTree->Branch("Reco_QQ_vtx_ypos", &Reco_QQ_vtx_ypos, 32000, 0);
     myTree->Branch("Reco_QQ_vtx_zpos", &Reco_QQ_vtx_zpos, 32000, 0);
       
-    if ((!_theMinimumFlag && _muonLessPrimaryVertex) || (_flipJpsiDirection > 0)) {
+    if ((!_theMinimumFlag && _muonLessPrimaryVertex)) {
       myTree->Branch("Reco_QQ_mupl_dxy_muonlessVtx", Reco_QQ_mupl_dxy, "Reco_QQ_mupl_dxy_muonlessVtx[Reco_QQ_size]/F");
       myTree->Branch("Reco_QQ_mumi_dxy_muonlessVtx", Reco_QQ_mumi_dxy, "Reco_QQ_mumi_dxy_muonlessVtx[Reco_QQ_size]/F");
       myTree->Branch("Reco_QQ_mupl_dz_muonlessVtx", Reco_QQ_mupl_dz, "Reco_QQ_mupl_dz_muonlessVtx[Reco_QQ_size]/F");
       myTree->Branch("Reco_QQ_mumi_dz_muonlessVtx", Reco_QQ_mumi_dz, "Reco_QQ_mumi_dz_muonlessVtx[Reco_QQ_size]/F");
     }
-    if (_flipJpsiDirection > 0) {
-      myTree->Branch("Reco_QQ_flipJpsi", Reco_QQ_flipJpsi, "Reco_QQ_flipJpsi[Reco_QQ_size]/S");
 
       myTree->Branch("Reco_QQ_mumi_4mom_pt", &Reco_QQ_mumi_4mom_pt, 32000, 0);
       myTree->Branch("Reco_QQ_mumi_4mom_eta", &Reco_QQ_mumi_4mom_eta, 32000, 0);
@@ -1174,7 +1090,7 @@ void HiOniaAnalyzer::InitTree() {
       myTree->Branch("Reco_QQ_mupl_4mom_phi", &Reco_QQ_mupl_4mom_phi, 32000, 0);
       myTree->Branch("Reco_QQ_mupl_4mom_m", &Reco_QQ_mupl_4mom_m, 32000, 0);
       
-    }
+    
   
 
   myTree->Branch("Reco_mu_size", &Reco_mu_size, "Reco_mu_size/S");
@@ -1233,43 +1149,6 @@ void HiOniaAnalyzer::InitTree() {
     // myTree->Branch("Reco_mu_ptErr_global",Reco_mu_ptErr_global, "Reco_mu_ptErr_global[Reco_mu_size]/F");
   }
 
-  if (_useGeTracks && _fillRecoTracks) {
-      myTree->Branch("Reco_QQ_NtrkPt02", Reco_QQ_NtrkPt02, "Reco_QQ_NtrkPt02[Reco_QQ_size]/I");
-      myTree->Branch("Reco_QQ_NtrkPt03", Reco_QQ_NtrkPt03, "Reco_QQ_NtrkPt03[Reco_QQ_size]/I");
-      myTree->Branch("Reco_QQ_NtrkPt04", Reco_QQ_NtrkPt04, "Reco_QQ_NtrkPt04[Reco_QQ_size]/I");
-      myTree->Branch("Reco_QQ_NtrkDeltaR03", Reco_QQ_NtrkDeltaR03, "Reco_QQ_NtrkDeltaR03[Reco_QQ_size]/I");
-      myTree->Branch("Reco_QQ_NtrkDeltaR04", Reco_QQ_NtrkDeltaR04, "Reco_QQ_NtrkDeltaR04[Reco_QQ_size]/I");
-      myTree->Branch("Reco_QQ_NtrkDeltaR05", Reco_QQ_NtrkDeltaR05, "Reco_QQ_NtrkDeltaR05[Reco_QQ_size]/I");
-    
-
-    myTree->Branch("Reco_trk_size", &Reco_trk_size, "Reco_trk_size/S");
-    myTree->Branch("Reco_trk_charge", Reco_trk_charge, "Reco_trk_charge[Reco_trk_size]/S");
-    myTree->Branch("Reco_trk_highPurity", Reco_trk_highPurity, "Reco_trk_highPurity[Reco_trk_size]/O");
-    myTree->Branch("Reco_trk_InLooseAcc", Reco_trk_InLooseAcc, "Reco_trk_InLooseAcc[Reco_trk_size]/O");
-    myTree->Branch("Reco_trk_InTightAcc", Reco_trk_InTightAcc, "Reco_trk_InTightAcc[Reco_trk_size]/O");
-    
-    myTree->Branch("Reco_trk_4mom_pt", &Reco_trk_4mom_pt, 32000, 0);
-    myTree->Branch("Reco_trk_4mom_eta", &Reco_trk_4mom_eta, 32000, 0);
-    myTree->Branch("Reco_trk_4mom_phi", &Reco_trk_4mom_phi, 32000, 0);
-    myTree->Branch("Reco_trk_4mom_m", &Reco_trk_4mom_m, 32000, 0);
-    
-
-    myTree->Branch("Reco_trk_vtx_xpos", &Reco_trk_vtx_xpos, 32000, 0);
-    myTree->Branch("Reco_trk_vtx_ypos", &Reco_trk_vtx_ypos, 32000, 0);
-    myTree->Branch("Reco_trk_vtx_zpos", &Reco_trk_vtx_zpos, 32000, 0);
-    
-    myTree->Branch("Reco_trk_dxyError", Reco_trk_dxyError, "Reco_trk_dxyError[Reco_trk_size]/F");
-    myTree->Branch("Reco_trk_dzError", Reco_trk_dzError, "Reco_trk_dzError[Reco_trk_size]/F");
-    myTree->Branch("Reco_trk_dxy", Reco_trk_dxy, "Reco_trk_dxy[Reco_trk_size]/F");
-    myTree->Branch("Reco_trk_dz", Reco_trk_dz, "Reco_trk_dz[Reco_trk_size]/F");
-    myTree->Branch("Reco_trk_ptErr", Reco_trk_ptErr, "Reco_trk_ptErr[Reco_trk_size]/F");
-    //myTree->Branch("Reco_trk_originalAlgo", Reco_trk_originalAlgo, "Reco_trk_originalAlgo[Reco_trk_size]/I");
-    myTree->Branch("Reco_trk_nPixWMea", Reco_trk_nPixWMea, "Reco_trk_nPixWMea[Reco_trk_size]/I");
-    myTree->Branch("Reco_trk_nTrkWMea", Reco_trk_nTrkWMea, "Reco_trk_nTrkWMea[Reco_trk_size]/I");
-    if (_isMC) {
-      myTree->Branch("Reco_trk_whichGenmu", Reco_trk_whichGenmu, "Reco_trk_whichGenmu[Reco_trk_size]/S");
-    }
-  }
 
 genOnly2: 
   if (_isMC) {
