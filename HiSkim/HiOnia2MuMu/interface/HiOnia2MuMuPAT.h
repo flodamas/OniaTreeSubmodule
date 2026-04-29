@@ -72,7 +72,6 @@ private:
   bool onlySoftMuons_;
   int flipJpsiDirection_;
   converter::TrackToCandidate Converter_;
-  int trackType_;
   double dimuonMass_;
   GreaterByPt<pat::CompositeCandidate> pTComparator_;
   GreaterByVProb<pat::CompositeCandidate> vPComparator_;

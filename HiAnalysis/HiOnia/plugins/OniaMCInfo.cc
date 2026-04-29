@@ -78,7 +78,6 @@ void HiOniaAnalyzer::fillGenInfo() {
 
         if (abs(genMuon1->pdgId()) == 13 && abs(genMuon2->pdgId()) == 13 && (genMuon1->status() == 1) &&
             (genMuon2->status() == 1)) {
-          Gen_QQ_Bc_idx[Gen_QQ_size] = -1;
           Gen_QQ_type[Gen_QQ_size] = _isPromptMC ? 0 : 1;  // prompt: 0, non-prompt: 1
           std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > MCinfo = findGenMCInfo(gen);
           Gen_QQ_ctau[Gen_QQ_size] = 10.0 * MCinfo.second.first;

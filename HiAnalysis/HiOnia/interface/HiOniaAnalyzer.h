@@ -360,15 +360,6 @@ private:
   TH1F* hGoodMuons = nullptr;
   TH1F* hL1DoubleMu0 = nullptr;
 
-  MyCommonHistoManager* myRecoMuonHistos = nullptr;
-  MyCommonHistoManager* myRecoGlbMuonHistos = nullptr;
-  MyCommonHistoManager* myRecoTrkMuonHistos = nullptr;
-
-  MyCommonHistoManager* myRecoJpsiHistos = nullptr;
-  MyCommonHistoManager* myRecoJpsiGlbGlbHistos = nullptr;
-  MyCommonHistoManager* myRecoJpsiGlbTrkHistos = nullptr;
-  MyCommonHistoManager* myRecoJpsiTrkTrkHistos = nullptr;
-
   // event counters
   TH1F* hStats = nullptr;
 
@@ -436,7 +427,6 @@ private:
   std::vector<string> _dblTriggerPathNames;
   std::vector<string> _sglTriggerPathNames;
 
-  bool _onlythebest;
   bool _applycuts;
   bool _SofterSgMuAcceptance;
   bool _SumETvariables;

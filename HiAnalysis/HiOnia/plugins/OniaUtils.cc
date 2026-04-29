@@ -130,7 +130,7 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
             muonSelFound = true;
           }
           if (_muonSel == (std::string)("All")) {
-            if (checkCuts(cand, muon1, muon2, &HiOniaAnalyzer::selAllMuon, &HiOniaAnalyzer::selAllMuon)) {
+            if (checkCuts(cand, muon1, muon2, true, true)) {
               _thePassedCats.push_back(All_All);
               _thePassedCands.push_back(cand);
               if (!_fillSingleMuons) {

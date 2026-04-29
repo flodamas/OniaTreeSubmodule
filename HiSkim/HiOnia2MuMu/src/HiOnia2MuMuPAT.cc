@@ -49,7 +49,6 @@ HiOnia2MuMuPAT::HiOnia2MuMuPAT(const edm::ParameterSet &iConfig)
       onlySoftMuons_(iConfig.getParameter<bool>("onlySoftMuons")),
       flipJpsiDirection_(iConfig.getParameter<int>("flipJpsiDirection")),
       Converter_(converter::TrackToCandidate(iConfig, consumesCollector())),
-      trackType_(iConfig.getParameter<int>("particleType")),
       dimuonMass_(iConfig.getParameter<double>("dimuonMassHypothesis")) {
   produces<pat::CompositeCandidateCollection>("");
 };
@@ -402,10 +401,10 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
               std::cout << " Counting tracks from PV, fails! " << std::endl;
               return;
             }
-          }
-          userInt["countTksOfPV"] = countTksOfPV;
-          userFloat["vertexWeight"] = (float)vertexWeight;
-          userFloat["sumPTPV"] = (float)sumPTPV;
+        }
+        userInt["countTksOfPV"] = countTksOfPV;
+        userFloat["vertexWeight"] = (float)vertexWeight;
+        userFloat["sumPTPV"] = (float)sumPTPV;
         
         // ---- end track counting ----
         userFloat["vNChi2"] = myVertex.normalisedChiSquared();
@@ -501,27 +500,27 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
         }
 
         // lifetime using BS
-          pvtx.SetXYZ(theBeamSpotV.position().x(), theBeamSpotV.position().y(), 0);
-          vdiff = vtx - pvtx;
-          cosAlpha = vdiff.Dot(pperp) / (std::sqrt(vdiff.Perp2() * pperp.Perp2()));
-          distXY = vdistXY.distance(Vertex(myVertex), theBeamSpotV);
-          double ctauBS = distXY.value() * cosAlpha * dimuonMass_ / std::sqrt(pperp.Perp2());
-          GlobalError v1eB = (Vertex(myVertex)).error();
-          GlobalError v2eB = theBeamSpotV.error();
-          AlgebraicSymMatrix33 vXYeB = v1eB.matrix() + v2eB.matrix();
-          double ctauErrBS = sqrt(ROOT::Math::Similarity(vpperp, vXYeB)) * dimuonMass_ / (pperp.Perp2());
+        pvtx.SetXYZ(theBeamSpotV.position().x(), theBeamSpotV.position().y(), 0);
+        vdiff = vtx - pvtx;
+        cosAlpha = vdiff.Dot(pperp) / (std::sqrt(vdiff.Perp2() * pperp.Perp2()));
+        distXY = vdistXY.distance(Vertex(myVertex), theBeamSpotV);
+        double ctauBS = distXY.value() * cosAlpha * dimuonMass_ / std::sqrt(pperp.Perp2());
+        GlobalError v1eB = (Vertex(myVertex)).error();
+        GlobalError v2eB = theBeamSpotV.error();
+        AlgebraicSymMatrix33 vXYeB = v1eB.matrix() + v2eB.matrix();
+        double ctauErrBS = sqrt(ROOT::Math::Similarity(vpperp, vXYeB)) * dimuonMass_ / (pperp.Perp2());
 
-          userFloat["ppdlBS"] = ctauBS;
-          userFloat["ppdlErrBS"] = ctauErrBS;
-          pvtx3D.SetXYZ(theBeamSpotV.position().x(), theBeamSpotV.position().y(), theBeamSpotV.position().z());
-          vdiff3D = vtx3D - pvtx3D;
-          cosAlpha3D = vdiff3D.Dot(pxyz) / (std::sqrt(vdiff3D.Mag2() * pxyz.Mag2()));
-          distXYZ = vdistXYZ.distance(Vertex(myVertex), theBeamSpotV);
-          double ctauBS3D = distXYZ.value() * cosAlpha3D * dimuonMass_ / std::sqrt(pxyz.Mag2());
-          double ctauErrBS3D = sqrt(ROOT::Math::Similarity(vpxyz, vXYeB)) * dimuonMass_ / (pxyz.Mag2());
+        userFloat["ppdlBS"] = ctauBS;
+        userFloat["ppdlErrBS"] = ctauErrBS;
+        pvtx3D.SetXYZ(theBeamSpotV.position().x(), theBeamSpotV.position().y(), theBeamSpotV.position().z());
+        vdiff3D = vtx3D - pvtx3D;
+        cosAlpha3D = vdiff3D.Dot(pxyz) / (std::sqrt(vdiff3D.Mag2() * pxyz.Mag2()));
+        distXYZ = vdistXYZ.distance(Vertex(myVertex), theBeamSpotV);
+        double ctauBS3D = distXYZ.value() * cosAlpha3D * dimuonMass_ / std::sqrt(pxyz.Mag2());
+        double ctauErrBS3D = sqrt(ROOT::Math::Similarity(vpxyz, vXYeB)) * dimuonMass_ / (pxyz.Mag2());
 
-          userFloat["ppdlBS3D"] = ctauBS3D;
-          userFloat["ppdlErrBS3D"] = ctauErrBS3D;
+        userFloat["ppdlBS3D"] = ctauBS3D;
+        userFloat["ppdlErrBS3D"] = ctauErrBS3D;
         
 
         if (addCommonVertex_) {

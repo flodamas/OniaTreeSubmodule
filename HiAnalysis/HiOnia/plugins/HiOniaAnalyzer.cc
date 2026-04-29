@@ -1027,7 +1027,6 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
         return;
       }
 
-
       std::string theLabel = theTriggerNames.at(0) + "_" + theCentralities.at(iCent);
 
 
@@ -1328,59 +1327,6 @@ void HiOniaAnalyzer::beginJob() {
   hGoodMuons->Sumw2();
   hL1DoubleMu0->Sumw2();
 
-  // muons
-  if (_combineCategories)
-    myRecoMuonHistos = new MyCommonHistoManager("RecoMuon");
-  else {
-    myRecoGlbMuonHistos = new MyCommonHistoManager("GlobalMuon");
-    myRecoTrkMuonHistos = new MyCommonHistoManager("TrackerMuon");
-  }
-
-  // J/psi
-  if (_combineCategories)
-    myRecoJpsiHistos = new MyCommonHistoManager("RecoJpsi");
-  else {
-    myRecoJpsiGlbGlbHistos = new MyCommonHistoManager("GlbGlbJpsi");
-    myRecoJpsiGlbTrkHistos = new MyCommonHistoManager("GlbTrkJpsi");
-    myRecoJpsiTrkTrkHistos = new MyCommonHistoManager("TrkTrkJpsi");
-  }
-
-  for (unsigned int i = 0; i < theRegions.size(); ++i) {
-    for (unsigned int j = 0; j < NTRIGGERS; ++j) {
-      for (unsigned int k = 0; k < theCentralities.size(); ++k) {
-        std::string theAppendix = theRegions.at(i);
-        theAppendix += "_" + theTriggerNames.at(j);
-        theAppendix += "_" + theCentralities.at(k);
-
-        // muons
-        if (_combineCategories) {
-          myRecoMuonHistos->Add(theAppendix);
-          myRecoMuonHistos->GetHistograms(theAppendix)->SetMassBinning(1, 0.10, 0.11);
-          myRecoMuonHistos->GetHistograms(theAppendix)->SetPtBinning(200, 0.0, 100.0);
-        } else {
-          myRecoGlbMuonHistos->Add(theAppendix);
-          myRecoTrkMuonHistos->Add(theAppendix);
-
-          myRecoGlbMuonHistos->GetHistograms(theAppendix)->SetMassBinning(1, 0.10, 0.11);
-          myRecoGlbMuonHistos->GetHistograms(theAppendix)->SetPtBinning(200, 0.0, 100.0);
-
-          myRecoTrkMuonHistos->GetHistograms(theAppendix)->SetMassBinning(1, 0.10, 0.11);
-          myRecoTrkMuonHistos->GetHistograms(theAppendix)->SetPtBinning(200, 0.0, 100.0);
-        }
-
-        for (unsigned int l = 0; l < theSign.size(); ++l) {
-          // J/psi
-          if (_combineCategories)
-            myRecoJpsiHistos->Add(theAppendix + "_" + theSign.at(l));
-          else {
-            myRecoJpsiGlbGlbHistos->Add(theAppendix + "_" + theSign.at(l));
-            myRecoJpsiGlbTrkHistos->Add(theAppendix + "_" + theSign.at(l));
-            myRecoJpsiTrkTrkHistos->Add(theAppendix + "_" + theSign.at(l));
-          }
-        }
-      }
-    }
-  }
   hStats = fs->make<TH1F>("hStats", "hStats;;Number of Events", 2 * NTRIGGERS + 1, 0, 2 * NTRIGGERS + 1);
   hStats->GetXaxis()->SetBinLabel(1, "All");
   for (int i = 2; i < (int)theTriggerNames.size() + 1; ++i) {
