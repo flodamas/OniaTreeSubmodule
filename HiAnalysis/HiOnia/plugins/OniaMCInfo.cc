@@ -129,7 +129,7 @@ std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleR
 
   if (!GenParticleMother.isNonnull())
     return res;
-  //if(Reco_3mu_size>0) cout<<"\nScanning daughters of Jpsi "<<GenJpsiPDG<<" mother, pdg = "<<GenParticleMother->pdgId()<<endl;
+
   for (int i = 0; i < (int)GenParticleMother->numberOfDaughters(); i++) {
     reco::GenParticleRef dau = findDaughterRef(GenParticleMother->daughterRef(i), GenParticleMother->pdgId());
     for (int l = 0; l < 100; l++) {  //avoid having a daughter of same pdgId
@@ -164,7 +164,7 @@ std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleR
 
       if (!(grandDau.isNonnull() && grandDau->status() > 0 && grandDau->status() < 1000))
         continue;
-      //if(Reco_3mu_size>0) cout<<"    grand-daughter #"<<j<<" pdg = "<< grandDau->pdgId()<<" pt,eta = "<<grandDau->pt()<<" "<<grandDau->eta()<<endl;
+
       if (isChargedTrack(grandDau->pdgId())) {
         res.push_back(grandDau);
       }
