@@ -50,7 +50,6 @@ HiOnia2MuMuPAT::HiOnia2MuMuPAT(const edm::ParameterSet &iConfig)
       flipJpsiDirection_(iConfig.getParameter<int>("flipJpsiDirection")),
       Converter_(converter::TrackToCandidate(iConfig, consumesCollector())),
       trackType_(iConfig.getParameter<int>("particleType")),
-      trackMass_(iConfig.getParameter<double>("trackMassHypothesis")),
       dimuonMass_(iConfig.getParameter<double>("dimuonMassHypothesis")) {
   produces<pat::CompositeCandidateCollection>("");
 };
@@ -173,9 +172,7 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
 
   //For kinematic constrained fit
   KinematicParticleFactoryFromTransientTrack pFactory;
-  ParticleMass jp_mass = dimuonMass_;
   KinematicConstrainedVertexFitter KCfitter;
-
 
   TrackCollection muonLess;  // track collection related to PV, minus the 2 muons (if muonLessPV option is activated)
 

@@ -52,7 +52,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _flipJpsiDirection(iConfig.getParameter<int>("flipJpsiDirection")),
       _genealogyInfo(iConfig.getParameter<bool>("genealogyInfo")),
       _oniaPDG(iConfig.getParameter<int>("oniaPDG")),
-      _BcPDG(iConfig.getParameter<int>("BcPDG")),
       _OneMatchedHLTMu(iConfig.getParameter<int>("OneMatchedHLTMu")),
       _checkTrigNames(iConfig.getParameter<bool>("checkTrigNames")),
       _genOnly(iConfig.getParameter<bool>("genOnly")),

@@ -145,7 +145,7 @@ std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleR
     if (!(dau.isNonnull() && dau->status() > 0 && dau->status() < 1000))
       continue;
 
-      if (isChargedTrack(dau->pdgId())) {
+    if (isChargedTrack(dau->pdgId())) {
       res.push_back(dau);
     }
     if (dau->pdgId() == GenJpsiPDG) {
