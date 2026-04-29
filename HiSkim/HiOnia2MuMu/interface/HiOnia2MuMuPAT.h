@@ -66,17 +66,11 @@ private:
   StringCutObjectSelector<pat::Muon> higherPuritySelection_;
   StringCutObjectSelector<pat::Muon> lowerPuritySelection_;
   StringCutObjectSelector<reco::Candidate, true> dimuonSelection_;
-  StringCutObjectSelector<reco::Candidate, true> DimuTrkSelection_;
-  StringCutObjectSelector<reco::Candidate, true> trimuonSelection_;
   StringCutObjectSelector<reco::Candidate, true> LateDimuonSel_;
-  StringCutObjectSelector<reco::Candidate, true> LateDimuTrkSel_;
-  StringCutObjectSelector<reco::Candidate, true> LateTrimuonSel_;
   bool addCommonVertex_, addMuonlessPrimaryVertex_;
   bool resolveAmbiguity_;
   bool onlySoftMuons_;
   bool onlySingleMuons_;
-  bool doTrimuons_;
-  bool DimuonTrk_;
   int flipJpsiDirection_;
   converter::TrackToCandidate Converter_;
   int trackType_;

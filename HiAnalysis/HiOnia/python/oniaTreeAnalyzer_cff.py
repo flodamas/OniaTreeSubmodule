@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], HLTProName='HLT', muonSelection="Trk", L1Stage=2, isMC=True, pdgID=443, outputFileName="OniaTree.root", muonlessPV = False, doTrimu=False, doDimuTrk=False, flipJpsiDir=0, OnlySingleMuons=False):
+def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], HLTProName='HLT', muonSelection="Trk", L1Stage=2, isMC=True, pdgID=443, outputFileName="OniaTree.root", muonlessPV = False, flipJpsiDir=0, OnlySingleMuons=False):
 
     process.load("FWCore.MessageService.MessageLogger_cfi")
     process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -10,7 +10,7 @@ def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], HLTProName='HLT', m
 ###################### Onia Skim Producer #################################################
 
     from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import onia2MuMuPAT
-    onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=isMC, HLT=HLTProName, Filter=False, useL1Stage2=(L1Stage==2), doTrimuons=doTrimu, DimuonTrk=doDimuTrk, flipJpsiDir=flipJpsiDir)
+    onia2MuMuPAT(process, GlobalTag=process.GlobalTag.globaltag, MC=isMC, HLT=HLTProName, Filter=False, useL1Stage2=(L1Stage==2), flipJpsiDir=flipJpsiDir)
 
 ##### Onia2MuMuPAT input collections/options
     process.onia2MuMuPatGlbGlb.dimuonSelection = cms.string("mass > 0")
@@ -38,7 +38,7 @@ def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], HLTProName='HLT', m
         process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("")
         lowP = "(isGlobalMuon && isTrackerMuon)";
         process.onia2MuMuPatGlbGlb.lowerPuritySelection = cms.string("("+lowP+commonP1+")"+commonP2)
-    elif (muonSelection == "GlbOrTrk" or muonSelection == "TwoGlbAmongThree"):
+    elif (muonSelection == "GlbOrTrk"):
         highP = "(isGlobalMuon || isTrackerMuon)";
         process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("")
         lowP = "(isGlobalMuon || isTrackerMuon)";
@@ -60,8 +60,6 @@ def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], HLTProName='HLT', m
     process.hionia = hionia.clone(
             triggerResultsLabel = cms.InputTag("TriggerResults","",HLTProName), # Label of Trigger Results
             muonLessPV          = cms.bool(muonlessPV),
-            doTrimuons          = cms.bool(doTrimu),  # Whether to produce trimuon objects
-            DimuonTrk           = cms.bool(doDimuTrk),  # Whether to produce Jpsi+track objects
             flipJpsiDirection   = cms.int32(flipJpsiDir), # Whether to flip the Jpsi momentum direction
             oniaPDG             = cms.int32(pdgID),
             muonSel             = cms.string(muonSelection),

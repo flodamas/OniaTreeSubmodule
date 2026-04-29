@@ -143,8 +143,6 @@ private:
 
   void fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t trigBits);
   void fillTreeJpsi(int count);
-  void fillTreeBc(int count);
-  void fillTreeDimuTrk(int count);
 
   void checkTriggers(const pat::CompositeCandidate* aJpsiCand);
   void hltReport(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -163,8 +161,7 @@ private:
     Glb_Glb = 1,
     Trk_Trk = 2,
     GlbOrTrk_GlbOrTrk = 3,
-    TwoGlbAmongThree = 4,
-    All_All = 5
+    All_All = 4
   };
 
   enum muonCategories { GlbTrk = 0, Trk = 1, Glb = 2, GlbOrTrk = 3, All = 4 };
@@ -199,10 +196,6 @@ private:
   std::vector<float> Reco_QQ_vtx_ypos;
   std::vector<float> Reco_QQ_vtx_zpos;
 
-  std::vector<float> Reco_3mu_vtx_xpos;
-  std::vector<float> Reco_3mu_vtx_ypos;
-  std::vector<float> Reco_3mu_vtx_zpos;
-
   std::vector<float> Reco_trk_vtx_xpos;
   std::vector<float> Reco_trk_vtx_ypos;
   std::vector<float> Reco_trk_vtx_zpos;
@@ -212,11 +205,7 @@ private:
   std::vector<float> Reco_QQ_4mom_pt;
   std::vector<float> Reco_QQ_mumi_4mom_pt;
   std::vector<float> Reco_QQ_mupl_4mom_pt;
-  std::vector<float> Reco_3mu_4mom_pt;
   std::vector<float> Reco_trk_4mom_pt;
-  std::vector<float> Gen_Bc_4mom_pt;
-  std::vector<float> Gen_Bc_nuW_4mom_pt;
-  std::vector<float> Gen_3mu_4mom_pt;
 
   std::vector<float> Gen_mu_4mom_pt;
   std::vector<float> Gen_QQ_4mom_pt;
@@ -226,32 +215,20 @@ private:
   std::vector<float> Reco_QQ_4mom_eta;
   std::vector<float> Reco_QQ_mumi_4mom_eta;
   std::vector<float> Reco_QQ_mupl_4mom_eta;
-  std::vector<float> Reco_3mu_4mom_eta;
   std::vector<float> Reco_trk_4mom_eta;
-  std::vector<float> Gen_Bc_4mom_eta;
-  std::vector<float> Gen_Bc_nuW_4mom_eta;
-  std::vector<float> Gen_3mu_4mom_eta;
 
   std::vector<float> Gen_mu_4mom_eta;
   std::vector<float> Gen_QQ_4mom_eta;
 
   std::vector<float> Gen_QQ_4mom_y;
   std::vector<float> Reco_QQ_4mom_y;
-  std::vector<float> Gen_Bc_4mom_y;
-  std::vector<float> Gen_Bc_nuW_4mom_y;
-  std::vector<float> Gen_3mu_4mom_y;
-  std::vector<float> Reco_3mu_4mom_y;
 
   std::vector<float> Reco_mu_4mom_phi;
   std::vector<float> Reco_mu_L1_4mom_phi;
   std::vector<float> Reco_QQ_4mom_phi;
   std::vector<float> Reco_QQ_mumi_4mom_phi;
   std::vector<float> Reco_QQ_mupl_4mom_phi;
-  std::vector<float> Reco_3mu_4mom_phi;
   std::vector<float> Reco_trk_4mom_phi;
-  std::vector<float> Gen_Bc_4mom_phi;
-  std::vector<float> Gen_Bc_nuW_4mom_phi;
-  std::vector<float> Gen_3mu_4mom_phi;
 
   std::vector<float> Gen_mu_4mom_phi;
   std::vector<float> Gen_QQ_4mom_phi;
@@ -261,17 +238,12 @@ private:
   std::vector<float> Reco_QQ_4mom_m;
   std::vector<float> Reco_QQ_mumi_4mom_m;
   std::vector<float> Reco_QQ_mupl_4mom_m;
-  std::vector<float> Reco_3mu_4mom_m;
   std::vector<float> Reco_trk_4mom_m;
-  std::vector<float> Gen_Bc_4mom_m;
-  std::vector<float> Gen_Bc_nuW_4mom_m;
-  std::vector<float> Gen_3mu_4mom_m;
 
   std::vector<float> Gen_mu_4mom_m;
   std::vector<float> Gen_QQ_4mom_m;
 
   static const int Max_QQ_size = 10000;
-  static const int Max_Bc_size = 10000;
   static const int Max_mu_size = 1000;
   static const int Max_trk_size = 10000;
 
@@ -291,14 +263,6 @@ private:
       [Max_QQ_size];  // index of the reconstructed Jpsi that was matched with this gen Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed. Is -2 if the two muons were reconstructed, but the dimuon was not selected
   Short_t Gen_QQ_Bc_idx[Max_QQ_size];  //Index of the Bc gen mother. -1 if there is no Bc mother
 
-  Short_t Gen_Bc_size;                  // number of generated Bc
-  float Gen_Bc_ctau[Max_Bc_size];       // ctau: flight time
-  int Gen_Bc_pdgId[Max_Bc_size];        // pdgId of Bc
-  Short_t Gen_Bc_QQ_idx[Max_Bc_size];   //Points to the number of the associated Jpsi daughter
-  Short_t Gen_Bc_muW_idx[Max_Bc_size];  // index of the muon from W from Bc, in the full list of muons
-  Short_t Gen_3mu_whichRec
-      [Max_Bc_size];  // index of the reconstructed trimuon that was matched with this gen visible Bc. Is -1 if one muon of the Bc was not reconstructed
-
   Short_t Gen_mu_size;                 // number of generated muons
   Short_t Gen_mu_charge[Max_mu_size];  // muon charge
   Short_t Gen_mu_type[Max_mu_size];    // muon type: prompt, non-prompt, unmatched
@@ -306,48 +270,6 @@ private:
       [Max_mu_size];  // index of the reconstructed muon that was matched with this gen muon. Is -1 if the muon was not reconstructed
   float Gen_mu_MatchDeltaR[Max_mu_size];  // deltaR between reco and gen matched muons
 
-  Short_t Reco_3mu_size;  // Number of reconstructed trimuons
-  Short_t Reco_3mu_charge[Max_Bc_size];
-  Short_t Reco_3mu_mupl_idx[Max_Bc_size];  // index of the muon plus from Jpsi, in the full list of muons
-  Short_t Reco_3mu_mumi_idx[Max_Bc_size];  // index of the muon minus from Jpsi, in the full list of muons
-  Short_t Reco_3mu_muW_idx[Max_Bc_size];   // index of the muon from W, in the full list of muons
-  Short_t Reco_3mu_muW2_idx[Max_Bc_size];  // index of the muon from W, for the second possible OS dimuon
-  //  Short_t Reco_3mu_muW_trkIdx[Max_Bc_size];    // index of the generated track closest to the reco muon from W, when the Jpsi is true and the muon is fake
-  Short_t Reco_3mu_QQ1_idx[Max_Bc_size];   // index of a possible Jpsi from Bc, 1st of the two OS muon pairs
-  Short_t Reco_3mu_QQ2_idx[Max_Bc_size];   // index of a possible Jpsi from Bc, 2nd of the two OS muon pairs
-  Short_t Reco_3mu_QQss_idx[Max_Bc_size];  // index of a the same-sign muon pair from Bc
-  Short_t Reco_3mu_whichGen
-      [Max_Bc_size];  // index of the generated Bc that was matched with this rec Bc. Is -1 if one or more of the 3 muons from Bc was not reconstructed
-  bool Reco_3mu_muW_isGenJpsiBro
-      [Max_Bc_size];  // is this true or fake muon matched to a generated particle that is brother/nephew to the gen Jpsi (daughter of the gen B)
-  int Reco_3mu_muW_trueId[Max_Bc_size];   //pdgId of the generated particle that the reco_muW is matched to
-  float Reco_3mu_VtxProb[Max_Bc_size];    // chi2 probability of vertex fitting
-  float Reco_3mu_KCVtxProb[Max_Bc_size];  // chi2 probability of kinematic constrained vertex fitting
-  float Reco_3mu_ctau[Max_Bc_size];       // ctau: flight time
-  float Reco_3mu_ctauErr[Max_Bc_size];    // error on ctau
-  float Reco_3mu_cosAlpha
-      [Max_QQ_size];  // cosine of angle between momentum of Bc and direction of PV--displaced vertex segment (in XY plane)
-  float Reco_3mu_ctau3D[Max_Bc_size];     // ctau: flight time in 3D
-  float Reco_3mu_ctauErr3D[Max_Bc_size];  // error on ctau in 3D
-  float Reco_3mu_cosAlpha3D
-      [Max_QQ_size];  // cosine of angle between momentum of Bc and direction of PV--displaced vertex segment (3D)
-  float Reco_3mu_KCctau[Max_Bc_size];     // ctau: flight time
-  float Reco_3mu_KCctauErr[Max_Bc_size];  // error on ctau
-  float Reco_3mu_KCcosAlpha
-      [Max_QQ_size];  // cosine of angle between momentum of Bc and direction of PV--displaced vertex segment (in XY plane)
-  float Reco_3mu_KCctau3D[Max_Bc_size];     // ctau: flight time in 3D
-  float Reco_3mu_KCctauErr3D[Max_Bc_size];  // error on ctau in 3D
-  float Reco_3mu_KCcosAlpha3D
-      [Max_QQ_size];  // cosine of angle between momentum of Bc and direction of PV--displaced vertex segment (3D)
-  float Reco_3mu_MassErr[Max_Bc_size];
-  float Reco_3mu_CorrM[Max_Bc_size];
-  Short_t Reco_3mu_NbMuInSameSV[Max_Bc_size];
-  float Reco_3mu_muW_dxy[Max_Bc_size];
-  float Reco_3mu_muW_dz[Max_Bc_size];
-  float Reco_3mu_mumi_dxy[Max_Bc_size];
-  float Reco_3mu_mumi_dz[Max_Bc_size];
-  float Reco_3mu_mupl_dxy[Max_Bc_size];
-  float Reco_3mu_mupl_dz[Max_Bc_size];
 
   Short_t Reco_QQ_size;                   // Number of reconstructed Onia
   Short_t Reco_QQ_type[Max_QQ_size];      // Onia category: GG, GT, TT
@@ -504,8 +426,6 @@ private:
 
   // handles
   edm::Handle<pat::CompositeCandidateCollection> collJpsi;
-  edm::Handle<pat::CompositeCandidateCollection> collTrimuon;
-  edm::Handle<pat::CompositeCandidateCollection> collDimutrk;
   edm::Handle<pat::MuonCollection> collMuon;
   edm::Handle<pat::MuonCollection> collMuonNoTrig;
   edm::Handle<reco::TrackCollection> collTracks;
@@ -520,8 +440,6 @@ private:
   edm::EDGetTokenT<pat::MuonCollection> _patMuonToken;
   edm::EDGetTokenT<pat::MuonCollection> _patMuonNoTrigToken;
   edm::EDGetTokenT<pat::CompositeCandidateCollection> _patJpsiToken;
-  edm::EDGetTokenT<pat::CompositeCandidateCollection> _patTrimuonToken;
-  edm::EDGetTokenT<pat::CompositeCandidateCollection> _patDimuTrkToken;
   edm::EDGetTokenT<reco::TrackCollection> _recoTracksToken;
   edm::EDGetTokenT<reco::GenParticleCollection> _genParticleToken;
   edm::EDGetTokenT<GenEventInfoProduct> _genInfoToken;
@@ -568,11 +486,8 @@ private:
   bool _isPromptMC;
   bool _useEvtPlane;
   bool _useGeTracks;
-  bool _doTrimuons;
-  bool _doDimuTrk;
   int _flipJpsiDirection;
   bool _genealogyInfo;
-  bool _miniAODcut;
 
   int _oniaPDG;
   int _BcPDG;
@@ -582,8 +497,6 @@ private:
 
   std::vector<unsigned int> _thePassedCats;
   std::vector<const pat::CompositeCandidate*> _thePassedCands;
-  std::vector<unsigned int> _thePassedBcCats;
-  std::vector<const pat::CompositeCandidate*> _thePassedBcCands;
 
   std::vector<reco::GenParticleRef> _Gen_QQ_MomAndTrkBro[Max_QQ_size];
 

@@ -60,7 +60,7 @@ def submit(config):
 for i in range(60):
 
     config.General.requestName = f'RawPrime{i}'
-    config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2025A-PromptReco-v1/MINIAOD"
+    config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2025A-PbPbEW-PromptReco-v1/MINIAOD"
     config.Data.outputDatasetTag = config.General.requestName
 
     print("Submitting CRAB job for: "+ config.Data.inputDataset)

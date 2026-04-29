@@ -5,8 +5,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         srcMuon          = cms.InputTag("patMuonsWithTrigger"),
                         srcMuonNoTrig    = cms.InputTag("patMuonsWithoutTrigger"),
                         srcDimuon        = cms.InputTag("onia2MuMuPatGlbGlb"),
-                        srcTrimuon       = cms.InputTag("onia2MuMuPatGlbGlb","trimuon"),      # Name of Onia Skim Collection for trimuons
-                        srcDimuTrk       = cms.InputTag("onia2MuMuPatGlbGlb","dimutrk"),      # Name of Onia Skim Collection for Jpsi+track
                         srcSV            = cms.InputTag("inclusiveSecondaryVerticesLoose",""), # Name of SV collection
                         srcTracks        = cms.InputTag("generalTracks"),
                         genParticles     = cms.InputTag("genParticles"),
@@ -38,7 +36,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         storeSameSign = cms.bool(False),
                         AtLeastOneCand = cms.bool(False),
 
-                        doTrimuons = cms.bool(False),
                         flipJpsiDirection = cms.int32(0),
                         genealogyInfo = cms.bool(False),
                         miniAODcut = cms.bool(False),

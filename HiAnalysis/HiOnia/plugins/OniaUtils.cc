@@ -1,10 +1,5 @@
 #include "HiAnalysis/HiOnia/interface/HiOniaAnalyzer.h"
 
-bool HiOniaAnalyzer::PassMiniAODcut(const pat::Muon* aMuon) {
-  return aMuon->pt() > 5 || aMuon->isPFMuon() ||
-         (aMuon->pt() > 1.2 && (aMuon->isGlobalMuon() || aMuon->isStandAloneMuon())) ||
-         (aMuon->isTrackerMuon() && aMuon->innerTrack()->quality(reco::TrackBase::highPurity));
-};
 
 //Find the indices of the reconstructed muon matching each generated muon, and vice versa
 void HiOniaAnalyzer::fillMuMatchingInfo() {
@@ -97,17 +92,6 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
             }
             muonSelFound = true;
           }
-          if (_muonSel == (std::string)("TwoGlbAmongThree")) {
-            if (checkCuts(cand, muon1, muon2, &HiOniaAnalyzer::selGlobalMuon, &HiOniaAnalyzer::selTrackerMuon)) {
-              _thePassedCats.push_back(TwoGlbAmongThree);
-              _thePassedCands.push_back(cand);
-              if (!_fillSingleMuons) {
-                EtaOfWantedMuons.push_back(muon1->eta());
-                EtaOfWantedMuons.push_back(muon2->eta());
-              }
-            }
-            muonSelFound = true;
-          }
           if (_muonSel == (std::string)("GlbTrk")) {
             if (checkCuts(cand, muon1, muon2, &HiOniaAnalyzer::selGlobalMuon, &HiOniaAnalyzer::selGlobalMuon)) {
               _thePassedCats.push_back(GlbTrk_GlbTrk);
@@ -158,7 +142,7 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
           }
           if (!muonSelFound) {
             std::cout << "[HiOniaAnalyzer::makeCuts] --- The muon selection: " << _muonSel
-                      << " is invalid. The supported options are: All, Glb, GlbTrk, GlbOrTrk, Trk, and TwoGlbAmongThree"
+                      << " is invalid. The supported options are: All, Glb, GlbTrk, GlbOrTrk, Trk"
                       << std::endl;
           }
         }
@@ -180,31 +164,6 @@ bool HiOniaAnalyzer::checkCuts(const pat::CompositeCandidate* cand,
       (!_applycuts || true) &&  //Add hard-coded cuts here if desired
       ((_OneMatchedHLTMu == -1) || !muon1->triggerObjectMatchesByFilter(lastFilter).empty() ||
        !muon2->triggerObjectMatchesByFilter(lastFilter).empty()))
-    return true;
-  else
-    return false;
-};
-
-bool HiOniaAnalyzer::checkBcCuts(const pat::CompositeCandidate* cand,
-                                 const pat::Muon* muon1,
-                                 const pat::Muon* muon2,
-                                 const pat::Muon* muon3,
-                                 bool (HiOniaAnalyzer::*callFunc1)(const pat::Muon*),
-                                 bool (HiOniaAnalyzer::*callFunc2)(const pat::Muon*),
-                                 bool (HiOniaAnalyzer::*callFunc3)(const pat::Muon*)) {
-  const auto& lastFilter = filterNameMap.at(theTriggerNames[(_OneMatchedHLTMu < 0) ? 0 : _OneMatchedHLTMu]);
-  const auto& mu1HLTMatchesFilter = muon1->triggerObjectMatchesByFilter(lastFilter);
-  const auto& mu2HLTMatchesFilter = muon2->triggerObjectMatchesByFilter(lastFilter);
-  const auto& mu3HLTMatchesFilter = muon3->triggerObjectMatchesByFilter(lastFilter);
-
-  if ((((this->*callFunc1)(muon1) && (this->*callFunc2)(muon2) && (this->*callFunc3)(muon3))
-       //symmetrize, assuming arguments functions 2 and 3 are THE SAME !
-       || ((this->*callFunc1)(muon2) && (this->*callFunc2)(muon1) && (this->*callFunc3)(muon3)) ||
-       ((this->*callFunc1)(muon3) && (this->*callFunc2)(muon1) && (this->*callFunc3)(muon2))) &&
-      (!_applycuts || true) &&  //Add hard-coded cuts here if desired
-      ((_OneMatchedHLTMu == -1) || (!mu1HLTMatchesFilter.empty() && !mu2HLTMatchesFilter.empty()) ||
-       (!mu1HLTMatchesFilter.empty() && !mu3HLTMatchesFilter.empty()) ||
-       (!mu2HLTMatchesFilter.empty() && !mu3HLTMatchesFilter.empty())))
     return true;
   else
     return false;
@@ -241,167 +200,6 @@ int HiOniaAnalyzer::IndexOfThisJpsi(int mu1_idx, int mu2_idx, int flipJpsi) {
     }
   }
   return GoodIndex;
-};
-
-void HiOniaAnalyzer::makeDimutrkCuts(bool keepWrongSign) {
-  math::XYZPoint RefVtx_tmp = RefVtx;
-
-  if (collDimutrk.isValid()) {
-    for (std::vector<pat::CompositeCandidate>::const_iterator it = collDimutrk->begin(); it != collDimutrk->end();
-         ++it) {
-      const pat::CompositeCandidate* cand = &(*it);
-
-      if (cand == nullptr) {
-        std::cout << "ERROR: 'cand' pointer in makeDimutrkCuts is NULL ! Return now" << std::endl;
-        return;
-      } else {
-        const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
-        const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
-        const reco::RecoChargedCandidate* trk =
-            dynamic_cast<const reco::RecoChargedCandidate*>(cand->daughter("track"));
-
-        if (muon1 == nullptr || muon2 == nullptr || trk == nullptr) {
-          std::cout << "ERROR: 'muon1' or 'muon2' or 'trk' pointer in makeDimutrkCuts is NULL ! Return now"
-                    << std::endl;
-          return;
-        } else {
-          if (!keepWrongSign && (muon1->charge() + muon2->charge() + trk->charge() != 1) &&
-              (muon1->charge() + muon2->charge() + trk->charge() != -1))
-            continue;
-
-          if (!(_isHI) && _muonLessPrimaryVertex && cand->hasUserData("muonlessPV"))
-            RefVtx = (*cand->userData<reco::Vertex>("muonlessPV")).position();
-          else if (!_muonLessPrimaryVertex && cand->hasUserData("PVwithmuons"))
-            RefVtx = (*cand->userData<reco::Vertex>("PVwithmuons")).position();
-          else {
-            std::cout << "HiOniaAnalyzer::makeCuts: no PV for muon pair stored ! Go to next candidate." << std::endl;
-            continue;
-          }
-
-          if (std::abs(RefVtx.Z()) > _iConfig.getParameter<double>("maxAbsZ"))
-            continue;
-
-          if (std::abs(muon1->eta()) >= etaMax || std::abs(muon2->eta()) >= etaMax || std::abs(trk->eta()) >= etaMax)
-            continue;
-
-          //Pass muon selection?
-          if ((_muonSel == (std::string)("GlbOrTrk")) && checkDimuTrkCuts(cand,
-                                                                          muon1,
-                                                                          muon2,
-                                                                          trk,
-                                                                          &HiOniaAnalyzer::selGlobalOrTrackerMuon,
-                                                                          &HiOniaAnalyzer::selGlobalOrTrackerMuon,
-                                                                          &HiOniaAnalyzer::selTrk)) {
-            _thePassedBcCats.push_back(Glb_Glb);
-            _thePassedBcCands.push_back(cand);
-            if (!_fillSingleMuons) {
-              EtaOfWantedMuons.push_back(muon1->eta());
-              EtaOfWantedMuons.push_back(muon2->eta());
-            }
-            EtaOfWantedTracks.push_back(trk->eta());
-          } else if ((_muonSel ==
-                      (std::string)(
-                          "TwoGlbAmongThree")) &&  //argument functions 2 and 3 have to be the same for good symmetrization
-                     checkDimuTrkCuts(cand,
-                                      muon1,
-                                      muon2,
-                                      trk,
-                                      &HiOniaAnalyzer::selTrackerMuon,
-                                      &HiOniaAnalyzer::selGlobalMuon,
-                                      &HiOniaAnalyzer::selTrk)) {
-            _thePassedBcCats.push_back(TwoGlbAmongThree);
-            _thePassedBcCands.push_back(cand);
-            if (!_fillSingleMuons) {
-              EtaOfWantedMuons.push_back(muon1->eta());
-              EtaOfWantedMuons.push_back(muon2->eta());
-            }
-            EtaOfWantedTracks.push_back(trk->eta());
-          } else if ((_muonSel == (std::string)("Glb")) && checkDimuTrkCuts(cand,
-                                                                            muon1,
-                                                                            muon2,
-                                                                            trk,
-                                                                            &HiOniaAnalyzer::selGlobalMuon,
-                                                                            &HiOniaAnalyzer::selGlobalMuon,
-                                                                            &HiOniaAnalyzer::selTrk)) {
-            _thePassedBcCats.push_back(Glb_Glb);
-            _thePassedBcCands.push_back(cand);
-            if (!_fillSingleMuons) {
-              EtaOfWantedMuons.push_back(muon1->eta());
-              EtaOfWantedMuons.push_back(muon2->eta());
-            }
-            EtaOfWantedTracks.push_back(trk->eta());
-          } else if ((_muonSel == (std::string)("GlbTrk")) && checkDimuTrkCuts(cand,
-                                                                               muon1,
-                                                                               muon2,
-                                                                               trk,
-                                                                               &HiOniaAnalyzer::selGlobalMuon,
-                                                                               &HiOniaAnalyzer::selGlobalMuon,
-                                                                               &HiOniaAnalyzer::selTrk)) {
-            _thePassedBcCats.push_back(GlbTrk_GlbTrk);
-            _thePassedBcCands.push_back(cand);
-            if (!_fillSingleMuons) {
-              EtaOfWantedMuons.push_back(muon1->eta());
-              EtaOfWantedMuons.push_back(muon2->eta());
-            }
-            EtaOfWantedTracks.push_back(trk->eta());
-          } else if ((_muonSel == (std::string)("Trk")) && checkDimuTrkCuts(cand,
-                                                                            muon1,
-                                                                            muon2,
-                                                                            trk,
-                                                                            &HiOniaAnalyzer::selTrackerMuon,
-                                                                            &HiOniaAnalyzer::selTrackerMuon,
-                                                                            &HiOniaAnalyzer::selTrk)) {
-            _thePassedBcCats.push_back(Trk_Trk);
-            _thePassedBcCands.push_back(cand);
-            if (!_fillSingleMuons) {
-              EtaOfWantedMuons.push_back(muon1->eta());
-              EtaOfWantedMuons.push_back(muon2->eta());
-            }
-            EtaOfWantedTracks.push_back(trk->eta());
-          } else if ((_muonSel == (std::string)("All")) && checkDimuTrkCuts(cand,
-                                                                            muon1,
-                                                                            muon2,
-                                                                            trk,
-                                                                            &HiOniaAnalyzer::selAllMuon,
-                                                                            &HiOniaAnalyzer::selAllMuon,
-                                                                            &HiOniaAnalyzer::selTrk)) {
-            _thePassedBcCats.push_back(All_All);
-            _thePassedBcCands.push_back(cand);
-            if (!_fillSingleMuons) {
-              EtaOfWantedMuons.push_back(muon1->eta());
-              EtaOfWantedMuons.push_back(muon2->eta());
-            }
-            EtaOfWantedTracks.push_back(trk->eta());
-          } else {
-            //std::cout << "[HiOniaAnalyzer::makeCuts] trimuon --- muon did not pass selection: " << _muonSel << std::endl;
-          }
-        }
-      }
-    }
-  }
-
-  RefVtx = RefVtx_tmp;
-  return;
-};
-
-bool HiOniaAnalyzer::checkDimuTrkCuts(const pat::CompositeCandidate* cand,
-                                      const pat::Muon* muon1,
-                                      const pat::Muon* muon2,
-                                      const reco::RecoChargedCandidate* trk,
-                                      bool (HiOniaAnalyzer::*callFunc1)(const pat::Muon*),
-                                      bool (HiOniaAnalyzer::*callFunc2)(const pat::Muon*),
-                                      bool (HiOniaAnalyzer::*callFunc3)(const reco::TrackRef)) {
-  const auto& lastFilter = filterNameMap.at(theTriggerNames[(_OneMatchedHLTMu < 0) ? 0 : _OneMatchedHLTMu]);
-  const auto& mu1HLTMatchesFilter = muon1->triggerObjectMatchesByFilter(lastFilter);
-  const auto& mu2HLTMatchesFilter = muon2->triggerObjectMatchesByFilter(lastFilter);
-
-  if ((((this->*callFunc1)(muon1) && (this->*callFunc2)(muon2) && (this->*callFunc3)(trk->track())) ||
-       ((this->*callFunc1)(muon2) && (this->*callFunc2)(muon1) && (this->*callFunc3)(trk->track()))) &&
-      (!_applycuts || true) &&  //Add hard-coded cuts here if desired
-      ((_OneMatchedHLTMu == -1) || (!mu1HLTMatchesFilter.empty() && !mu2HLTMatchesFilter.empty())))
-    return true;
-  else
-    return false;
 };
 
 Short_t HiOniaAnalyzer::MuInSV(LorentzVector v1, LorentzVector v2, LorentzVector v3) {

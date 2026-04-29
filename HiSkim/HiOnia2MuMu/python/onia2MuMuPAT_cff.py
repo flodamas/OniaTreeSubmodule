@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stage2=False, doTrimuons=False, DimuonTrk=False, flipJpsiDir=0):
+def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stage2=False, flipJpsiDir=0):
     # Setup the process
     process.options = cms.untracked.PSet(
         wantSummary = cms.untracked.bool(True),
@@ -85,8 +85,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stag
     # Make dimuon candidates
     from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cfi import onia2MuMuPAT
     process.onia2MuMuPatGlbGlb = onia2MuMuPAT.clone(
-            doTrimuons        = cms.bool(doTrimuons), ## Make collections of trimuon candidates in addition to dimuons, and keep only events with >0 trimuons
-            DimuonTrk         = cms.bool(DimuonTrk), ## Make collections of Jpsi+track candidates in addition to dimuons, and keep only events with >0 Jpsi+trk
             flipJpsiDirection = cms.int32(flipJpsiDir), ## flip the Jpsi direction, before combining it with a third muon
     )
 
@@ -94,18 +92,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stag
     process.onia2MuMuPatGlbGlbFilter = cms.EDFilter("CandViewCountFilter",
         src = cms.InputTag('onia2MuMuPatGlbGlb',''),
         minNumber = cms.uint32(1),
-    )
-    process.onia2MuMuPatGlbGlbFilterDimutrk = cms.EDFilter("CandViewCountFilter",
-        src = cms.InputTag('onia2MuMuPatGlbGlb','dimutrk'),
-        minNumber = cms.uint32(1),
-    )
-    process.onia2MuMuPatGlbGlbFilterTrimu = cms.EDFilter("CandViewCountFilter",
-        src = cms.InputTag('onia2MuMuPatGlbGlb','trimuon'),
-        minNumber = cms.uint32(1),
-    )
-    process.filter3mu = cms.EDFilter("CandViewCountFilter",
-        src = cms.InputTag('muons'),
-        minNumber = cms.uint32(3),
     )
     process.pseudoDimuon = cms.EDProducer("CandViewShallowCloneCombiner",
         decay = cms.string('muons@+ muons@-'),
@@ -127,11 +113,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stag
         process.onia2MuMuPatGlbGlbFilter
     )
 
-    if DimuonTrk:
-        process.Onia2MuMuPAT.replace(process.onia2MuMuPatGlbGlbFilter, process.onia2MuMuPatGlbGlbFilterDimutrk)
-    if doTrimuons:
-        process.Onia2MuMuPAT.replace(process.onia2MuMuPatGlbGlbFilter, process.onia2MuMuPatGlbGlbFilterTrimu)
-
     process.outOnia2MuMu = cms.OutputModule("PoolOutputModule",
         fileName = cms.untracked.string('onia2MuMuPAT.root'),
         outputCommands =  cms.untracked.vstring(
@@ -141,8 +122,6 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stag
             'keep *_genMuons_*_Onia2MuMuPAT',                      # generated muons and parents
             'keep patMuons_patMuonsWithTrigger_*_Onia2MuMuPAT',    # All PAT muons including matches to triggers
             'keep patCompositeCandidates_*__Onia2MuMuPAT',         # PAT di-muons
-            'keep patCompositeCandidates_*_trimuon_Onia2MuMuPAT',  # PAT trimuons
-            'keep patCompositeCandidates_*_dimutrk_Onia2MuMuPAT',  # PAT dimuon+track candidates
             'keep *_dedxHarmonic2_*_*',                            # dE/dx estimator for tracks (to do PID when doDimuTrk)
             'keep *_offlineSlimmedPrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
             'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters

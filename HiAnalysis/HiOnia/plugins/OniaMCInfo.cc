@@ -35,12 +35,6 @@ void HiOniaAnalyzer::fillGenInfo() {
     return;
   }
 
-  if (Gen_Bc_size >= Max_Bc_size) {
-    std::cout << "Too many Bc's: " << Gen_Bc_size << std::endl;
-    std::cout << "Maximum allowed: " << Max_Bc_size << std::endl;
-    return;
-  }
-
   if (Gen_mu_size >= Max_mu_size) {
     std::cout << "Too many muons: " << Gen_mu_size << std::endl;
     std::cout << "Maximum allowed: " << Max_mu_size << std::endl;
@@ -111,70 +105,6 @@ void HiOniaAnalyzer::fillGenInfo() {
             Gen_QQ_mumi_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon1->pt(), true);
           }
 
-          if (_doTrimuons) {
-            //GenInfo for the Bc and the daughter muon from the W daughter of the Bc. Beware, this is designed for generated Bc's having QQ as a daughter!!
-            std::pair<bool, reco::GenParticleRef> findBcMom = findBcMotherRef(
-                findMotherRef(gen.motherRef(), gen.pdgId()), _BcPDG);  //the boolean says if the Bc mother was found
-
-            if (findBcMom.first) {
-              if (Gen_QQ_Bc_idx[Gen_QQ_size] > -1) {
-                std::cout << "WARNING : Jpsi seems to have more than one Bc mother" << std::endl;
-              }
-
-              reco::GenParticleRef genBc = findBcMom.second;
-              if (genBc->numberOfDaughters() >= 3) {
-                reco::GenParticleRef genDau1 = findDaughterRef(genBc->daughterRef(0), genBc->pdgId());
-                reco::GenParticleRef genDau2 = findDaughterRef(genBc->daughterRef(1), genBc->pdgId());
-                reco::GenParticleRef genDau3 = findDaughterRef(genBc->daughterRef(2), genBc->pdgId());
-
-                //Which daughter is the mu or nu from the W?
-                bool goodDaughters = true;
-                const reco::GenParticleRef& gennuW = genDau1;
-                const reco::GenParticleRef& genmuW = genDau2;
-
-                if (isNeutrino(genDau1->pdgId()) && (abs(genDau2->pdgId()) == 13)) {
-                } else if (isNeutrino(genDau2->pdgId()) && (abs(genDau1->pdgId()) == 13)) {
-                } else if (isNeutrino(genDau1->pdgId()) && (abs(genDau3->pdgId()) == 13)) {
-                } else if (isNeutrino(genDau3->pdgId()) && (abs(genDau1->pdgId()) == 13)) {
-                } else if (isNeutrino(genDau2->pdgId()) && (abs(genDau3->pdgId()) == 13)) {
-                } else if (isNeutrino(genDau3->pdgId()) && (abs(genDau2->pdgId()) == 13)) {
-                } else {
-                  goodDaughters = false;
-                }
-
-                //Fill info for Bc and its mu,nu daughters
-                if (goodDaughters && (genmuW->charge() == genBc->charge()) && (genmuW->status() == 1)) {
-                  Gen_QQ_Bc_idx[Gen_QQ_size] = Gen_Bc_size;
-                  Gen_Bc_QQ_idx[Gen_Bc_size] = Gen_QQ_size;
-
-                  Gen_Bc_pdgId[Gen_Bc_size] = genBc->pdgId();
-                  std::pair<int, std::pair<float, float> > MCinfo = findGenBcInfo(genBc, gen);
-                  Gen_Bc_ctau[Gen_Bc_size] = 10.0 * MCinfo.second.first;
-
-                  LorentzVector BcLV = genBc->p4();
-                  Gen_Bc_4mom_pt.push_back(BcLV.Pt());
-                  Gen_Bc_4mom_eta.push_back(BcLV.Eta());
-                  Gen_Bc_4mom_y.push_back(BcLV.Rapidity());
-                  Gen_Bc_4mom_phi.push_back(BcLV.Phi());
-                  Gen_Bc_4mom_m.push_back(BcLV.M());
-
-                  Gen_Bc_muW_idx[Gen_Bc_size] = IndexOfThisMuon(genmuW->pt(), true);
-
-                  LorentzVector vnuW = gennuW->p4();
-		              Gen_Bc_nuW_4mom_pt.push_back(vnuW.Pt());
-                  Gen_Bc_nuW_4mom_eta.push_back(vnuW.Eta());
-                  Gen_Bc_nuW_4mom_y.push_back(vnuW.Rapidity());
-                  Gen_Bc_nuW_4mom_phi.push_back(vnuW.Phi());
-                  Gen_Bc_nuW_4mom_m.push_back(vnuW.M());
-
-                  Gen_Bc_size++;
-                } else {
-                  std::cout << "WARNING : Problem with daughters of the gen Bc, hence Bc and its daughters are not written out"
-                            << std::endl;
-                }
-              }
-            }
-          }
           Gen_QQ_size++;
         }
       }

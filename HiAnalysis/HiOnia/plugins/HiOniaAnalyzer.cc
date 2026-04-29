@@ -4,10 +4,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
     : _patMuonToken(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("srcMuon"))),
       _patMuonNoTrigToken(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("srcMuonNoTrig"))),
       _patJpsiToken(consumes<pat::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("srcDimuon"))),
-      _patTrimuonToken(consumes<pat::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>(
-          "srcTrimuon"))),  //the names of userData are the same as for dimuons, but with 'trimuon' product instance name. Ignored if the collection does not exist
-      _patDimuTrkToken(consumes<pat::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>(
-          "srcDimuTrk"))),  //the names of userData are the same as for dimuons, but with 'dimutrk' product instance name. Ignored if the collection does not exist
       _recoTracksToken(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"))),
       _genParticleToken(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
       _genInfoToken(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
@@ -54,11 +50,8 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _isPromptMC(iConfig.getUntrackedParameter<bool>("isPromptMC", true)),
       _useEvtPlane(iConfig.getUntrackedParameter<bool>("useEvtPlane", false)),
       _useGeTracks(iConfig.getUntrackedParameter<bool>("useGeTracks", false)),
-      _doTrimuons(iConfig.getParameter<bool>("doTrimuons")),
-      _doDimuTrk(iConfig.getParameter<bool>("DimuonTrk")),
       _flipJpsiDirection(iConfig.getParameter<int>("flipJpsiDirection")),
       _genealogyInfo(iConfig.getParameter<bool>("genealogyInfo")),
-      _miniAODcut(iConfig.getParameter<bool>("miniAODcut")),
       _oniaPDG(iConfig.getParameter<int>("oniaPDG")),
       _BcPDG(iConfig.getParameter<int>("BcPDG")),
       _OneMatchedHLTMu(iConfig.getParameter<int>("OneMatchedHLTMu")),
@@ -68,22 +61,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _iConfig(iConfig) {
   usesResource(TFileService::kSharedResource);
 
-  if (_doTrimuons && _doDimuTrk) {
-    cout << "FATAL ERROR: _doTrimuons and _doDimuTrk cannot be both true! Code not designed to do both at a time; "
-            "Return now."
-         << endl;
-    return;
-  }
-  if (_doDimuTrk) {
-    if (!_useGeTracks) {
-      cout << "Have to use generalTracks if doDimuonTrk==true. _useGeTracks = true is forced." << endl;
-      _useGeTracks = true;
-    }
-    if (!_fillRecoTracks) {
-      cout << "Have to use generalTracks if doDimuonTrk==true. _fillRecoTracks = true is forced." << endl;
-      _fillRecoTracks = true;
-    }
-  }
 
   //now do whatever initialization is needed
   nEvents = 0;
@@ -320,10 +297,6 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   iEvent.getByToken(_patJpsiToken, collJpsi);
-  if (_doTrimuons)
-    iEvent.getByToken(_patTrimuonToken, collTrimuon);
-  if (_doDimuTrk)
-    iEvent.getByToken(_patDimuTrkToken, collDimutrk);
   iEvent.getByToken(_patMuonToken, collMuon);
   iEvent.getByToken(_patMuonNoTrigToken, collMuonNoTrig);
 
@@ -334,18 +307,9 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     // APPLY CUTS
     this->makeCuts(_storeSs);
 
-    // APPLY CUTS for Bc (trimuon)
-    if (_doTrimuons)
-      this->makeBcCuts(_storeSs);
-
-    // APPLY CUTS for Bc (dimuon+track)
-    if (_doDimuTrk)
-      this->makeDimutrkCuts(_storeSs);
   }
 
-  if (_fillSingleMuons || !_AtLeastOneCand || !_doTrimuons || !_isMC ||
-      !_thePassedBcCands
-           .empty()) {  //not storing the mu reconstructed info if we do a trimuon MC and there is no reco trimuon
+  if (_fillSingleMuons || !_AtLeastOneCand  || !_isMC) {  //not storing the mu reconstructed info if we do a trimuon MC and there is no reco trimuon
     //_fillSingleMuons is checked within the fillRecoMuons function: the info on the wanted muons was stored in the makeCuts function
     this->fillRecoMuons(theCentralityBin);
 
@@ -388,19 +352,13 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     this->fillMuMatchingInfo();  //Needs to be done after fillGenInfo, and the filling of reco muons collections
     if (!_onlySingleMuons)
       this->fillQQMatchingInfo();  //Needs to be done after fillMuMatchingInfo
-    if (_doTrimuons || _doDimuTrk) {
-      if (!_onlySingleMuons)
-        this->fillBcMatchingInfo();  //Needs to be done after fillQQMatchingInfo
-    }
+    
   }
 
   //keeping events with at least ONE CANDIDATE when asked
   bool oneGoodCand = !_AtLeastOneCand;  //if !_AtLeastOneCand, pass in all cases
   if (_AtLeastOneCand) {
-    if (_doTrimuons || _doDimuTrk) {
-      if (Reco_3mu_size > 0)
-        oneGoodCand = true;
-    } else if (Reco_QQ_size > 0)
+    if (Reco_QQ_size > 0)
       oneGoodCand = true;
   }
 
@@ -412,9 +370,7 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 };
 
 void HiOniaAnalyzer::fillRecoHistos() {
-  if (!_doTrimuons || !_isMC ||
-      !_thePassedBcCands
-           .empty()) {  //not storing the mu and QQ reconstructed info if we do a trimuon MC and there is no reco trimuon
+  if ( !_isMC) {  //not storing the mu and QQ reconstructed info if we do a trimuon MC and there is no reco trimuon
     // BEST J/PSI?
     if (_onlythebest) {  // yes, fill simply the best (possibly same-sign)
 
@@ -437,19 +393,6 @@ void HiOniaAnalyzer::fillRecoHistos() {
           }
         }
       }
-    }
-  }
-
-  //Fill Bc (trimuon)
-  if (_fillTree && _doTrimuons) {
-    for (unsigned int count = 0; count < _thePassedBcCands.size(); count++) {
-      this->fillTreeBc(count);
-    }
-  }
-  //Fill Bc (dimuon+track)
-  if (_fillTree && _doDimuTrk) {
-    for (unsigned int count = 0; count < _thePassedBcCands.size(); count++) {
-      this->fillTreeDimuTrk(count);
     }
   }
 
@@ -789,7 +732,7 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
       //--- counting tracks around Jpsi direction ---
 
       // use deltaR squared, to not compute square roots in the backgroudn!!
-      if (_useGeTracks && !_doDimuTrk && collTracks.isValid()) {
+      if (_useGeTracks && collTracks.isValid()) {
 	      for (const auto& track : *collTracks){
             double dz = track.dz(RefVtx);
             double dzsigma = sqrt(track.dzError() * track.dzError() + RefVtx_zError * RefVtx_zError);
@@ -1025,43 +968,6 @@ void HiOniaAnalyzer::InitEvent() {
     Gen_pthat = -1.;
 
     mapGenMuonMomToIndex_.clear();
-  }
-
-  if (_doTrimuons || _doDimuTrk) {
-    _thePassedBcCats.clear();
-    _thePassedBcCands.clear();
-
-    Reco_3mu_size = 0;
-    Reco_3mu_vtx_xpos.clear();
-    Reco_3mu_vtx_ypos.clear();
-    Reco_3mu_vtx_zpos.clear();
-
-    Reco_3mu_4mom_pt.clear();
-    Reco_3mu_4mom_eta.clear();
-    Reco_3mu_4mom_y.clear();
-    Reco_3mu_4mom_phi.clear();
-    Reco_3mu_4mom_m.clear();
-
-    if (_isMC) {
-      Gen_Bc_size = 0;
-      Gen_Bc_4mom_pt.clear();
-      Gen_Bc_4mom_eta.clear();
-      Gen_Bc_4mom_y.clear();
-      Gen_Bc_4mom_phi.clear();
-      Gen_Bc_4mom_m.clear();
-
-      Gen_Bc_nuW_4mom_pt.clear();
-      Gen_Bc_nuW_4mom_eta.clear();
-      Gen_Bc_nuW_4mom_y.clear();
-      Gen_Bc_nuW_4mom_phi.clear();
-      Gen_Bc_nuW_4mom_m.clear();
-
-      Gen_3mu_4mom_pt.clear();
-      Gen_3mu_4mom_eta.clear();
-      Gen_3mu_4mom_y.clear();
-      Gen_3mu_4mom_phi.clear();
-      Gen_3mu_4mom_m.clear();
-    }
   }
 
   mapMuonMomToIndex_.clear();
@@ -1341,77 +1247,6 @@ void HiOniaAnalyzer::InitTree() {
   }
 
   if (!_onlySingleMuons) {
-    if (_doTrimuons || _doDimuTrk) {
-      myTree->Branch("Reco_3mu_size", &Reco_3mu_size, "Reco_3mu_size/S");
-      myTree->Branch("Reco_3mu_charge", Reco_3mu_charge, "Reco_3mu_charge[Reco_3mu_size]/S");
-
-      myTree->Branch("Reco_3mu_4mom_pt", &Reco_3mu_4mom_pt, 32000, 0);
-      myTree->Branch("Reco_3mu_4mom_eta", &Reco_3mu_4mom_eta, 32000, 0);
-      myTree->Branch("Reco_3mu_4mom_y", &Reco_3mu_4mom_y, 32000, 0);
-      myTree->Branch("Reco_3mu_4mom_phi", &Reco_3mu_4mom_phi, 32000, 0);
-      myTree->Branch("Reco_3mu_4mom_m", &Reco_3mu_4mom_m, 32000, 0);
-      
-      
-      myTree->Branch("Reco_3mu_mupl_idx", Reco_3mu_mupl_idx, "Reco_3mu_mupl_idx[Reco_3mu_size]/S");
-      myTree->Branch("Reco_3mu_mumi_idx", Reco_3mu_mumi_idx, "Reco_3mu_mumi_idx[Reco_3mu_size]/S");
-      myTree->Branch("Reco_3mu_muW_idx", Reco_3mu_muW_idx, "Reco_3mu_muW_idx[Reco_3mu_size]/S");
-      if (!_doDimuTrk)
-        myTree->Branch("Reco_3mu_muW2_idx", Reco_3mu_muW2_idx, "Reco_3mu_muW2_idx[Reco_3mu_size]/S");
-      myTree->Branch("Reco_3mu_QQ1_idx", Reco_3mu_QQ1_idx, "Reco_3mu_QQ1_idx[Reco_3mu_size]/S");
-      if (!_doDimuTrk) {
-        myTree->Branch("Reco_3mu_QQ2_idx", Reco_3mu_QQ2_idx, "Reco_3mu_QQ2_idx[Reco_3mu_size]/S");
-        myTree->Branch("Reco_3mu_QQss_idx", Reco_3mu_QQss_idx, "Reco_3mu_QQss_idx[Reco_3mu_size]/S");
-      }
-      if (_isMC && _genealogyInfo) {
-        myTree->Branch(
-            "Reco_3mu_muW_isGenJpsiBro", Reco_3mu_muW_isGenJpsiBro, "Reco_3mu_muW_isGenJpsiBro[Reco_3mu_size]/O");
-        myTree->Branch("Reco_3mu_muW_trueId", Reco_3mu_muW_trueId, "Reco_3mu_muW_trueId[Reco_3mu_size]/I");
-      }
-
-      myTree->Branch("Reco_3mu_ctau", Reco_3mu_ctau, "Reco_3mu_ctau[Reco_3mu_size]/F");
-      myTree->Branch("Reco_3mu_ctauErr", Reco_3mu_ctauErr, "Reco_3mu_ctauErr[Reco_3mu_size]/F");
-      myTree->Branch("Reco_3mu_cosAlpha", Reco_3mu_cosAlpha, "Reco_3mu_cosAlpha[Reco_3mu_size]/F");
-      myTree->Branch("Reco_3mu_ctau3D", Reco_3mu_ctau3D, "Reco_3mu_ctau3D[Reco_3mu_size]/F");
-      myTree->Branch("Reco_3mu_ctauErr3D", Reco_3mu_ctauErr3D, "Reco_3mu_ctauErr3D[Reco_3mu_size]/F");
-      myTree->Branch("Reco_3mu_cosAlpha3D", Reco_3mu_cosAlpha3D, "Reco_3mu_cosAlpha3D[Reco_3mu_size]/F");
-
-      if (_isMC) {
-        myTree->Branch("Reco_3mu_whichGen", Reco_3mu_whichGen, "Reco_3mu_whichGen[Reco_3mu_size]/S");
-      }
-      myTree->Branch("Reco_3mu_VtxProb", Reco_3mu_VtxProb, "Reco_3mu_VtxProb[Reco_3mu_size]/F");
-
-      if (_doDimuTrk) {
-        myTree->Branch("Reco_3mu_KCVtxProb", Reco_3mu_KCVtxProb, "Reco_3mu_KCVtxProb[Reco_3mu_size]/F");
-        myTree->Branch("Reco_3mu_KCctau", Reco_3mu_KCctau, "Reco_3mu_KCctau[Reco_3mu_size]/F");
-        myTree->Branch("Reco_3mu_KCctauErr", Reco_3mu_KCctauErr, "Reco_3mu_KCctauErr[Reco_3mu_size]/F");
-        myTree->Branch("Reco_3mu_KCcosAlpha", Reco_3mu_KCcosAlpha, "Reco_3mu_KCcosAlpha[Reco_3mu_size]/F");
-        myTree->Branch("Reco_3mu_KCctau3D", Reco_3mu_KCctau3D, "Reco_3mu_KCctau3D[Reco_3mu_size]/F");
-        myTree->Branch("Reco_3mu_KCctauErr3D", Reco_3mu_KCctauErr3D, "Reco_3mu_KCctauErr3D[Reco_3mu_size]/F");
-        myTree->Branch("Reco_3mu_KCcosAlpha3D", Reco_3mu_KCcosAlpha3D, "Reco_3mu_KCcosAlpha3D[Reco_3mu_size]/F");
-      }
-      if ((!_theMinimumFlag && _muonLessPrimaryVertex) || (_flipJpsiDirection > 0)) {
-        myTree->Branch(
-            "Reco_3mu_muW_dxy_muonlessVtx", Reco_3mu_muW_dxy, "Reco_3mu_muW_dxy_muonlessVtx[Reco_3mu_size]/F");
-        myTree->Branch("Reco_3mu_muW_dz_muonlessVtx", Reco_3mu_muW_dz, "Reco_3mu_muW_dz_muonlessVtx[Reco_3mu_size]/F");
-        myTree->Branch(
-            "Reco_3mu_mumi_dxy_muonlessVtx", Reco_3mu_mumi_dxy, "Reco_3mu_mumi_dxy_muonlessVtx[Reco_3mu_size]/F");
-        myTree->Branch(
-            "Reco_3mu_mumi_dz_muonlessVtx", Reco_3mu_mumi_dz, "Reco_3mu_mumi_dz_muonlessVtx[Reco_3mu_size]/F");
-        myTree->Branch(
-            "Reco_3mu_mupl_dxy_muonlessVtx", Reco_3mu_mupl_dxy, "Reco_3mu_mupl_dxy_muonlessVtx[Reco_3mu_size]/F");
-        myTree->Branch(
-            "Reco_3mu_mupl_dz_muonlessVtx", Reco_3mu_mupl_dz, "Reco_3mu_mupl_dz_muonlessVtx[Reco_3mu_size]/F");
-      }
-
-      myTree->Branch("Reco_3mu_MassErr", Reco_3mu_MassErr, "Reco_3mu_MassErr[Reco_3mu_size]/F");
-      myTree->Branch("Reco_3mu_CorrM", Reco_3mu_CorrM, "Reco_3mu_CorrM[Reco_3mu_size]/F");
-      if (_useSVfinder && SVs.isValid() && !SVs->empty()) {
-        myTree->Branch("Reco_3mu_NbMuInSameSV", Reco_3mu_NbMuInSameSV, "Reco_3mu_NbMuInSameSV[Reco_3mu_size]/S");
-      }
-      myTree->Branch("Reco_3mu_vtx_xpos", &Reco_3mu_vtx_xpos, 32000, 0);
-      myTree->Branch("Reco_3mu_vtx_ypos", &Reco_3mu_vtx_ypos, 32000, 0);
-      myTree->Branch("Reco_3mu_vtx_zpos", &Reco_3mu_vtx_zpos, 32000, 0);
-    }
 
     myTree->Branch("Reco_QQ_size", &Reco_QQ_size, "Reco_QQ_size/S");
     myTree->Branch("Reco_QQ_type", Reco_QQ_type, "Reco_QQ_type[Reco_QQ_size]/S");
@@ -1524,14 +1359,13 @@ void HiOniaAnalyzer::InitTree() {
   }
 
   if (_useGeTracks && _fillRecoTracks) {
-    if (!_doDimuTrk) {
       myTree->Branch("Reco_QQ_NtrkPt02", Reco_QQ_NtrkPt02, "Reco_QQ_NtrkPt02[Reco_QQ_size]/I");
       myTree->Branch("Reco_QQ_NtrkPt03", Reco_QQ_NtrkPt03, "Reco_QQ_NtrkPt03[Reco_QQ_size]/I");
       myTree->Branch("Reco_QQ_NtrkPt04", Reco_QQ_NtrkPt04, "Reco_QQ_NtrkPt04[Reco_QQ_size]/I");
       myTree->Branch("Reco_QQ_NtrkDeltaR03", Reco_QQ_NtrkDeltaR03, "Reco_QQ_NtrkDeltaR03[Reco_QQ_size]/I");
       myTree->Branch("Reco_QQ_NtrkDeltaR04", Reco_QQ_NtrkDeltaR04, "Reco_QQ_NtrkDeltaR04[Reco_QQ_size]/I");
       myTree->Branch("Reco_QQ_NtrkDeltaR05", Reco_QQ_NtrkDeltaR05, "Reco_QQ_NtrkDeltaR05[Reco_QQ_size]/I");
-    }
+    
 
     myTree->Branch("Reco_trk_size", &Reco_trk_size, "Reco_trk_size/S");
     myTree->Branch("Reco_trk_charge", Reco_trk_charge, "Reco_trk_charge[Reco_trk_size]/S");
@@ -1589,33 +1423,6 @@ genOnly2:
         myTree->Branch("Gen_QQ_momId", Gen_QQ_momId, "Gen_QQ_momId[Gen_QQ_size]/I");
       }
 
-      if (_doTrimuons || _doDimuTrk) {
-        myTree->Branch("Gen_QQ_Bc_idx", Gen_QQ_Bc_idx, "Gen_QQ_Bc_idx[Gen_QQ_size]/S");
-        myTree->Branch("Gen_Bc_size", &Gen_Bc_size, "Gen_Bc_size/S");
-
-        myTree->Branch("Gen_Bc_4mom_pt", &Gen_Bc_4mom_pt, 32000, 0);
-        myTree->Branch("Gen_Bc_4mom_eta", &Gen_Bc_4mom_eta, 32000, 0);
-        myTree->Branch("Gen_Bc_4mom_y", &Gen_Bc_4mom_y, 32000, 0);
-        myTree->Branch("Gen_Bc_4mom_phi", &Gen_Bc_4mom_phi, 32000, 0);
-        myTree->Branch("Gen_Bc_4mom_m", &Gen_Bc_4mom_m, 32000, 0);
-        myTree->Branch("Gen_Bc_nuW_4mom_pt", &Gen_Bc_nuW_4mom_pt, 32000, 0);
-        myTree->Branch("Gen_Bc_nuW_4mom_eta", &Gen_Bc_nuW_4mom_eta, 32000, 0);
-        myTree->Branch("Gen_Bc_nuW_4mom_y", &Gen_Bc_nuW_4mom_y, 32000, 0);
-        myTree->Branch("Gen_Bc_nuW_4mom_phi", &Gen_Bc_nuW_4mom_phi, 32000, 0);
-        myTree->Branch("Gen_Bc_nuW_4mom_m", &Gen_Bc_nuW_4mom_m, 32000, 0);
-        myTree->Branch("Gen_3mu_4mom_pt", &Gen_3mu_4mom_pt, 32000, 0);
-        myTree->Branch("Gen_3mu_4mom_eta", &Gen_3mu_4mom_eta, 32000, 0);
-        myTree->Branch("Gen_3mu_4mom_y", &Gen_3mu_4mom_y, 32000, 0);
-        myTree->Branch("Gen_3mu_4mom_phi", &Gen_3mu_4mom_phi, 32000, 0);
-        myTree->Branch("Gen_3mu_4mom_m", &Gen_3mu_4mom_m, 32000, 0);
-        
-        myTree->Branch("Gen_Bc_QQ_idx", Gen_Bc_QQ_idx, "Gen_Bc_QQ_idx[Gen_Bc_size]/S");
-        myTree->Branch("Gen_Bc_muW_idx", Gen_Bc_muW_idx, "Gen_Bc_muW_idx[Gen_Bc_size]/S");
-        myTree->Branch("Gen_Bc_pdgId", Gen_Bc_pdgId, "Gen_Bc_pdgId[Gen_Bc_size]/I");
-        myTree->Branch("Gen_Bc_ctau", Gen_Bc_ctau, "Gen_Bc_ctau[Gen_Bc_size]/F");
-
-        myTree->Branch("Gen_3mu_whichRec", Gen_3mu_whichRec, "Gen_3mu_whichRec[Gen_Bc_size]/S");
-      }
     }
 
     myTree->Branch("Gen_mu_size", &Gen_mu_size, "Gen_mu_size/S");
