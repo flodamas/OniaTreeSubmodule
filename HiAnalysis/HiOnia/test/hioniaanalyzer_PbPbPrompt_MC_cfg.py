@@ -6,7 +6,6 @@ from Configuration.StandardSequences.Eras import eras
 
 # Setup Settings for ONIA TREE: 2025 PbPb MC
 
-HLTProcess     = "HLT" # Name of HLT process
 isMC           = True # if input is MONTECARLO: True or if it's DATA: False
 muonSelection  = "All" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, TwoGlbAmongThree (which requires two isGlobal for a trimuon, and one isGlobal for a dimuon) are available
 applyEventSel  = True # Only apply Event Selection if the required collections are present
@@ -50,7 +49,7 @@ options = VarParsing.VarParsing ('analysis')
 options.outputFile = "Oniatree_MC_miniAOD.root"
 options.secondaryOutputFile = "Jpsi_DataSet.root"
 options.inputFiles =[
-  '/store/user/fdamas/PbPb2026/RunPrepMC/DrellYan_HighMass_MadGraph_HydjetEmbedded_1610pre3/PATwith161pre4_151X_mcRun3_2025_realistic_HI_v5/260420_113941/0000/step4_PAT_102.root'
+  'root://cmsxrootd.fnal.gov//store/user/fdamas/PbPb2026/RunPrepMC/DrellYan_HighMass_MadGraph_HydjetEmbedded_1610pre3/PATwith161pre4_151X_mcRun3_2025_realistic_HI_v5/260420_113941/0000/step4_PAT_102.root'
 ]
 options.maxEvents = -1 # -1 means all events
 
@@ -114,7 +113,7 @@ process.GlobalTag.toGet.extend([
 # For OniaTree Analyzer
 from HiAnalysis.HiOnia.oniaTreeAnalyzer_cff import oniaTreeAnalyzer
 oniaTreeAnalyzer(process,
-                 muonTriggerList=triggerList, HLTProName=HLTProcess,
+                 muonTriggerList=triggerList,
                  muonSelection=muonSelection, L1Stage=2, isMC=isMC, pdgID=pdgId, outputFileName=options.outputFile
 )
 
@@ -125,7 +124,6 @@ if applyCuts:
   process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.01")
 process.onia2MuMuPatGlbGlb.onlySoftMuons         = cms.bool(OnlySoftMuons)
 process.hionia.minimumFlag      = cms.bool(keepExtraColl)           #for Reco_trk_*
-process.hionia.fillRecoTracks   = cms.bool(keepExtraColl)           #for Reco_trk_*
 process.hionia.CentralitySrc    = cms.InputTag("hiCentrality")
 process.hionia.CentralityBinSrc = cms.InputTag("centralityBin","HFtowers")
 #process.hionia.muonLessPV       = cms.bool(False)

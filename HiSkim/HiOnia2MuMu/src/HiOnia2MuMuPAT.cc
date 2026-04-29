@@ -124,7 +124,6 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
   for (int i = 0; i < ourMuNb; i++) {
     const pat::Muon &it = ourMuons[i];
     for (int j = i + 1; j < ourMuNb; j++) {
-      bool goodMu1Mu2 = false;
       const pat::Muon &it2 = ourMuons[j];
       // one muon must pass tight quality
       if (!(higherPuritySelection_(it) || higherPuritySelection_(it2)))
@@ -142,7 +141,6 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
       CachingVertex<5> VtxForInvMass;
       Measurement1D MassWErr;
       vector<TransientTrack> t_tks;
-      float vChi2 = -100, vNDF = 1;
 
       pat::CompositeCandidate myCand;     // Default
       pat::CompositeCandidate myCandTmp;  // Default

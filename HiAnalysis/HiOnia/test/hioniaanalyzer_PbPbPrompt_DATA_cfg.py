@@ -6,7 +6,6 @@ from Configuration.StandardSequences.Eras import eras
 
 # Setup Settings for ONIA TREE: 2025 PbPb data
 
-HLTProcess     = "HLT" # Name of HLT process
 isMC           = False # if input is MONTECARLO: True or if it's DATA: False
 muonSelection  = "Glb" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk are available
 applyEventSel  = True # Only apply Event Selection if the required collections are present
@@ -121,7 +120,7 @@ process.GlobalTag.toGet.extend([
 # For OniaTree Analyzer
 from HiAnalysis.HiOnia.oniaTreeAnalyzer_cff import oniaTreeAnalyzer
 oniaTreeAnalyzer(process,
-                 muonTriggerList=triggerList, HLTProName=HLTProcess,
+                 muonTriggerList=triggerList,
                  muonSelection=muonSelection, L1Stage=2, isMC=isMC, pdgID=pdgId, outputFileName=options.outputFile
 )
 
@@ -133,7 +132,6 @@ process.onia2MuMuPatGlbGlb.LateDimuonSel = cms.string("userFloat(\"vProb\")>0.00
 
 process.onia2MuMuPatGlbGlb.onlySoftMuons = cms.bool(OnlySoftMuons)
 process.hionia.minimumFlag      = cms.bool(keepExtraColl)           #for Reco_trk_*
-process.hionia.fillRecoTracks   = cms.bool(keepExtraColl)           #for Reco_trk_*
 process.hionia.CentralitySrc    = cms.InputTag("hiCentrality")
 process.hionia.CentralityBinSrc = cms.InputTag("centralityBin","HFtowers")
 process.hionia.SofterSgMuAcceptance = cms.bool(SofterSgMuAcceptance)

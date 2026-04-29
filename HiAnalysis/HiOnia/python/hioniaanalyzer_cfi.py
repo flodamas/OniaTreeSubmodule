@@ -60,7 +60,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         fillHistos = cms.bool(False),
                         minimumFlag = cms.bool(False),
                         fillSingleMuons = cms.bool(True),
-                        fillRecoTracks = cms.bool(False),
                         histFileName = cms.string("Jpsi_Histos.root"),
                         dataSetName = cms.string("Jpsi_DataSet.root"),
 

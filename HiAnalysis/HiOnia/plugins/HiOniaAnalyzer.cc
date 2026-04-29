@@ -41,7 +41,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _fillHistos(iConfig.getParameter<bool>("fillHistos")),
       _theMinimumFlag(iConfig.getParameter<bool>("minimumFlag")),
       _fillSingleMuons(iConfig.getParameter<bool>("fillSingleMuons")),
-      _fillRecoTracks(iConfig.getParameter<bool>("fillRecoTracks")),
       _isHI(iConfig.getUntrackedParameter<bool>("isHI", false)),
       _isPA(iConfig.getUntrackedParameter<bool>("isPA", true)),
       _isMC(iConfig.getUntrackedParameter<bool>("isMC", false)),
@@ -820,6 +819,7 @@ void HiOniaAnalyzer::InitEvent() {
     Gen_QQ_4mom_y.clear();
     Gen_QQ_4mom_phi.clear();
     Gen_QQ_4mom_m.clear();
+    Gen_QQ_Muons_pTdiff.clear();
 
     Gen_mu_4mom.clear();
     Gen_mu_4mom_pt.clear();
@@ -851,74 +851,6 @@ void HiOniaAnalyzer::InitEvent() {
   return;
 };
 
-void HiOniaAnalyzer::fillRecoTracks() {
-  if (!collTracks.isValid())
-    return;
-  for (unsigned int tidx = 0; tidx < collTracks->size(); tidx++) {
-    const reco::TrackRef track(collTracks, tidx);
-    if (!track.isNonnull()) {
-      std::cout << "ERROR: 'track' pointer in fillRecoTracks is NULL ! Go to next track." << endl;
-      return;
-    }
-
-    if (selTrk(track)) {
-      if (Reco_trk_size >= Max_trk_size) {
-        std::cout << "Too many tracks: " << Reco_trk_size << std::endl;
-        std::cout << "Maximum allowed: " << Max_trk_size << std::endl;
-        break;
-      }
-      LorentzVector vTrack(track->pt(), track->eta(), track->phi(), 0.13957018);  //0.13957018 for the pion
-
-      if (_isMC) {
-	      Reco_trk_whichGenmu[Reco_trk_size] = -1;
-
-        float dRmax2 = 0.05 * 0.05;  //dR max of the matching to gen muons//same than for reco-gen muon matching
-        float dR2;
-        float dPtmax = 0.5;
-        for (int igen = 0; igen < Gen_mu_size; igen++) {
-          LorentzVector genmu = Gen_mu_4mom.at(igen);
-          dR2 = deltaR2(genmu.eta(), genmu.phi(), vTrack.eta(), vTrack.phi()); // genmu->DeltaR(vTrack);
-          if (dR2 <= dRmax2 && track->charge() == Gen_mu_charge[igen] &&
-              abs(genmu.Pt() - vTrack.Pt()) / genmu.Pt() < dPtmax) {
-            dRmax2 = dR2;
-            Reco_trk_whichGenmu[Reco_trk_size] = igen;
-          }
-        }
-
-	      if (Reco_trk_whichGenmu[Reco_trk_size] == -1) continue;
-      }
-
-      Reco_trk_charge[Reco_trk_size] = track->charge();
-      Reco_trk_highPurity[Reco_trk_size] = track->qualityByName("highPurity");
-
-      Reco_trk_originalAlgo[Reco_mu_size] = track->originalAlgo();
-      Reco_trk_nPixWMea[Reco_mu_size] = track->hitPattern().pixelLayersWithMeasurement();
-      Reco_trk_nTrkWMea[Reco_mu_size] = track->hitPattern().trackerLayersWithMeasurement();
-      Reco_trk_dxyError[Reco_trk_size] = track->dxyError();
-      Reco_trk_dzError[Reco_trk_size] = track->dzError();
-      Reco_trk_dxy[Reco_trk_size] = track->dxy(RefVtx);
-      Reco_trk_dz[Reco_trk_size] = track->dz(RefVtx);
-      Reco_trk_ptErr[Reco_trk_size] = track->ptError();
-
-
-      Reco_trk_vtx_xpos.emplace_back(RefVtx.X());
-      Reco_trk_vtx_ypos.emplace_back(RefVtx.Y());
-      Reco_trk_vtx_zpos.emplace_back(RefVtx.Z());
-      
-      mapTrkMomToIndex_[FloatToIntkey(vTrack.Pt())] = Reco_trk_size;
-
-      Reco_trk_InLooseAcc[Reco_trk_size] = isInAcceptance(vTrack.Eta(), vTrack.Pt(), "GLBSOFT");
-      Reco_trk_InTightAcc[Reco_trk_size] = isInAcceptance(vTrack.Eta(), vTrack.Pt(), "GLB");
-
-      Reco_trk_4mom_pt.push_back(vTrack.Pt());
-      Reco_trk_4mom_eta.push_back(vTrack.Eta());
-      Reco_trk_4mom_phi.push_back(vTrack.Phi());
-      Reco_trk_4mom_m.push_back(vTrack.M());
-      Reco_trk_size++;
-    }
-  }
-  return;
-};
 
 void HiOniaAnalyzer::fillRecoMuons(int iCent) {
   int nL1DoubleMu0Muons = 0;
@@ -1111,8 +1043,8 @@ void HiOniaAnalyzer::InitTree() {
   myTree->Branch("Reco_mu_trig", Reco_mu_trig, "Reco_mu_trig[Reco_mu_size]/l");
 
   if (!_theMinimumFlag) {
-    myTree->Branch("Reco_mu_InTightAcc", Reco_mu_InTightAcc, "Reco_mu_InTightAcc[Reco_mu_size]/O");
-    myTree->Branch("Reco_mu_InLooseAcc", Reco_mu_InLooseAcc, "Reco_mu_InLooseAcc[Reco_mu_size]/O");
+    //myTree->Branch("Reco_mu_InTightAcc", Reco_mu_InTightAcc, "Reco_mu_InTightAcc[Reco_mu_size]/O");
+    //myTree->Branch("Reco_mu_InLooseAcc", Reco_mu_InLooseAcc, "Reco_mu_InLooseAcc[Reco_mu_size]/O");
     myTree->Branch("Reco_mu_highPurity", Reco_mu_highPurity, "Reco_mu_highPurity[Reco_mu_size]/O");
     myTree->Branch("Reco_mu_TMOneStaTight", Reco_mu_TMOneStaTight, "Reco_mu_TMOneStaTight[Reco_mu_size]/O");
     // myTree->Branch("Reco_mu_TrkMuArb", Reco_mu_TrkMuArb,   "Reco_mu_TrkMuArb[Reco_mu_size]/O");
@@ -1153,7 +1085,7 @@ void HiOniaAnalyzer::InitTree() {
 genOnly2: 
   if (_isMC) {
     if (_genealogyInfo) {
-      myTree->Branch("Reco_mu_simExtType", Reco_mu_simExtType, "Reco_mu_simExtType[Reco_mu_size]/I");
+      //myTree->Branch("Reco_mu_simExtType", Reco_mu_simExtType, "Reco_mu_simExtType[Reco_mu_size]/I");
     }
     
     myTree->Branch("Gen_weight", &Gen_weight, "Gen_weight/F");
@@ -1166,11 +1098,15 @@ genOnly2:
 	    myTree->Branch("Gen_QQ_4mom_y", &Gen_QQ_4mom_y, 32000, 0);
 	    myTree->Branch("Gen_QQ_4mom_phi", &Gen_QQ_4mom_phi, 32000, 0);
 	    myTree->Branch("Gen_QQ_4mom_m", &Gen_QQ_4mom_m, 32000, 0);
+
       
       myTree->Branch("Gen_QQ_ctau", Gen_QQ_ctau, "Gen_QQ_ctau[Gen_QQ_size]/F");
       myTree->Branch("Gen_QQ_ctau3D", Gen_QQ_ctau3D, "Gen_QQ_ctau3D[Gen_QQ_size]/F");
       myTree->Branch("Gen_QQ_mupl_idx", Gen_QQ_mupl_idx, "Gen_QQ_mupl_idx[Gen_QQ_size]/S");
       myTree->Branch("Gen_QQ_mumi_idx", Gen_QQ_mumi_idx, "Gen_QQ_mumi_idx[Gen_QQ_size]/S");
+      myTree->Branch("Gen_QQ_Muons_pTdiff", &Gen_QQ_Muons_pTdiff, 32000, 0);
+
+
       myTree->Branch("Gen_QQ_whichRec", Gen_QQ_whichRec, "Gen_QQ_whichRec[Gen_QQ_size]/S");
       if (_genealogyInfo) {
         myTree->Branch("Gen_QQ_momId", Gen_QQ_momId, "Gen_QQ_momId[Gen_QQ_size]/I");

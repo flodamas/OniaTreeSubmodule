@@ -94,7 +94,6 @@ private:
   bool isHybridSoftMuon(const pat::Muon* aMuon);
   Short_t MuInSV(LorentzVector v1, LorentzVector v2, LorentzVector v3);
 
-  void fillRecoTracks();
 
   pair<unsigned int, const pat::CompositeCandidate*> theBestQQ();
   double CorrectMass(const reco::Muon& mu1, const reco::Muon& mu2, int mode);
@@ -162,26 +161,22 @@ private:
   std::vector<float> Reco_QQ_vtx_ypos;
   std::vector<float> Reco_QQ_vtx_zpos;
 
-  std::vector<float> Reco_trk_vtx_xpos;
-  std::vector<float> Reco_trk_vtx_ypos;
-  std::vector<float> Reco_trk_vtx_zpos;
   
   std::vector<float> Reco_mu_4mom_pt;
   std::vector<float> Reco_mu_L1_4mom_pt;
   std::vector<float> Reco_QQ_4mom_pt;
   std::vector<float> Reco_QQ_mumi_4mom_pt;
   std::vector<float> Reco_QQ_mupl_4mom_pt;
-  std::vector<float> Reco_trk_4mom_pt;
 
   std::vector<float> Gen_mu_4mom_pt;
   std::vector<float> Gen_QQ_4mom_pt;
+  std::vector<float> Gen_QQ_Muons_pTdiff;
 
   std::vector<float> Reco_mu_4mom_eta;
   std::vector<float> Reco_mu_L1_4mom_eta;
   std::vector<float> Reco_QQ_4mom_eta;
   std::vector<float> Reco_QQ_mumi_4mom_eta;
   std::vector<float> Reco_QQ_mupl_4mom_eta;
-  std::vector<float> Reco_trk_4mom_eta;
 
   std::vector<float> Gen_mu_4mom_eta;
   std::vector<float> Gen_QQ_4mom_eta;
@@ -194,7 +189,6 @@ private:
   std::vector<float> Reco_QQ_4mom_phi;
   std::vector<float> Reco_QQ_mumi_4mom_phi;
   std::vector<float> Reco_QQ_mupl_4mom_phi;
-  std::vector<float> Reco_trk_4mom_phi;
 
   std::vector<float> Gen_mu_4mom_phi;
   std::vector<float> Gen_QQ_4mom_phi;
@@ -204,7 +198,6 @@ private:
   std::vector<float> Reco_QQ_4mom_m;
   std::vector<float> Reco_QQ_mumi_4mom_m;
   std::vector<float> Reco_QQ_mupl_4mom_m;
-  std::vector<float> Reco_trk_4mom_m;
 
   std::vector<float> Gen_mu_4mom_m;
   std::vector<float> Gen_QQ_4mom_m;
@@ -425,7 +418,6 @@ private:
   bool _fillHistos;
   bool _theMinimumFlag;
   bool _fillSingleMuons;
-  bool _fillRecoTracks;
   bool _isHI;
   bool _isPA;
   bool _isMC;

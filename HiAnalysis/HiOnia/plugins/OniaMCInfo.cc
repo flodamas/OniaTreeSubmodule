@@ -96,13 +96,18 @@ void HiOniaAnalyzer::fillGenInfo() {
           Gen_QQ_4mom_phi.push_back(quarkoniumLV.Phi());
           Gen_QQ_4mom_m.push_back(quarkoniumLV.M());
 
+          float genMuonPtDiff = 0.0;
           if (genMuon1->charge() > genMuon2->charge()) {
             Gen_QQ_mupl_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon1->pt(), true);
             Gen_QQ_mumi_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon2->pt(), true);
+            genMuonPtDiff = genMuon1->pt() - genMuon2->pt();
           } else {
             Gen_QQ_mupl_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon2->pt(), true);
             Gen_QQ_mumi_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon1->pt(), true);
+            genMuonPtDiff = genMuon2->pt() - genMuon1->pt();
           }
+
+          Gen_QQ_Muons_pTdiff.push_back(genMuonPtDiff);
 
           Gen_QQ_size++;
         }
