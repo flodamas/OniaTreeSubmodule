@@ -46,7 +46,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         useSVfinder = cms.bool(False),
 
                         #-- Gen Details
-                        BcPDG = cms.int32(541),
                         oniaPDG = cms.int32(443),
                         muonSel = cms.string("GlbGlb"),
                         isHI = cms.untracked.bool(True),

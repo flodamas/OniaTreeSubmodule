@@ -85,7 +85,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stag
     # Make dimuon candidates
     from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cfi import onia2MuMuPAT
     process.onia2MuMuPatGlbGlb = onia2MuMuPAT.clone(
-            flipJpsiDirection = cms.int32(flipJpsiDir), ## flip the Jpsi direction, before combining it with a third muon
+        flipJpsiDirection = cms.int32(flipJpsiDir), ## flip the Jpsi direction, before combining it with a third muon
     )
 
     # check if there is at least one (inclusive) di-muon. BEWARE this can cause trouble in .root output if no event is selected by onia2MuMuPatGlbGlbFilter!

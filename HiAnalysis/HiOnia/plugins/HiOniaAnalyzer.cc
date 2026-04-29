@@ -302,9 +302,8 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (_useSVfinder)
     iEvent.getByToken(_SVToken, SVs);
 
-    // APPLY CUTS
-    this->makeCuts(_storeSs);
-
+  // APPLY CUTS
+  this->makeCuts(_storeSs);
   
 
   if (_fillSingleMuons || !_AtLeastOneCand  || !_isMC) {  //not storing the mu reconstructed info if we do a trimuon MC and there is no reco trimuon
@@ -367,12 +366,7 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 void HiOniaAnalyzer::fillRecoHistos() {
   if ( !_isMC) {  //not storing the mu and QQ reconstructed info if we do a trimuon MC and there is no reco trimuon
-    // BEST J/PSI?
-    if (_onlythebest) {  // yes, fill simply the best (possibly same-sign)
-
-      pair<unsigned int, const pat::CompositeCandidate*> theBest = theBestQQ();
-
-    } else {  // no, fill all candidates passing cuts (possibly same-sign)
+    
 
       for (unsigned int count = 0; count < _thePassedCands.size(); count++) {
         const pat::CompositeCandidate* aJpsiCand = _thePassedCands.at(count);
@@ -387,7 +381,7 @@ void HiOniaAnalyzer::fillRecoHistos() {
           }
         }
       }
-    }
+    
   }
 
   return;
@@ -950,13 +944,6 @@ void HiOniaAnalyzer::fillRecoTracks() {
       std::cout << "ERROR: 'track' pointer in fillRecoTracks is NULL ! Go to next track." << endl;
       return;
     }
-    bool WantedTrack = false;
-    for (int k = 0; k < (int)EtaOfWantedTracks.size(); k++) {
-      if (abs(track->eta() - EtaOfWantedTracks[k]) < 1e-5) {
-        WantedTrack = true;
-        break;
-      }
-    }
 
     if (selTrk(track)) {
       if (Reco_trk_size >= Max_trk_size) {
@@ -1042,18 +1029,6 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
         return;
       }
 
-      //Trick to recover feature of filling only muons from selected dimuons
-      if (!_fillSingleMuons) {
-        bool WantedMuon = false;
-        for (int k = 0; k < (int)EtaOfWantedMuons.size(); k++) {
-          if (abs(muon->eta() - EtaOfWantedMuons[k]) < 1e-5) {
-            WantedMuon = true;
-            break;
-          }
-        }
-        if (!WantedMuon)
-          continue;
-      }
 
       std::string theLabel = theTriggerNames.at(0) + "_" + theCentralities.at(iCent);
 

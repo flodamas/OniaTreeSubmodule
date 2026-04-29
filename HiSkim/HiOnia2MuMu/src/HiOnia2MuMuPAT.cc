@@ -173,37 +173,12 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
 
   //For kinematic constrained fit
   KinematicParticleFactoryFromTransientTrack pFactory;
-  ParticleMass muon_mass = 0.1056583;
-  float muon_sigma = 0.0000000001;
-  ParticleMass pion_mass = 0.13957018;
-  float pion_sigma = 0.0000000001;
   ParticleMass jp_mass = dimuonMass_;
-  MultiTrackKinematicConstraint *jpsi_c = new TwoTrackMassKinematicConstraint(jp_mass);
   KinematicConstrainedVertexFitter KCfitter;
 
-  const float BcMass = 6.2745;
 
   TrackCollection muonLess;  // track collection related to PV, minus the 2 muons (if muonLessPV option is activated)
 
-  int Ntrk = -1;
-  std::vector<reco::TrackRef> ourTracks;
-  if (DimuonTrk_) {
-    Handle<reco::TrackCollection> collTracks;
-    iEvent.getByToken(recoTracksToken_, collTracks);
-    if (collTracks.isValid()) {
-      Ntrk = 0;
-      for (unsigned int tidx = 0; tidx < collTracks->size(); tidx++) {
-        const reco::TrackRef track(collTracks, tidx);
-        if (track->qualityByName("highPurity") && std::abs(track->eta()) < 2.4 && std::abs(track->dxy(RefVtx)) < 0.3 &&
-            std::abs(track->dz(RefVtx)) < 20) {
-          Ntrk++;
-          if (DimuonTrk_) {
-            ourTracks.push_back(track);
-          }
-        }
-      }
-    }
-  }
 
   std::vector<pat::Muon> ourMuons;
   for (const auto& muon : *muons) {
@@ -676,9 +651,6 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
   std::sort(oniaOutput->begin(), oniaOutput->end(), vPComparator_);
   iEvent.put(std::move(oniaOutput), "");
 
-
-  //smart pointer does not work for this variable
-  delete jpsi_c;
 };
 
 //define this as a plug-in

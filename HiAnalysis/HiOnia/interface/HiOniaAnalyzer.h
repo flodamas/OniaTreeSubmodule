@@ -470,7 +470,6 @@ private:
   bool _genealogyInfo;
 
   int _oniaPDG;
-  int _BcPDG;
   int _OneMatchedHLTMu;
   bool _checkTrigNames;
   bool _genOnly;

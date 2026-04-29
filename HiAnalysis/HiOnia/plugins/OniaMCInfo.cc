@@ -144,8 +144,8 @@ std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleR
 
     if (!(dau.isNonnull() && dau->status() > 0 && dau->status() < 1000))
       continue;
-    //if(Reco_3mu_size>0) cout<<"Daughter #"<<i<<" pdg = "<< dau->pdgId()<<" pt,eta = "<<dau->pt()<<" "<<dau->eta()<<endl;
-    if (isChargedTrack(dau->pdgId())) {
+
+      if (isChargedTrack(dau->pdgId())) {
       res.push_back(dau);
     }
     if (dau->pdgId() == GenJpsiPDG) {
@@ -274,7 +274,7 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
 
     if (Jpsimom_final.isNonnull()) {
       trueVtxMom = Jpsimom_final->vertex();
-      if (_genealogyInfo && Reco_3mu_size > 0) {
+      if (_genealogyInfo) {
         JpsiBrothers = GenBrothers(Jpsimom_final, genJpsi.pdgId());
       }
       JpsiBrothers.insert(JpsiBrothers.begin(), Jpsimom_final);
