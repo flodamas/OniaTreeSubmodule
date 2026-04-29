@@ -23,7 +23,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _etabinranges(iConfig.getParameter<std::vector<double> >("etaBinRanges")),
       _dblTriggerPathNames(iConfig.getParameter<std::vector<string> >("dblTriggerPathNames")),
       _sglTriggerPathNames(iConfig.getParameter<std::vector<string> >("sglTriggerPathNames")),
-      _onlythebest(iConfig.getParameter<bool>("onlyTheBest")),
       _applycuts(iConfig.getParameter<bool>("applyCuts")),
       _SofterSgMuAcceptance(iConfig.getParameter<bool>("SofterSgMuAcceptance")),
       _SumETvariables(iConfig.getParameter<bool>("SumETvariables")),
@@ -1039,11 +1038,9 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
         muType = GlbTrk;
       if (_muonSel == (std::string)("Trk") && selTrackerMuon(muon))
         muType = Trk;
-      if (_muonSel == (std::string)("TwoGlbAmongThree") && selGlobalOrTrackerMuon(muon))
-        muType = GlbOrTrk;
       if (_muonSel == (std::string)("GlbOrTrk") && selGlobalOrTrackerMuon(muon))
         muType = GlbOrTrk;
-      if (_muonSel == (std::string)("All") && selAllMuon(muon))
+      if (_muonSel == (std::string)("All"))
         muType = All;
 
       if (muType == GlbOrTrk || muType == GlbTrk || muType == Trk || muType == Glb || muType == All) {

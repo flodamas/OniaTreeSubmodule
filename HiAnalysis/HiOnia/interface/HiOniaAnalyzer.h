@@ -94,12 +94,10 @@ private:
   bool isAbHadron(int pdgID);
   bool isNeutrino(int pdgID);
   bool isAMixedbHadron(int pdgID, int momPdgID);
-  std::pair<bool, reco::GenParticleRef> findBcMotherRef(reco::GenParticleRef GenParticleMother, int GenParticlePDG);
   bool isChargedTrack(int pdgId);
   std::vector<reco::GenParticleRef> GenBrothers(reco::GenParticleRef GenParticleMother, int GenJpsiPDG);
   reco::GenParticleRef findMotherRef(reco::GenParticleRef GenParticleMother, int GenParticlePDG);
   std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > findGenMCInfo(const reco::GenParticle& genJpsi);
-  std::pair<int, std::pair<float, float> > findGenBcInfo(reco::GenParticleRef genBc, const reco::GenParticle genJpsi);
 
   void fillRecoMuons(int theCentralityBin);
   bool isInAcceptance(const float eta, const float pt, std::string muonType);
@@ -116,7 +114,6 @@ private:
   bool selGlobalMuon(const pat::Muon* aMuon);
   bool selTrackerMuon(const pat::Muon* aMuon);
   bool selGlobalOrTrackerMuon(const pat::Muon* aMuon);
-  bool selAllMuon(const pat::Muon* aMuon);
   bool selTrk(const reco::TrackRef aTrk);
 
   void fillRecoHistos();
@@ -224,7 +221,7 @@ private:
   std::vector<float> Gen_mu_4mom_m;
   std::vector<float> Gen_QQ_4mom_m;
 
-  static const int Max_QQ_size = 10000;
+  static const int Max_QQ_size = 1000;
   static const int Max_mu_size = 1000;
   static const int Max_trk_size = 10000;
 
@@ -242,7 +239,6 @@ private:
   Short_t Gen_QQ_mumi_idx[Max_QQ_size];  // index of the muon minus from Jpsi, in the full list of muons
   Short_t Gen_QQ_whichRec
       [Max_QQ_size];  // index of the reconstructed Jpsi that was matched with this gen Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed. Is -2 if the two muons were reconstructed, but the dimuon was not selected
-  Short_t Gen_QQ_Bc_idx[Max_QQ_size];  //Index of the Bc gen mother. -1 if there is no Bc mother
 
   Short_t Gen_mu_size;                 // number of generated muons
   Short_t Gen_mu_charge[Max_mu_size];  // muon charge

@@ -80,8 +80,6 @@ bool HiOniaAnalyzer::selGlobalOrTrackerMuon(const pat::Muon* aMuon) {
   return (isInAcc && isGood);
 };
 
-bool HiOniaAnalyzer::selAllMuon(const pat::Muon* aMuon) { return true };
-
 bool HiOniaAnalyzer::selTrk(const reco::TrackRef aTrk) {
   if (!(aTrk->qualityByName("highPurity") && aTrk->ptError() / aTrk->pt() < 0.1))
     return false;

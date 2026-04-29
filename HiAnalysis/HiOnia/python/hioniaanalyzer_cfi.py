@@ -27,7 +27,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         etaBinRanges = cms.vdouble(0.0, 2.5),
                         centralityRanges = cms.vdouble(20,40,100),
 
-                        onlyTheBest = cms.bool(False),
                         applyCuts = cms.bool(False),
 			selTightGlobalMuon = cms.bool(False),
                         SofterSgMuAcceptance = cms.bool(False),
