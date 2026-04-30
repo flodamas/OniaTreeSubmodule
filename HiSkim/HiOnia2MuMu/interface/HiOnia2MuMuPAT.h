@@ -46,7 +46,6 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  bool isSoftMuonBase(const pat::Muon*);
   bool isAbHadron(int pdgID) const;
   bool isAMixedbHadron(int pdgID, int momPdgID) const;
   reco::GenParticleRef findMotherRef(reco::GenParticleRef GenParticle, int GenParticlePDG);
@@ -67,7 +66,6 @@ private:
   StringCutObjectSelector<reco::Candidate, true> LateDimuonSel_;
   bool addCommonVertex_, addMuonlessPrimaryVertex_;
   bool resolveAmbiguity_;
-  bool onlySoftMuons_;
   converter::TrackToCandidate Converter_;
   double dimuonMass_;
   GreaterByPt<pat::CompositeCandidate> pTComparator_;

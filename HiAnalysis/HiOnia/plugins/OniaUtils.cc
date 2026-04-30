@@ -190,9 +190,9 @@ int HiOniaAnalyzer::IndexOfThisTrack(const float trackPt, bool isGen) {
 
 int HiOniaAnalyzer::IndexOfThisJpsi(int mu1_idx, int mu2_idx) {
   int GoodIndex = -1;
-  for (int iJpsi = 0; iJpsi < Reco_QQ_size; iJpsi++) {
-    if (((Reco_QQ_mumi_idx[iJpsi] == mu1_idx && Reco_QQ_mupl_idx[iJpsi] == mu2_idx) ||
-         (Reco_QQ_mumi_idx[iJpsi] == mu2_idx && Reco_QQ_mupl_idx[iJpsi] == mu1_idx))) {
+  for (int iJpsi = 0; iJpsi < Reco_Dimuon_size; iJpsi++) {
+    if (((Reco_Dimuon_mumi_idx[iJpsi] == mu1_idx && Reco_Dimuon_mupl_idx[iJpsi] == mu2_idx) ||
+         (Reco_Dimuon_mumi_idx[iJpsi] == mu2_idx && Reco_Dimuon_mupl_idx[iJpsi] == mu1_idx))) {
       GoodIndex = iJpsi;
       break;
     }

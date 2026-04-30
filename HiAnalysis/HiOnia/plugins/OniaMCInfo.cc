@@ -29,15 +29,15 @@ reco::GenParticleRef HiOniaAnalyzer::findDaughterRef(reco::GenParticleRef GenPar
 };
 
 void HiOniaAnalyzer::fillGenInfo() {
-  if (Gen_QQ_size >= Max_QQ_size) {
-    std::cout << "Too many dimuons: " << Gen_QQ_size << std::endl;
-    std::cout << "Maximum allowed: " << Max_QQ_size << std::endl;
+  if (Gen_Dimuon_size >= NMaxDimuons) {
+    std::cout << "Too many dimuons: " << Gen_Dimuon_size << std::endl;
+    std::cout << "Maximum allowed: " << NMaxDimuons << std::endl;
     return;
   }
 
-  if (Gen_mu_size >= Max_mu_size) {
+  if (Gen_mu_size >= NMaxMuons) {
     std::cout << "Too many muons: " << Gen_mu_size << std::endl;
-    std::cout << "Maximum allowed: " << Max_mu_size << std::endl;
+    std::cout << "Maximum allowed: " << NMaxMuons << std::endl;
     return;
   }
 
@@ -78,38 +78,38 @@ void HiOniaAnalyzer::fillGenInfo() {
 
         if (abs(genMuon1->pdgId()) == 13 && abs(genMuon2->pdgId()) == 13 && (genMuon1->status() == 1) &&
             (genMuon2->status() == 1)) {
-          Gen_QQ_type[Gen_QQ_size] = _isPromptMC ? 0 : 1;  // prompt: 0, non-prompt: 1
+          Gen_Dimuon_type[Gen_Dimuon_size] = _isPromptMC ? 0 : 1;  // prompt: 0, non-prompt: 1
           std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > MCinfo = findGenMCInfo(gen);
-          Gen_QQ_ctau[Gen_QQ_size] = 10.0 * MCinfo.second.first;
-          Gen_QQ_ctau3D[Gen_QQ_size] = 10.0 * MCinfo.second.second;
+          Gen_Dimuon_ctau[Gen_Dimuon_size] = 10.0 * MCinfo.second.first;
+          Gen_Dimuon_ctau3D[Gen_Dimuon_size] = 10.0 * MCinfo.second.second;
 
           if (_genealogyInfo) {
-            _Gen_QQ_MomAndTrkBro[Gen_QQ_size] = MCinfo.first;
-            Gen_QQ_momId[Gen_QQ_size] = _Gen_QQ_MomAndTrkBro[Gen_QQ_size][0]->pdgId();
+            _Gen_Dimuon_MomAndTrkBro[Gen_Dimuon_size] = MCinfo.first;
+            Gen_Dimuon_momId[Gen_Dimuon_size] = _Gen_Dimuon_MomAndTrkBro[Gen_Dimuon_size][0]->pdgId();
           }
 
           LorentzVector quarkoniumLV = gen.p4();
-	        Gen_QQ_4mom.emplace_back(quarkoniumLV);
-      	  Gen_QQ_4mom_pt.push_back(quarkoniumLV.Pt());
-          Gen_QQ_4mom_eta.push_back(quarkoniumLV.Eta());
-          Gen_QQ_4mom_y.push_back(quarkoniumLV.Rapidity());
-          Gen_QQ_4mom_phi.push_back(quarkoniumLV.Phi());
-          Gen_QQ_4mom_m.push_back(quarkoniumLV.M());
+	        Gen_Dimuon_4mom.emplace_back(quarkoniumLV);
+      	  Gen_Dimuon_4mom_pt.push_back(quarkoniumLV.Pt());
+          Gen_Dimuon_4mom_eta.push_back(quarkoniumLV.Eta());
+          Gen_Dimuon_4mom_y.push_back(quarkoniumLV.Rapidity());
+          Gen_Dimuon_4mom_phi.push_back(quarkoniumLV.Phi());
+          Gen_Dimuon_4mom_m.push_back(quarkoniumLV.M());
 
           float genMuonPtDiff = 0.0;
           if (genMuon1->charge() > genMuon2->charge()) {
-            Gen_QQ_mupl_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon1->pt(), true);
-            Gen_QQ_mumi_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon2->pt(), true);
+            Gen_Dimuon_mupl_idx[Gen_Dimuon_size] = IndexOfThisMuon(genMuon1->pt(), true);
+            Gen_Dimuon_mumi_idx[Gen_Dimuon_size] = IndexOfThisMuon(genMuon2->pt(), true);
             genMuonPtDiff = genMuon1->pt() - genMuon2->pt();
           } else {
-            Gen_QQ_mupl_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon2->pt(), true);
-            Gen_QQ_mumi_idx[Gen_QQ_size] = IndexOfThisMuon(genMuon1->pt(), true);
+            Gen_Dimuon_mupl_idx[Gen_Dimuon_size] = IndexOfThisMuon(genMuon2->pt(), true);
+            Gen_Dimuon_mumi_idx[Gen_Dimuon_size] = IndexOfThisMuon(genMuon1->pt(), true);
             genMuonPtDiff = genMuon2->pt() - genMuon1->pt();
           }
 
-          Gen_QQ_Muons_pTdiff.push_back(genMuonPtDiff);
+          Gen_Dimuon_Muons_pTdiff.push_back(genMuonPtDiff);
 
-          Gen_QQ_size++;
+          Gen_Dimuon_size++;
         }
       }
     }
@@ -297,35 +297,35 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
 
 //Find the indices of the reconstructed J/psi matching each generated J/psi (when the two daughter muons are reconstructed), and vice versa
 void HiOniaAnalyzer::fillQQMatchingInfo() {
-  for (int igen = 0; igen < Gen_QQ_size; igen++) {
-    Gen_QQ_whichRec[igen] = -1;
+  for (int igen = 0; igen < Gen_Dimuon_size; igen++) {
+    Gen_Dimuon_whichRec[igen] = -1;
     int Reco_mupl_idx =
-        Gen_mu_whichRec[Gen_QQ_mupl_idx[igen]];  //index of the reconstructed mupl associated to the generated mupl of Jpsi
+        Gen_mu_whichRec[Gen_Dimuon_mupl_idx[igen]];  //index of the reconstructed mupl associated to the generated mupl of Jpsi
     int Reco_mumi_idx =
-        Gen_mu_whichRec[Gen_QQ_mumi_idx[igen]];  //index of the reconstructed mumi associated to the generated mumi of Jpsi
+        Gen_mu_whichRec[Gen_Dimuon_mumi_idx[igen]];  //index of the reconstructed mumi associated to the generated mumi of Jpsi
 
-    if ((Reco_mupl_idx >= 0) && (Reco_mumi_idx >= 0)) {  //Search for Reco_QQ only if both muons are reco
-      for (int irec = 0; irec < Reco_QQ_size; irec++) {
-        if (((Reco_mupl_idx == Reco_QQ_mupl_idx[irec]) &&
-             (Reco_mumi_idx == Reco_QQ_mumi_idx[irec])) ||  //the charges might be wrong in reco
-            ((Reco_mupl_idx == Reco_QQ_mumi_idx[irec]) && (Reco_mumi_idx == Reco_QQ_mupl_idx[irec]))) {
-          Gen_QQ_whichRec[igen] = irec;
+    if ((Reco_mupl_idx >= 0) && (Reco_mumi_idx >= 0)) {  //Search for Reco_Dimuon only if both muons are reco
+      for (int irec = 0; irec < Reco_Dimuon_size; irec++) {
+        if (((Reco_mupl_idx == Reco_Dimuon_mupl_idx[irec]) &&
+             (Reco_mumi_idx == Reco_Dimuon_mumi_idx[irec])) ||  //the charges might be wrong in reco
+            ((Reco_mupl_idx == Reco_Dimuon_mumi_idx[irec]) && (Reco_mumi_idx == Reco_Dimuon_mupl_idx[irec]))) {
+          Gen_Dimuon_whichRec[igen] = irec;
           break;
         }
       }
 
-      if (Gen_QQ_whichRec[igen] == -1)
-        Gen_QQ_whichRec[igen] = -2;  //Means the two muons were reconstructed, but the dimuon was not selected
+      if (Gen_Dimuon_whichRec[igen] == -1)
+        Gen_Dimuon_whichRec[igen] = -2;  //Means the two muons were reconstructed, but the dimuon was not selected
     }
   }
 
   //Find the index of generated J/psi associated to a reco QQ
-  for (int irec = 0; irec < Reco_QQ_size; irec++) {
-    Reco_QQ_whichGen[irec] = -1;
+  for (int irec = 0; irec < Reco_Dimuon_size; irec++) {
+    Reco_Dimuon_whichGen[irec] = -1;
 
-    for (int igen = 0; igen < Gen_QQ_size; igen++) {
-      if ((Gen_QQ_whichRec[igen] == irec)) {
-        Reco_QQ_whichGen[irec] = igen;
+    for (int igen = 0; igen < Gen_Dimuon_size; igen++) {
+      if ((Gen_Dimuon_whichRec[igen] == irec)) {
+        Reco_Dimuon_whichGen[irec] = igen;
         break;
       }
     }

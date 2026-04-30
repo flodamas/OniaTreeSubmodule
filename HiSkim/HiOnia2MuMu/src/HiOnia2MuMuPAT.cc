@@ -46,7 +46,6 @@ HiOnia2MuMuPAT::HiOnia2MuMuPAT(const edm::ParameterSet &iConfig)
       addCommonVertex_(iConfig.getParameter<bool>("addCommonVertex")),
       addMuonlessPrimaryVertex_(iConfig.getParameter<bool>("addMuonlessPrimaryVertex")),
       resolveAmbiguity_(iConfig.getParameter<bool>("resolvePileUpAmbiguity")),
-      onlySoftMuons_(iConfig.getParameter<bool>("onlySoftMuons")),
       Converter_(converter::TrackToCandidate(iConfig, consumesCollector())),
       dimuonMass_(iConfig.getParameter<double>("dimuonMassHypothesis")) {
   produces<pat::CompositeCandidateCollection>("");
@@ -55,12 +54,6 @@ HiOnia2MuMuPAT::HiOnia2MuMuPAT(const edm::ParameterSet &iConfig)
 //
 // member functions
 //
-
-bool HiOnia2MuMuPAT::isSoftMuonBase(const pat::Muon *aMuon) {
-  return (aMuon->isTrackerMuon() && aMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-          aMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0 &&
-          std::abs(aMuon->innerTrack()->dxy(RefVtx)) < 0.3 && std::abs(aMuon->innerTrack()->dz(RefVtx)) < 20.);
-}
 
 
 // ------------ method called to produce the data  ------------
@@ -113,7 +106,7 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
 
   std::vector<pat::Muon> ourMuons;
   for (const auto& muon : *muons) {
-    if (lowerPuritySelection_(muon) && (!onlySoftMuons_ || isSoftMuonBase(&(muon)))) {
+    if (lowerPuritySelection_(muon)) {
       ourMuons.push_back(muon);
     }
   }

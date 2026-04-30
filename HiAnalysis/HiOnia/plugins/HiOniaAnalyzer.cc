@@ -24,7 +24,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _dblTriggerPathNames(iConfig.getParameter<std::vector<string> >("dblTriggerPathNames")),
       _sglTriggerPathNames(iConfig.getParameter<std::vector<string> >("sglTriggerPathNames")),
       _applycuts(iConfig.getParameter<bool>("applyCuts")),
-      _SofterSgMuAcceptance(iConfig.getParameter<bool>("SofterSgMuAcceptance")),
       _SumETvariables(iConfig.getParameter<bool>("SumETvariables")),
       _selTightGlobalMuon(iConfig.getParameter<bool>("selTightGlobalMuon")),
       _muonLessPrimaryVertex(iConfig.getParameter<bool>("muonLessPV")),
@@ -39,7 +38,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _fillRooDataSet(iConfig.getParameter<bool>("fillRooDataSet")),
       _fillTree(iConfig.getParameter<bool>("fillTree")),
       _fillHistos(iConfig.getParameter<bool>("fillHistos")),
-      _theMinimumFlag(iConfig.getParameter<bool>("minimumFlag")),
       _fillSingleMuons(iConfig.getParameter<bool>("fillSingleMuons")),
       _isHI(iConfig.getUntrackedParameter<bool>("isHI", false)),
       _isPA(iConfig.getUntrackedParameter<bool>("isPA", true)),
@@ -339,7 +337,7 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //keeping events with at least ONE CANDIDATE when asked
   bool oneGoodCand = !_AtLeastOneCand;  //if !_AtLeastOneCand, pass in all cases
   if (_AtLeastOneCand) {
-    if (Reco_QQ_size > 0)
+    if (Reco_Dimuon_size > 0)
       oneGoodCand = true;
   }
 
@@ -374,9 +372,9 @@ void HiOniaAnalyzer::fillRecoHistos() {
 };
 
 void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t trigBits) {
-  if (Reco_mu_size >= Max_mu_size) {
+  if (Reco_mu_size >= NMaxMuons) {
     std::cout << "Too many muons: " << Reco_mu_size << std::endl;
-    std::cout << "Maximum allowed: " << Max_mu_size << std::endl;
+    std::cout << "Maximum allowed: " << NMaxMuons << std::endl;
     return;
   }
 
@@ -412,7 +410,6 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
     reco::TrackRef iTrack = muon->innerTrack();
     reco::TrackRef bestTrack = muon->muonBestTrack();
 
-    if (!_theMinimumFlag) {
       Reco_mu_InTightAcc[Reco_mu_size] = isInAcceptance(vMuon.eta(), vMuon.pt(), "GLB");
       Reco_mu_InLooseAcc[Reco_mu_size] = isInAcceptance(vMuon.eta(), vMuon.pt(), "GLBSOFT");
       Reco_mu_SelectionType[Reco_mu_size] = muonIDmask(muon);
@@ -467,7 +464,7 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
         //Reco_mu_pt_global[Reco_mu_size] = -1;
         //Reco_mu_ptErr_global[Reco_mu_size] = -1;
       }
-    }
+    
 
     if (_isMC) {
       Reco_mu_pTrue[Reco_mu_size] =
@@ -486,9 +483,9 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
 };
 
 void HiOniaAnalyzer::fillTreeJpsi(int count) {
-  if (Reco_QQ_size >= Max_QQ_size) {
-    std::cout << "Too many dimuons: " << Reco_QQ_size << std::endl;
-    std::cout << "Maximum allowed: " << Max_QQ_size << std::endl;
+  if (Reco_Dimuon_size >= NMaxDimuons) {
+    std::cout << "Too many dimuons: " << Reco_Dimuon_size << std::endl;
+    std::cout << "Maximum allowed: " << NMaxDimuons << std::endl;
     return;
   }
 
@@ -509,10 +506,10 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
       std::cout << "ERROR: 'muon1' or 'muon2' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
       return;
     } else {
-      Reco_QQ_sign[Reco_QQ_size] = muon1->charge() + muon2->charge();
-      Reco_QQ_type[Reco_QQ_size] = _thePassedCats.at(count);
+      Reco_Dimuon_sign[Reco_Dimuon_size] = muon1->charge() + muon2->charge();
+      Reco_Dimuon_type[Reco_Dimuon_size] = _thePassedCats.at(count);
 
-      Reco_QQ_trig[Reco_QQ_size] = trigBits;
+      Reco_Dimuon_trig[Reco_Dimuon_size] = trigBits;
 
       if (!(_isHI) && _muonLessPrimaryVertex && aDimuonCandidate->hasUserData("muonlessPV")) {
         RefVtx = (*aDimuonCandidate->userData<reco::Vertex>("muonlessPV")).position();
@@ -530,9 +527,9 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
       }
 
 
-      Reco_QQ_vtx_xpos.emplace_back(RefVtx.X());
-      Reco_QQ_vtx_ypos.emplace_back(RefVtx.Y());
-      Reco_QQ_vtx_zpos.emplace_back(RefVtx.Z());
+      Reco_Dimuon_vtx_xpos.emplace_back(RefVtx.X());
+      Reco_Dimuon_vtx_ypos.emplace_back(RefVtx.Y());
+      Reco_Dimuon_vtx_zpos.emplace_back(RefVtx.Z());
       
       LorentzVector vMuon1 = muon1->p4();
       LorentzVector vMuon2 = muon2->p4();
@@ -549,23 +546,27 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
         return;
       }
 
+      float muonPtDiff = 0;
+
       if (muon1->charge() > muon2->charge()) {
-        Reco_QQ_mupl_idx[Reco_QQ_size] = IndexOfThisMuon(muon1->pt());  //needs the non-flipped muon momentum
-        Reco_QQ_mumi_idx[Reco_QQ_size] = IndexOfThisMuon(muon2->pt());
+        Reco_Dimuon_mupl_idx[Reco_Dimuon_size] = IndexOfThisMuon(muon1->pt());  //needs the non-flipped muon momentum
+        Reco_Dimuon_mumi_idx[Reco_Dimuon_size] = IndexOfThisMuon(muon2->pt());
+
+        muonPtDiff = muon1->pt() - muon2->pt();
 
         iTrack_mupl = mu1Trk;
         iTrack_mumi = mu2Trk;
 	  	  
-	      Reco_QQ_mupl_4mom_pt.push_back(mu1Trk.pt());
-        Reco_QQ_mupl_4mom_eta.push_back(mu1Trk.eta());
-        Reco_QQ_mupl_4mom_phi.push_back(mu1Trk.phi());
-        Reco_QQ_mupl_4mom_m.push_back(vMuon1.mass());
+	      Reco_Dimuon_mupl_4mom_pt.push_back(mu1Trk.pt());
+        Reco_Dimuon_mupl_4mom_eta.push_back(mu1Trk.eta());
+        Reco_Dimuon_mupl_4mom_phi.push_back(mu1Trk.phi());
+        Reco_Dimuon_mupl_4mom_m.push_back(vMuon1.mass());
 
 
-        Reco_QQ_mumi_4mom_pt.push_back(mu2Trk.pt());
-        Reco_QQ_mumi_4mom_eta.push_back(mu2Trk.eta());
-        Reco_QQ_mumi_4mom_phi.push_back(mu2Trk.phi());
-        Reco_QQ_mumi_4mom_m.push_back(vMuon2.mass());
+        Reco_Dimuon_mumi_4mom_pt.push_back(mu2Trk.pt());
+        Reco_Dimuon_mumi_4mom_eta.push_back(mu2Trk.eta());
+        Reco_Dimuon_mumi_4mom_phi.push_back(mu2Trk.phi());
+        Reco_Dimuon_mumi_4mom_m.push_back(vMuon2.mass());
 
         if (_muonLessPrimaryVertex) {
           iTrack_mupl = *(muon1->innerTrack());
@@ -573,21 +574,24 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
         }
 
       } else {
-        Reco_QQ_mupl_idx[Reco_QQ_size] = IndexOfThisMuon(muon2->pt());  //needs the non-flipped muon momentum
-        Reco_QQ_mumi_idx[Reco_QQ_size] = IndexOfThisMuon(muon1->pt());
+        Reco_Dimuon_mupl_idx[Reco_Dimuon_size] = IndexOfThisMuon(muon2->pt());  //needs the non-flipped muon momentum
+        Reco_Dimuon_mumi_idx[Reco_Dimuon_size] = IndexOfThisMuon(muon1->pt());
+
+        muonPtDiff = muon2->pt() - muon1->pt();
+
 
         iTrack_mupl = mu2Trk;
         iTrack_mumi = mu1Trk;
 
-        Reco_QQ_mumi_4mom_pt.push_back(mu1Trk.pt());
-        Reco_QQ_mumi_4mom_eta.push_back(mu1Trk.eta());
-        Reco_QQ_mumi_4mom_phi.push_back(mu1Trk.phi());
-        Reco_QQ_mumi_4mom_m.push_back(vMuon1.mass());
+        Reco_Dimuon_mumi_4mom_pt.push_back(mu1Trk.pt());
+        Reco_Dimuon_mumi_4mom_eta.push_back(mu1Trk.eta());
+        Reco_Dimuon_mumi_4mom_phi.push_back(mu1Trk.phi());
+        Reco_Dimuon_mumi_4mom_m.push_back(vMuon1.mass());
 	  	  
-        Reco_QQ_mupl_4mom_pt.push_back(mu2Trk.pt());
-        Reco_QQ_mupl_4mom_eta.push_back(mu2Trk.eta());
-        Reco_QQ_mupl_4mom_phi.push_back(mu2Trk.phi());
-        Reco_QQ_mupl_4mom_m.push_back(vMuon2.mass());
+        Reco_Dimuon_mupl_4mom_pt.push_back(mu2Trk.pt());
+        Reco_Dimuon_mupl_4mom_eta.push_back(mu2Trk.eta());
+        Reco_Dimuon_mupl_4mom_phi.push_back(mu2Trk.phi());
+        Reco_Dimuon_mupl_4mom_m.push_back(vMuon2.mass());
         
         if (_muonLessPrimaryVertex) {
           iTrack_mupl = *(muon2->innerTrack());
@@ -597,91 +601,93 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
 
 
       LorentzVector dimuonLV = aDimuonCandidate->p4();
-      Reco_QQ_4mom_pt.push_back(dimuonLV.Pt());
-      Reco_QQ_4mom_eta.push_back(dimuonLV.Eta());
-      Reco_QQ_4mom_y.push_back(dimuonLV.Rapidity());
-      Reco_QQ_4mom_phi.push_back(dimuonLV.Phi());
-      Reco_QQ_4mom_m.push_back(dimuonLV.M());
+      Reco_Dimuon_4mom_pt.push_back(dimuonLV.Pt());
+      Reco_Dimuon_4mom_eta.push_back(dimuonLV.Eta());
+      Reco_Dimuon_4mom_y.push_back(dimuonLV.Rapidity());
+      Reco_Dimuon_4mom_phi.push_back(dimuonLV.Phi());
+      Reco_Dimuon_4mom_m.push_back(dimuonLV.M());
+
+      Reco_Dimuon_Muons_pTdiff.push_back(muonPtDiff);
 
       if (_useBS) {
         if (aDimuonCandidate->hasUserFloat("ppdlBS")) {
-          Reco_QQ_ctau[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlBS");
+          Reco_Dimuon_ctau[Reco_Dimuon_size] = 10.0 * aDimuonCandidate->userFloat("ppdlBS");
         } else {
-          Reco_QQ_ctau[Reco_QQ_size] = -100;
+          Reco_Dimuon_ctau[Reco_Dimuon_size] = -100;
           std::cout << "Warning: User Float ppdlBS was not found" << std::endl;
         }
         if (aDimuonCandidate->hasUserFloat("ppdlErrBS")) {
-          Reco_QQ_ctauErr[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrBS");
+          Reco_Dimuon_ctauErr[Reco_Dimuon_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrBS");
         } else {
-          Reco_QQ_ctauErr[Reco_QQ_size] = -100;
+          Reco_Dimuon_ctauErr[Reco_Dimuon_size] = -100;
           std::cout << "Warning: User Float ppdlErrBS was not found" << std::endl;
         }
         if (aDimuonCandidate->hasUserFloat("ppdlBS3D")) {
-          Reco_QQ_ctau3D[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlBS3D");
+          Reco_Dimuon_ctau3D[Reco_Dimuon_size] = 10.0 * aDimuonCandidate->userFloat("ppdlBS3D");
         } else {
-          Reco_QQ_ctau3D[Reco_QQ_size] = -100;
+          Reco_Dimuon_ctau3D[Reco_Dimuon_size] = -100;
           std::cout << "Warning: User Float ppdlBS3D was not found" << std::endl;
         }
         if (aDimuonCandidate->hasUserFloat("ppdlErrBS3D")) {
-          Reco_QQ_ctauErr3D[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrBS3D");
+          Reco_Dimuon_ctauErr3D[Reco_Dimuon_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrBS3D");
         } else {
-          Reco_QQ_ctauErr3D[Reco_QQ_size] = -100;
+          Reco_Dimuon_ctauErr3D[Reco_Dimuon_size] = -100;
           std::cout << "Warning: User Float ppdlErrBS3D was not found" << std::endl;
         }
       } else {
         if (aDimuonCandidate->hasUserFloat("ppdlPV")) {
-          Reco_QQ_ctau[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlPV");
+          Reco_Dimuon_ctau[Reco_Dimuon_size] = 10.0 * aDimuonCandidate->userFloat("ppdlPV");
         } else {
-          Reco_QQ_ctau[Reco_QQ_size] = -100;
+          Reco_Dimuon_ctau[Reco_Dimuon_size] = -100;
           std::cout << "Warning: User Float ppdlPV was not found" << std::endl;
         }
         if (aDimuonCandidate->hasUserFloat("ppdlErrPV")) {
-          Reco_QQ_ctauErr[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrPV");
+          Reco_Dimuon_ctauErr[Reco_Dimuon_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrPV");
         } else {
-          Reco_QQ_ctauErr[Reco_QQ_size] = -100;
+          Reco_Dimuon_ctauErr[Reco_Dimuon_size] = -100;
           std::cout << "Warning: User Float ppdlErrPV was not found" << std::endl;
         }
         if (aDimuonCandidate->hasUserFloat("ppdlPV3D")) {
-          Reco_QQ_ctau3D[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlPV3D");
+          Reco_Dimuon_ctau3D[Reco_Dimuon_size] = 10.0 * aDimuonCandidate->userFloat("ppdlPV3D");
         } else {
-          Reco_QQ_ctau3D[Reco_QQ_size] = -100;
+          Reco_Dimuon_ctau3D[Reco_Dimuon_size] = -100;
           std::cout << "Warning: User Float ppdlPV3D was not found" << std::endl;
         }
         if (aDimuonCandidate->hasUserFloat("ppdlErrPV3D")) {
-          Reco_QQ_ctauErr3D[Reco_QQ_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrPV3D");
+          Reco_Dimuon_ctauErr3D[Reco_Dimuon_size] = 10.0 * aDimuonCandidate->userFloat("ppdlErrPV3D");
         } else {
-          Reco_QQ_ctau3D[Reco_QQ_size] = -100;
+          Reco_Dimuon_ctau3D[Reco_Dimuon_size] = -100;
           std::cout << "Warning: User Float ppdlErrPV3D was not found" << std::endl;
         }
         if (aDimuonCandidate->hasUserFloat("cosAlpha")) {
-          Reco_QQ_cosAlpha[Reco_QQ_size] = aDimuonCandidate->userFloat("cosAlpha");
+          Reco_Dimuon_cosAlpha[Reco_Dimuon_size] = aDimuonCandidate->userFloat("cosAlpha");
         } else {
-          Reco_QQ_cosAlpha[Reco_QQ_size] = -10;
+          Reco_Dimuon_cosAlpha[Reco_Dimuon_size] = -10;
           std::cout << "Warning: User Float cosAlpha was not found" << std::endl;
         }
         if (aDimuonCandidate->hasUserFloat("cosAlpha3D")) {
-          Reco_QQ_cosAlpha3D[Reco_QQ_size] = aDimuonCandidate->userFloat("cosAlpha3D");
+          Reco_Dimuon_cosAlpha3D[Reco_Dimuon_size] = aDimuonCandidate->userFloat("cosAlpha3D");
         } else {
-          Reco_QQ_cosAlpha3D[Reco_QQ_size] = -10;
+          Reco_Dimuon_cosAlpha3D[Reco_Dimuon_size] = -10;
           std::cout << "Warning: User Float cosAlpha3D was not found" << std::endl;
         }
       }
       if (aDimuonCandidate->hasUserFloat("vProb")) {
-        Reco_QQ_VtxProb[Reco_QQ_size] = aDimuonCandidate->userFloat("vProb");
+        Reco_Dimuon_VtxProb[Reco_Dimuon_size] = aDimuonCandidate->userFloat("vProb");
       } else {
-        Reco_QQ_VtxProb[Reco_QQ_size] = -1;
+        Reco_Dimuon_VtxProb[Reco_Dimuon_size] = -1;
         std::cout << "Warning: User Float vProb was not found" << std::endl;
       }
       if (aDimuonCandidate->hasUserFloat("DCA")) {
-        Reco_QQ_dca[Reco_QQ_size] = aDimuonCandidate->userFloat("DCA");
+        Reco_Dimuon_dca[Reco_Dimuon_size] = aDimuonCandidate->userFloat("DCA");
       } else {
-        Reco_QQ_dca[Reco_QQ_size] = -10;
+        Reco_Dimuon_dca[Reco_Dimuon_size] = -10;
         std::cout << "Warning: User Float DCA was not found" << std::endl;
       }
       if (aDimuonCandidate->hasUserFloat("MassErr")) {
-        Reco_QQ_MassErr[Reco_QQ_size] = aDimuonCandidate->userFloat("MassErr");
+        Reco_Dimuon_MassErr[Reco_Dimuon_size] = aDimuonCandidate->userFloat("MassErr");
       } else {
-        Reco_QQ_MassErr[Reco_QQ_size] = -10;
+        Reco_Dimuon_MassErr[Reco_Dimuon_size] = -10;
         std::cout << "Warning: User Float MassErr was not found" << std::endl;
       }
 
@@ -691,7 +697,7 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
     return;
   }
 
-  Reco_QQ_size++;
+  Reco_Dimuon_size++;
   return;
 };
 
@@ -778,28 +784,29 @@ void HiOniaAnalyzer::InitEvent() {
   _thePassedCats.clear();
   _thePassedCands.clear();
 
-  Reco_QQ_size = 0;
+  Reco_Dimuon_size = 0;
   Reco_mu_size = 0;
   Reco_trk_size = 0;
 
-  Reco_QQ_4mom_pt.clear();
-  Reco_QQ_4mom_eta.clear();
-  Reco_QQ_4mom_y.clear();
-  Reco_QQ_4mom_phi.clear();
-  Reco_QQ_4mom_m.clear();
+  Reco_Dimuon_4mom_pt.clear();
+  Reco_Dimuon_4mom_eta.clear();
+  Reco_Dimuon_4mom_y.clear();
+  Reco_Dimuon_4mom_phi.clear();
+  Reco_Dimuon_4mom_m.clear();
+  Reco_Dimuon_Muons_pTdiff.clear();
 
-  Reco_QQ_mupl_4mom_pt.clear();
-  Reco_QQ_mupl_4mom_eta.clear();
-  Reco_QQ_mupl_4mom_phi.clear();
-  Reco_QQ_mupl_4mom_m.clear();
+  Reco_Dimuon_mupl_4mom_pt.clear();
+  Reco_Dimuon_mupl_4mom_eta.clear();
+  Reco_Dimuon_mupl_4mom_phi.clear();
+  Reco_Dimuon_mupl_4mom_m.clear();
 
-  Reco_QQ_mumi_4mom_pt.clear();
-  Reco_QQ_mumi_4mom_eta.clear();
-  Reco_QQ_mumi_4mom_phi.clear();
-  Reco_QQ_mumi_4mom_m.clear();
-  Reco_QQ_vtx_xpos.clear();
-  Reco_QQ_vtx_ypos.clear();
-  Reco_QQ_vtx_zpos.clear();
+  Reco_Dimuon_mumi_4mom_pt.clear();
+  Reco_Dimuon_mumi_4mom_eta.clear();
+  Reco_Dimuon_mumi_4mom_phi.clear();
+  Reco_Dimuon_mumi_4mom_m.clear();
+  Reco_Dimuon_vtx_xpos.clear();
+  Reco_Dimuon_vtx_ypos.clear();
+  Reco_Dimuon_vtx_zpos.clear();
   
   Reco_mu_4mom.clear();
   Reco_mu_4mom_pt.clear();
@@ -813,20 +820,20 @@ void HiOniaAnalyzer::InitEvent() {
 
 
   if (_isMC) {
-    Gen_QQ_4mom.clear();
-    Gen_QQ_4mom_pt.clear();
-    Gen_QQ_4mom_eta.clear();
-    Gen_QQ_4mom_y.clear();
-    Gen_QQ_4mom_phi.clear();
-    Gen_QQ_4mom_m.clear();
-    Gen_QQ_Muons_pTdiff.clear();
+    Gen_Dimuon_4mom.clear();
+    Gen_Dimuon_4mom_pt.clear();
+    Gen_Dimuon_4mom_eta.clear();
+    Gen_Dimuon_4mom_y.clear();
+    Gen_Dimuon_4mom_phi.clear();
+    Gen_Dimuon_4mom_m.clear();
+    Gen_Dimuon_Muons_pTdiff.clear();
 
     Gen_mu_4mom.clear();
     Gen_mu_4mom_pt.clear();
     Gen_mu_4mom_eta.clear();
     Gen_mu_4mom_phi.clear();
     Gen_mu_4mom_m.clear();
-    Gen_QQ_size = 0;
+    Gen_Dimuon_size = 0;
     Gen_mu_size = 0;
 
     Gen_weight = -1.;
@@ -917,7 +924,6 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
 
   hGoodMuonsNoTrig->Fill(nGoodMuonsNoTrig);
   hGoodMuons->Fill(nGoodMuons);
-  hL1DoubleMu0->Fill(nL1DoubleMu0Muons);
 
   return;
 };
@@ -973,54 +979,56 @@ void HiOniaAnalyzer::InitTree() {
   }
 
 
-    myTree->Branch("Reco_QQ_size", &Reco_QQ_size, "Reco_QQ_size/S");
-    myTree->Branch("Reco_QQ_type", Reco_QQ_type, "Reco_QQ_type[Reco_QQ_size]/S");
-    myTree->Branch("Reco_QQ_sign", Reco_QQ_sign, "Reco_QQ_sign[Reco_QQ_size]/S");
+    myTree->Branch("Reco_Dimuon_size", &Reco_Dimuon_size, "Reco_Dimuon_size/S");
+    myTree->Branch("Reco_Dimuon_type", Reco_Dimuon_type, "Reco_Dimuon_type[Reco_Dimuon_size]/S");
+    myTree->Branch("Reco_Dimuon_sign", Reco_Dimuon_sign, "Reco_Dimuon_sign[Reco_Dimuon_size]/S");
 
-    myTree->Branch("Reco_QQ_4mom_pt", &Reco_QQ_4mom_pt, 32000, 0);
-    myTree->Branch("Reco_QQ_4mom_eta", &Reco_QQ_4mom_eta, 32000, 0);
-    myTree->Branch("Reco_QQ_4mom_y", &Reco_QQ_4mom_y, 32000, 0);
-    myTree->Branch("Reco_QQ_4mom_phi", &Reco_QQ_4mom_phi, 32000, 0);
-    myTree->Branch("Reco_QQ_4mom_m", &Reco_QQ_4mom_m, 32000, 0);
+    myTree->Branch("Reco_Dimuon_4mom_pt", &Reco_Dimuon_4mom_pt, 32000, 0);
+    myTree->Branch("Reco_Dimuon_4mom_eta", &Reco_Dimuon_4mom_eta, 32000, 0);
+    myTree->Branch("Reco_Dimuon_4mom_y", &Reco_Dimuon_4mom_y, 32000, 0);
+    myTree->Branch("Reco_Dimuon_4mom_phi", &Reco_Dimuon_4mom_phi, 32000, 0);
+    myTree->Branch("Reco_Dimuon_4mom_m", &Reco_Dimuon_4mom_m, 32000, 0);
+    myTree->Branch("Reco_Dimuon_Muons_pTdiff", &Reco_Dimuon_Muons_pTdiff, 32000, 0);
+
     
-    myTree->Branch("Reco_QQ_mupl_idx", Reco_QQ_mupl_idx, "Reco_QQ_mupl_idx[Reco_QQ_size]/S");
-    myTree->Branch("Reco_QQ_mumi_idx", Reco_QQ_mumi_idx, "Reco_QQ_mumi_idx[Reco_QQ_size]/S");
+    myTree->Branch("Reco_Dimuon_mupl_idx", Reco_Dimuon_mupl_idx, "Reco_Dimuon_mupl_idx[Reco_Dimuon_size]/S");
+    myTree->Branch("Reco_Dimuon_mumi_idx", Reco_Dimuon_mumi_idx, "Reco_Dimuon_mumi_idx[Reco_Dimuon_size]/S");
 
-    myTree->Branch("Reco_QQ_trig", Reco_QQ_trig, "Reco_QQ_trig[Reco_QQ_size]/l");
-    myTree->Branch("Reco_QQ_ctau", Reco_QQ_ctau, "Reco_QQ_ctau[Reco_QQ_size]/F");
-    myTree->Branch("Reco_QQ_ctauErr", Reco_QQ_ctauErr, "Reco_QQ_ctauErr[Reco_QQ_size]/F");
-    myTree->Branch("Reco_QQ_cosAlpha", Reco_QQ_cosAlpha, "Reco_QQ_cosAlpha[Reco_QQ_size]/F");
-    myTree->Branch("Reco_QQ_ctau3D", Reco_QQ_ctau3D, "Reco_QQ_ctau3D[Reco_QQ_size]/F");
-    myTree->Branch("Reco_QQ_ctauErr3D", Reco_QQ_ctauErr3D, "Reco_QQ_ctauErr3D[Reco_QQ_size]/F");
-    myTree->Branch("Reco_QQ_cosAlpha3D", Reco_QQ_cosAlpha3D, "Reco_QQ_cosAlpha3D[Reco_QQ_size]/F");
+    myTree->Branch("Reco_Dimuon_trig", Reco_Dimuon_trig, "Reco_Dimuon_trig[Reco_Dimuon_size]/l");
+    myTree->Branch("Reco_Dimuon_ctau", Reco_Dimuon_ctau, "Reco_Dimuon_ctau[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_ctauErr", Reco_Dimuon_ctauErr, "Reco_Dimuon_ctauErr[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_cosAlpha", Reco_Dimuon_cosAlpha, "Reco_Dimuon_cosAlpha[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_ctau3D", Reco_Dimuon_ctau3D, "Reco_Dimuon_ctau3D[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_ctauErr3D", Reco_Dimuon_ctauErr3D, "Reco_Dimuon_ctauErr3D[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_cosAlpha3D", Reco_Dimuon_cosAlpha3D, "Reco_Dimuon_cosAlpha3D[Reco_Dimuon_size]/F");
 
     if (_isMC) {
-      myTree->Branch("Reco_QQ_whichGen", Reco_QQ_whichGen, "Reco_QQ_whichGen[Reco_QQ_size]/S");
+      myTree->Branch("Reco_Dimuon_whichGen", Reco_Dimuon_whichGen, "Reco_Dimuon_whichGen[Reco_Dimuon_size]/S");
     }
-    myTree->Branch("Reco_QQ_VtxProb", Reco_QQ_VtxProb, "Reco_QQ_VtxProb[Reco_QQ_size]/F");
-    myTree->Branch("Reco_QQ_dca", Reco_QQ_dca, "Reco_QQ_dca[Reco_QQ_size]/F");
-    myTree->Branch("Reco_QQ_MassErr", Reco_QQ_MassErr, "Reco_QQ_MassErr[Reco_QQ_size]/F");
+    myTree->Branch("Reco_Dimuon_VtxProb", Reco_Dimuon_VtxProb, "Reco_Dimuon_VtxProb[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_dca", Reco_Dimuon_dca, "Reco_Dimuon_dca[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_MassErr", Reco_Dimuon_MassErr, "Reco_Dimuon_MassErr[Reco_Dimuon_size]/F");
 
-    myTree->Branch("Reco_QQ_vtx_xpos", &Reco_QQ_vtx_xpos, 32000, 0);
-    myTree->Branch("Reco_QQ_vtx_ypos", &Reco_QQ_vtx_ypos, 32000, 0);
-    myTree->Branch("Reco_QQ_vtx_zpos", &Reco_QQ_vtx_zpos, 32000, 0);
+    myTree->Branch("Reco_Dimuon_vtx_xpos", &Reco_Dimuon_vtx_xpos, 32000, 0);
+    myTree->Branch("Reco_Dimuon_vtx_ypos", &Reco_Dimuon_vtx_ypos, 32000, 0);
+    myTree->Branch("Reco_Dimuon_vtx_zpos", &Reco_Dimuon_vtx_zpos, 32000, 0);
       
-    if ((!_theMinimumFlag && _muonLessPrimaryVertex)) {
-      myTree->Branch("Reco_QQ_mupl_dxy_muonlessVtx", Reco_QQ_mupl_dxy, "Reco_QQ_mupl_dxy_muonlessVtx[Reco_QQ_size]/F");
-      myTree->Branch("Reco_QQ_mumi_dxy_muonlessVtx", Reco_QQ_mumi_dxy, "Reco_QQ_mumi_dxy_muonlessVtx[Reco_QQ_size]/F");
-      myTree->Branch("Reco_QQ_mupl_dz_muonlessVtx", Reco_QQ_mupl_dz, "Reco_QQ_mupl_dz_muonlessVtx[Reco_QQ_size]/F");
-      myTree->Branch("Reco_QQ_mumi_dz_muonlessVtx", Reco_QQ_mumi_dz, "Reco_QQ_mumi_dz_muonlessVtx[Reco_QQ_size]/F");
+    if ( _muonLessPrimaryVertex) {
+      myTree->Branch("Reco_Dimuon_mupl_dxy_muonlessVtx", Reco_Dimuon_mupl_dxy, "Reco_Dimuon_mupl_dxy_muonlessVtx[Reco_Dimuon_size]/F");
+      myTree->Branch("Reco_Dimuon_mumi_dxy_muonlessVtx", Reco_Dimuon_mumi_dxy, "Reco_Dimuon_mumi_dxy_muonlessVtx[Reco_Dimuon_size]/F");
+      myTree->Branch("Reco_Dimuon_mupl_dz_muonlessVtx", Reco_Dimuon_mupl_dz, "Reco_Dimuon_mupl_dz_muonlessVtx[Reco_Dimuon_size]/F");
+      myTree->Branch("Reco_Dimuon_mumi_dz_muonlessVtx", Reco_Dimuon_mumi_dz, "Reco_Dimuon_mumi_dz_muonlessVtx[Reco_Dimuon_size]/F");
     }
 
-      myTree->Branch("Reco_QQ_mumi_4mom_pt", &Reco_QQ_mumi_4mom_pt, 32000, 0);
-      myTree->Branch("Reco_QQ_mumi_4mom_eta", &Reco_QQ_mumi_4mom_eta, 32000, 0);
-      myTree->Branch("Reco_QQ_mumi_4mom_phi", &Reco_QQ_mumi_4mom_phi, 32000, 0);
-      myTree->Branch("Reco_QQ_mumi_4mom_m", &Reco_QQ_mumi_4mom_m, 32000, 0);
+      myTree->Branch("Reco_Dimuon_mumi_4mom_pt", &Reco_Dimuon_mumi_4mom_pt, 32000, 0);
+      myTree->Branch("Reco_Dimuon_mumi_4mom_eta", &Reco_Dimuon_mumi_4mom_eta, 32000, 0);
+      myTree->Branch("Reco_Dimuon_mumi_4mom_phi", &Reco_Dimuon_mumi_4mom_phi, 32000, 0);
+      myTree->Branch("Reco_Dimuon_mumi_4mom_m", &Reco_Dimuon_mumi_4mom_m, 32000, 0);
       
-      myTree->Branch("Reco_QQ_mupl_4mom_pt", &Reco_QQ_mupl_4mom_pt, 32000, 0);
-      myTree->Branch("Reco_QQ_mupl_4mom_eta", &Reco_QQ_mupl_4mom_eta, 32000, 0);
-      myTree->Branch("Reco_QQ_mupl_4mom_phi", &Reco_QQ_mupl_4mom_phi, 32000, 0);
-      myTree->Branch("Reco_QQ_mupl_4mom_m", &Reco_QQ_mupl_4mom_m, 32000, 0);
+      myTree->Branch("Reco_Dimuon_mupl_4mom_pt", &Reco_Dimuon_mupl_4mom_pt, 32000, 0);
+      myTree->Branch("Reco_Dimuon_mupl_4mom_eta", &Reco_Dimuon_mupl_4mom_eta, 32000, 0);
+      myTree->Branch("Reco_Dimuon_mupl_4mom_phi", &Reco_Dimuon_mupl_4mom_phi, 32000, 0);
+      myTree->Branch("Reco_Dimuon_mupl_4mom_m", &Reco_Dimuon_mupl_4mom_m, 32000, 0);
       
     
   
@@ -1042,7 +1050,6 @@ void HiOniaAnalyzer::InitTree() {
   
   myTree->Branch("Reco_mu_trig", Reco_mu_trig, "Reco_mu_trig[Reco_mu_size]/l");
 
-  if (!_theMinimumFlag) {
     //myTree->Branch("Reco_mu_InTightAcc", Reco_mu_InTightAcc, "Reco_mu_InTightAcc[Reco_mu_size]/O");
     //myTree->Branch("Reco_mu_InLooseAcc", Reco_mu_InLooseAcc, "Reco_mu_InLooseAcc[Reco_mu_size]/O");
     myTree->Branch("Reco_mu_highPurity", Reco_mu_highPurity, "Reco_mu_highPurity[Reco_mu_size]/O");
@@ -1077,9 +1084,9 @@ void HiOniaAnalyzer::InitTree() {
     //myTree->Branch("Reco_mu_dzErr", Reco_mu_dzErr, "Reco_mu_dzErr[Reco_mu_size]/F");
     // myTree->Branch("Reco_mu_pt_inner",Reco_mu_pt_inner, "Reco_mu_pt_inner[Reco_mu_size]/F");
     // myTree->Branch("Reco_mu_pt_global",Reco_mu_pt_global, "Reco_mu_pt_global[Reco_mu_size]/F");
-    //myTree->Branch("Reco_mu_ptErr_inner", Reco_mu_ptErr_inner, "Reco_mu_ptErr_inner[Reco_mu_size]/F");
+    myTree->Branch("Reco_mu_ptErr_inner", Reco_mu_ptErr_inner, "Reco_mu_ptErr_inner[Reco_mu_size]/F");
     // myTree->Branch("Reco_mu_ptErr_global",Reco_mu_ptErr_global, "Reco_mu_ptErr_global[Reco_mu_size]/F");
-  }
+  
 
 
 genOnly2: 
@@ -1091,25 +1098,25 @@ genOnly2:
     myTree->Branch("Gen_weight", &Gen_weight, "Gen_weight/F");
     myTree->Branch("Gen_pthat", &Gen_pthat, "Gen_pthat/F");
 
-      myTree->Branch("Gen_QQ_size", &Gen_QQ_size, "Gen_QQ_size/S");
-      //myTree->Branch("Gen_QQ_type",      Gen_QQ_type,    "Gen_QQ_type[Gen_QQ_size]/S");
-	    myTree->Branch("Gen_QQ_4mom_pt", &Gen_QQ_4mom_pt, 32000, 0);
-	    myTree->Branch("Gen_QQ_4mom_eta", &Gen_QQ_4mom_eta, 32000, 0);
-	    myTree->Branch("Gen_QQ_4mom_y", &Gen_QQ_4mom_y, 32000, 0);
-	    myTree->Branch("Gen_QQ_4mom_phi", &Gen_QQ_4mom_phi, 32000, 0);
-	    myTree->Branch("Gen_QQ_4mom_m", &Gen_QQ_4mom_m, 32000, 0);
+      myTree->Branch("Gen_Dimuon_size", &Gen_Dimuon_size, "Gen_Dimuon_size/S");
+      //myTree->Branch("Gen_Dimuon_type",      Gen_Dimuon_type,    "Gen_Dimuon_type[Gen_Dimuon_size]/S");
+	    myTree->Branch("Gen_Dimuon_4mom_pt", &Gen_Dimuon_4mom_pt, 32000, 0);
+	    myTree->Branch("Gen_Dimuon_4mom_eta", &Gen_Dimuon_4mom_eta, 32000, 0);
+	    myTree->Branch("Gen_Dimuon_4mom_y", &Gen_Dimuon_4mom_y, 32000, 0);
+	    myTree->Branch("Gen_Dimuon_4mom_phi", &Gen_Dimuon_4mom_phi, 32000, 0);
+	    myTree->Branch("Gen_Dimuon_4mom_m", &Gen_Dimuon_4mom_m, 32000, 0);
 
       
-      myTree->Branch("Gen_QQ_ctau", Gen_QQ_ctau, "Gen_QQ_ctau[Gen_QQ_size]/F");
-      myTree->Branch("Gen_QQ_ctau3D", Gen_QQ_ctau3D, "Gen_QQ_ctau3D[Gen_QQ_size]/F");
-      myTree->Branch("Gen_QQ_mupl_idx", Gen_QQ_mupl_idx, "Gen_QQ_mupl_idx[Gen_QQ_size]/S");
-      myTree->Branch("Gen_QQ_mumi_idx", Gen_QQ_mumi_idx, "Gen_QQ_mumi_idx[Gen_QQ_size]/S");
-      myTree->Branch("Gen_QQ_Muons_pTdiff", &Gen_QQ_Muons_pTdiff, 32000, 0);
+      myTree->Branch("Gen_Dimuon_ctau", Gen_Dimuon_ctau, "Gen_Dimuon_ctau[Gen_Dimuon_size]/F");
+      myTree->Branch("Gen_Dimuon_ctau3D", Gen_Dimuon_ctau3D, "Gen_Dimuon_ctau3D[Gen_Dimuon_size]/F");
+      myTree->Branch("Gen_Dimuon_mupl_idx", Gen_Dimuon_mupl_idx, "Gen_Dimuon_mupl_idx[Gen_Dimuon_size]/S");
+      myTree->Branch("Gen_Dimuon_mumi_idx", Gen_Dimuon_mumi_idx, "Gen_Dimuon_mumi_idx[Gen_Dimuon_size]/S");
+      myTree->Branch("Gen_Dimuon_Muons_pTdiff", &Gen_Dimuon_Muons_pTdiff, 32000, 0);
 
 
-      myTree->Branch("Gen_QQ_whichRec", Gen_QQ_whichRec, "Gen_QQ_whichRec[Gen_QQ_size]/S");
+      myTree->Branch("Gen_Dimuon_whichRec", Gen_Dimuon_whichRec, "Gen_Dimuon_whichRec[Gen_Dimuon_size]/S");
       if (_genealogyInfo) {
-        myTree->Branch("Gen_QQ_momId", Gen_QQ_momId, "Gen_QQ_momId[Gen_QQ_size]/I");
+        myTree->Branch("Gen_Dimuon_momId", Gen_Dimuon_momId, "Gen_Dimuon_momId[Gen_Dimuon_size]/I");
       }
 
     
@@ -1136,11 +1143,9 @@ void HiOniaAnalyzer::beginJob() {
   // book histos
   hGoodMuonsNoTrig = fs->make<TH1F>("hGoodMuonsNoTrig", "hGoodMuonsNoTrig", 10, 0, 10);
   hGoodMuons = fs->make<TH1F>("hGoodMuons", "hGoodMuons", 10, 0, 10);
-  hL1DoubleMu0 = fs->make<TH1F>("hL1DoubleMu0", "hL1DoubleMu0", 10, 0, 10);
 
   hGoodMuonsNoTrig->Sumw2();
   hGoodMuons->Sumw2();
-  hL1DoubleMu0->Sumw2();
 
   hStats = fs->make<TH1F>("hStats", "hStats;;Number of Events", 2 * NTRIGGERS + 1, 0, 2 * NTRIGGERS + 1);
   hStats->GetXaxis()->SetBinLabel(1, "All");

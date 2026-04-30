@@ -154,164 +154,162 @@ private:
   TTree* myTree;
 
   std::vector<LorentzVector> Gen_mu_4mom;
-  std::vector<LorentzVector> Gen_QQ_4mom;
+  std::vector<LorentzVector> Gen_Dimuon_4mom;
   std::vector<LorentzVector> Reco_mu_4mom;
 
-  std::vector<float> Reco_QQ_vtx_xpos;
-  std::vector<float> Reco_QQ_vtx_ypos;
-  std::vector<float> Reco_QQ_vtx_zpos;
+  std::vector<float> Reco_Dimuon_vtx_xpos;
+  std::vector<float> Reco_Dimuon_vtx_ypos;
+  std::vector<float> Reco_Dimuon_vtx_zpos;
 
   
   std::vector<float> Reco_mu_4mom_pt;
   std::vector<float> Reco_mu_L1_4mom_pt;
-  std::vector<float> Reco_QQ_4mom_pt;
-  std::vector<float> Reco_QQ_mumi_4mom_pt;
-  std::vector<float> Reco_QQ_mupl_4mom_pt;
+  std::vector<float> Reco_Dimuon_4mom_pt;
+  std::vector<float> Reco_Dimuon_mumi_4mom_pt;
+  std::vector<float> Reco_Dimuon_mupl_4mom_pt;
+  std::vector<float> Reco_Dimuon_Muons_pTdiff;
+
 
   std::vector<float> Gen_mu_4mom_pt;
-  std::vector<float> Gen_QQ_4mom_pt;
-  std::vector<float> Gen_QQ_Muons_pTdiff;
+  std::vector<float> Gen_Dimuon_4mom_pt;
+  std::vector<float> Gen_Dimuon_Muons_pTdiff;
 
   std::vector<float> Reco_mu_4mom_eta;
   std::vector<float> Reco_mu_L1_4mom_eta;
-  std::vector<float> Reco_QQ_4mom_eta;
-  std::vector<float> Reco_QQ_mumi_4mom_eta;
-  std::vector<float> Reco_QQ_mupl_4mom_eta;
+  std::vector<float> Reco_Dimuon_4mom_eta;
+  std::vector<float> Reco_Dimuon_mumi_4mom_eta;
+  std::vector<float> Reco_Dimuon_mupl_4mom_eta;
 
   std::vector<float> Gen_mu_4mom_eta;
-  std::vector<float> Gen_QQ_4mom_eta;
+  std::vector<float> Gen_Dimuon_4mom_eta;
 
-  std::vector<float> Gen_QQ_4mom_y;
-  std::vector<float> Reco_QQ_4mom_y;
+  std::vector<float> Gen_Dimuon_4mom_y;
+  std::vector<float> Reco_Dimuon_4mom_y;
 
   std::vector<float> Reco_mu_4mom_phi;
   std::vector<float> Reco_mu_L1_4mom_phi;
-  std::vector<float> Reco_QQ_4mom_phi;
-  std::vector<float> Reco_QQ_mumi_4mom_phi;
-  std::vector<float> Reco_QQ_mupl_4mom_phi;
+  std::vector<float> Reco_Dimuon_4mom_phi;
+  std::vector<float> Reco_Dimuon_mumi_4mom_phi;
+  std::vector<float> Reco_Dimuon_mupl_4mom_phi;
 
   std::vector<float> Gen_mu_4mom_phi;
-  std::vector<float> Gen_QQ_4mom_phi;
+  std::vector<float> Gen_Dimuon_4mom_phi;
 
   std::vector<float> Reco_mu_4mom_m;
   std::vector<float> Reco_mu_L1_4mom_m;
-  std::vector<float> Reco_QQ_4mom_m;
-  std::vector<float> Reco_QQ_mumi_4mom_m;
-  std::vector<float> Reco_QQ_mupl_4mom_m;
+  std::vector<float> Reco_Dimuon_4mom_m;
+  std::vector<float> Reco_Dimuon_mumi_4mom_m;
+  std::vector<float> Reco_Dimuon_mupl_4mom_m;
 
   std::vector<float> Gen_mu_4mom_m;
-  std::vector<float> Gen_QQ_4mom_m;
+  std::vector<float> Gen_Dimuon_4mom_m;
 
-  static const int Max_QQ_size = 1000;
-  static const int Max_mu_size = 1000;
+  static const int NMaxDimuons = 1000;
+  static const int NMaxMuons = 1000;
   static const int Max_trk_size = 10000;
 
   float Gen_weight;  // generator weight
   float Gen_pthat;   // ptHat scale of generated hard scattering
 
-  Short_t Gen_QQ_size;               // number of generated Onia
-  Short_t Gen_QQ_type[Max_QQ_size];  // Onia type: prompt, non-prompt, unmatched
-  float Gen_QQ_ctau[Max_QQ_size];    // ctau: flight time
-  float Gen_QQ_ctau3D[Max_QQ_size];  // ctau3D: 3D flight time
-  int Gen_QQ_momId
-      [Max_QQ_size];  // PDG ID of the generated mother of the Gen QQ, going back far enough in the geneaology to find a potential B mother
-  float Gen_QQ_momPt[Max_QQ_size];       // Pt of mother particle of 2 muons
-  Short_t Gen_QQ_mupl_idx[Max_QQ_size];  // index of the muon plus from Jpsi, in the full list of muons
-  Short_t Gen_QQ_mumi_idx[Max_QQ_size];  // index of the muon minus from Jpsi, in the full list of muons
-  Short_t Gen_QQ_whichRec
-      [Max_QQ_size];  // index of the reconstructed Jpsi that was matched with this gen Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed. Is -2 if the two muons were reconstructed, but the dimuon was not selected
+  Short_t Gen_Dimuon_size;               // number of generated Onia
+  Short_t Gen_Dimuon_type[NMaxDimuons];  // Onia type: prompt, non-prompt, unmatched
+  float Gen_Dimuon_ctau[NMaxDimuons];    // ctau: flight time
+  float Gen_Dimuon_ctau3D[NMaxDimuons];  // ctau3D: 3D flight time
+  int Gen_Dimuon_momId
+      [NMaxDimuons];  // PDG ID of the generated mother of the Gen QQ, going back far enough in the geneaology to find a potential B mother
+  float Gen_Dimuon_momPt[NMaxDimuons];       // Pt of mother particle of 2 muons
+  Short_t Gen_Dimuon_mupl_idx[NMaxDimuons];  // index of the muon plus from Jpsi, in the full list of muons
+  Short_t Gen_Dimuon_mumi_idx[NMaxDimuons];  // index of the muon minus from Jpsi, in the full list of muons
+  Short_t Gen_Dimuon_whichRec
+      [NMaxDimuons];  // index of the reconstructed Jpsi that was matched with this gen Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed. Is -2 if the two muons were reconstructed, but the dimuon was not selected
 
   Short_t Gen_mu_size;                 // number of generated muons
-  Short_t Gen_mu_charge[Max_mu_size];  // muon charge
-  Short_t Gen_mu_type[Max_mu_size];    // muon type: prompt, non-prompt, unmatched
+  Short_t Gen_mu_charge[NMaxMuons];  // muon charge
+  Short_t Gen_mu_type[NMaxMuons];    // muon type: prompt, non-prompt, unmatched
   Short_t Gen_mu_whichRec
-      [Max_mu_size];  // index of the reconstructed muon that was matched with this gen muon. Is -1 if the muon was not reconstructed
-  float Gen_mu_MatchDeltaR[Max_mu_size];  // deltaR between reco and gen matched muons
+      [NMaxMuons];  // index of the reconstructed muon that was matched with this gen muon. Is -1 if the muon was not reconstructed
+  float Gen_mu_MatchDeltaR[NMaxMuons];  // deltaR between reco and gen matched muons
 
 
-  Short_t Reco_QQ_size;                   // Number of reconstructed Onia
-  Short_t Reco_QQ_type[Max_QQ_size];      // Onia category: GG, GT, TT
-  Short_t Reco_QQ_sign[Max_QQ_size];      /* Mu Mu combinations sign:
+  Short_t Reco_Dimuon_size;                   // Number of reconstructed Onia
+  Short_t Reco_Dimuon_type[NMaxDimuons];      // Onia category: GG, GT, TT
+  Short_t Reco_Dimuon_sign[NMaxDimuons];      /* Mu Mu combinations sign:
                              0 = +/- (signal)
                              1 = +/+
                              2 = -/- 
                           */
-  Short_t Reco_QQ_mupl_idx[Max_QQ_size];  // index of the muon plus from Jpsi, in the full list of muons
-  Short_t Reco_QQ_mumi_idx[Max_QQ_size];  // index of the muon minus from Jpsi, in the full list of muons
-  Short_t Reco_QQ_whichGen
-      [Max_QQ_size];  // index of the generated Jpsi that was matched with this rec Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed
-  ULong64_t Reco_QQ_trig[Max_QQ_size];  // Vector of trigger bits matched to the Onia
-  float Reco_QQ_VtxProb[Max_QQ_size];   // chi2 probability of vertex fitting
-  float Reco_QQ_ctau[Max_QQ_size];      // ctau: flight time
-  float Reco_QQ_ctauErr[Max_QQ_size];   // error on ctau
-  float Reco_QQ_cosAlpha
-      [Max_QQ_size];  // cosine of angle between momentum of Jpsi and direction of PV--displaced vertex segment (in XY plane)
-  float Reco_QQ_ctau3D[Max_QQ_size];     // ctau: flight time in 3D
-  float Reco_QQ_ctauErr3D[Max_QQ_size];  // error on ctau in 3D
-  float Reco_QQ_cosAlpha3D
-      [Max_QQ_size];  // cosine of angle between momentum of Jpsi and direction of PV--displaced vertex segment (3D)
-  float Reco_QQ_dca[Max_QQ_size];
-  float Reco_QQ_MassErr[Max_QQ_size];
+  Short_t Reco_Dimuon_mupl_idx[NMaxDimuons];  // index of the muon plus from Jpsi, in the full list of muons
+  Short_t Reco_Dimuon_mumi_idx[NMaxDimuons];  // index of the muon minus from Jpsi, in the full list of muons
+  Short_t Reco_Dimuon_whichGen
+      [NMaxDimuons];  // index of the generated Jpsi that was matched with this rec Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed
+  ULong64_t Reco_Dimuon_trig[NMaxDimuons];  // Vector of trigger bits matched to the Onia
+  float Reco_Dimuon_VtxProb[NMaxDimuons];   // chi2 probability of vertex fitting
+  float Reco_Dimuon_ctau[NMaxDimuons];      // ctau: flight time
+  float Reco_Dimuon_ctauErr[NMaxDimuons];   // error on ctau
+  float Reco_Dimuon_cosAlpha
+      [NMaxDimuons];  // cosine of angle between momentum of Jpsi and direction of PV--displaced vertex segment (in XY plane)
+  float Reco_Dimuon_ctau3D[NMaxDimuons];     // ctau: flight time in 3D
+  float Reco_Dimuon_ctauErr3D[NMaxDimuons];  // error on ctau in 3D
+  float Reco_Dimuon_cosAlpha3D
+      [NMaxDimuons];  // cosine of angle between momentum of Jpsi and direction of PV--displaced vertex segment (3D)
+  float Reco_Dimuon_dca[NMaxDimuons];
+  float Reco_Dimuon_MassErr[NMaxDimuons];
 
 
-  float Reco_QQ_mupl_dxy[Max_QQ_size];  // dxy for plus inner track muons
-  float Reco_QQ_mumi_dxy[Max_QQ_size];  // dxy for minus inner track muons
-  float Reco_QQ_mupl_dz[Max_QQ_size];   // dz for plus inner track muons
-  float Reco_QQ_mumi_dz[Max_QQ_size];   // dz for minus inner track muons
+  float Reco_Dimuon_mupl_dxy[NMaxDimuons];  // dxy for plus inner track muons
+  float Reco_Dimuon_mumi_dxy[NMaxDimuons];  // dxy for minus inner track muons
+  float Reco_Dimuon_mupl_dz[NMaxDimuons];   // dz for plus inner track muons
+  float Reco_Dimuon_mumi_dz[NMaxDimuons];   // dz for minus inner track muons
 
   Short_t Reco_mu_size;  // Number of reconstructed muons
-  int Reco_mu_SelectionType[Max_mu_size];
-  ULong64_t Reco_mu_trig[Max_mu_size];  // Vector of trigger bits matched to the muon
-  Short_t Reco_mu_charge[Max_mu_size];  // Vector of charge of muons
-  Short_t Reco_mu_type[Max_mu_size];    // Vector of type of muon (global=0, tracker=1, calo=2)
+  int Reco_mu_SelectionType[NMaxMuons];
+  ULong64_t Reco_mu_trig[NMaxMuons];  // Vector of trigger bits matched to the muon
+  Short_t Reco_mu_charge[NMaxMuons];  // Vector of charge of muons
+  Short_t Reco_mu_type[NMaxMuons];    // Vector of type of muon (global=0, tracker=1, calo=2)
   Short_t Reco_mu_whichGen
-      [Max_mu_size];  // index of the generated muon that was matched with this reco muon. Is -1 if the muon is not associated with a generated muon (fake, or very bad resolution)
+      [NMaxMuons];  // index of the generated muon that was matched with this reco muon. Is -1 if the muon is not associated with a generated muon (fake, or very bad resolution)
 
-  bool Reco_mu_highPurity[Max_mu_size];     // Vector of high purity flag
-  bool Reco_mu_TrkMuArb[Max_mu_size];       // Vector of TrackerMuonArbitrated
-  bool Reco_mu_TMOneStaTight[Max_mu_size];  // Vector of TMOneStationTight
+  bool Reco_mu_highPurity[NMaxMuons];     // Vector of high purity flag
+  bool Reco_mu_TrkMuArb[NMaxMuons];       // Vector of TrackerMuonArbitrated
+  bool Reco_mu_TMOneStaTight[NMaxMuons];  // Vector of TMOneStationTight
   Short_t Reco_mu_candType
-      [Max_mu_size];  // candidate type of muon. 0 (or not present): muon collection, 1: packedPFCandidate, 2: lostTrack collection
-  bool Reco_mu_isPF[Max_mu_size];  // Vector of isParticleFlow muon
-  bool Reco_mu_isTracker[Max_mu_size];
-  bool Reco_mu_isGlobal[Max_mu_size];
-  bool Reco_mu_isSoftCutBased[Max_mu_size];
-  float Reco_mu_softMvaRun3Value[Max_mu_size];
-  bool Reco_mu_isHybridSoft[Max_mu_size];
-  bool Reco_mu_isMediumCutBased[Max_mu_size];
-  bool Reco_mu_isTightCutBased[Max_mu_size];
-  bool Reco_mu_InTightAcc[Max_mu_size];  // Is in the tight acceptance for global muons
-  bool Reco_mu_InLooseAcc[Max_mu_size];  // Is in the loose acceptance for global muons
+      [NMaxMuons];  // candidate type of muon. 0 (or not present): muon collection, 1: packedPFCandidate, 2: lostTrack collection
+  bool Reco_mu_isPF[NMaxMuons];  // Vector of isParticleFlow muon
+  bool Reco_mu_isTracker[NMaxMuons];
+  bool Reco_mu_isGlobal[NMaxMuons];
+  bool Reco_mu_isSoftCutBased[NMaxMuons];
+  float Reco_mu_softMvaRun3Value[NMaxMuons];
+  bool Reco_mu_isHybridSoft[NMaxMuons];
+  bool Reco_mu_isMediumCutBased[NMaxMuons];
+  bool Reco_mu_isTightCutBased[NMaxMuons];
+  bool Reco_mu_InTightAcc[NMaxMuons];  // Is in the tight acceptance for global muons
+  bool Reco_mu_InLooseAcc[NMaxMuons];  // Is in the loose acceptance for global muons
 
-  int Reco_mu_nPixValHits[Max_mu_size];      // Number of valid pixel hits in sta muons
-  int Reco_mu_nMuValHits[Max_mu_size];       // Number of valid muon hits in sta muons
-  int Reco_mu_nTrkHits[Max_mu_size];         // track hits global muons
-  int Reco_mu_nPixWMea[Max_mu_size];         // pixel layers with measurement for inner track muons
-  int Reco_mu_nTrkWMea[Max_mu_size];         // track layers with measurement for inner track muons
-  int Reco_mu_StationsMatched[Max_mu_size];  // number of stations matched for inner track muons
-  float Reco_mu_segmentComp[Max_mu_size];
-  float Reco_mu_kink[Max_mu_size];
-  float Reco_mu_localChi2[Max_mu_size];
-  float Reco_mu_normChi2_bestTracker[Max_mu_size];
-  float Reco_mu_normChi2_inner[Max_mu_size];   // chi2/ndof for inner track muons
-  float Reco_mu_normChi2_global[Max_mu_size];  // chi2/ndof for global muons
-  float Reco_mu_dxy[Max_mu_size];              // dxy for inner track muons
-  float Reco_mu_dxyErr[Max_mu_size];           // dxy error for inner track muons
-  float Reco_mu_dz[Max_mu_size];               // dz for inner track muons
-  float Reco_mu_dzErr[Max_mu_size];            // dz error for inner track muons
-  float Reco_mu_pt_inner[Max_mu_size];         // pT for inner track muons
-  float Reco_mu_pt_global[Max_mu_size];        // pT for global muons
-  float Reco_mu_ptErr_inner[Max_mu_size];      // pT error for inner track muons
-  float Reco_mu_ptErr_global[Max_mu_size];     // pT error for global muons
-  float Reco_mu_pTrue[Max_mu_size];  // P of the associated generated muon, used to match the Reco_mu with the Gen_mu
-  float Reco_mu_validFraction[Max_mu_size];
-  int Reco_mu_simExtType[Max_mu_size];  //
+  int Reco_mu_nPixValHits[NMaxMuons];      // Number of valid pixel hits in sta muons
+  int Reco_mu_nMuValHits[NMaxMuons];       // Number of valid muon hits in sta muons
+  int Reco_mu_nTrkHits[NMaxMuons];         // track hits global muons
+  int Reco_mu_nPixWMea[NMaxMuons];         // pixel layers with measurement for inner track muons
+  int Reco_mu_nTrkWMea[NMaxMuons];         // track layers with measurement for inner track muons
+  int Reco_mu_StationsMatched[NMaxMuons];  // number of stations matched for inner track muons
+  float Reco_mu_segmentComp[NMaxMuons];
+  float Reco_mu_kink[NMaxMuons];
+  float Reco_mu_localChi2[NMaxMuons];
+  float Reco_mu_normChi2_bestTracker[NMaxMuons];
+  float Reco_mu_normChi2_inner[NMaxMuons];   // chi2/ndof for inner track muons
+  float Reco_mu_normChi2_global[NMaxMuons];  // chi2/ndof for global muons
+  float Reco_mu_dxy[NMaxMuons];              // dxy for inner track muons
+  float Reco_mu_dxyErr[NMaxMuons];           // dxy error for inner track muons
+  float Reco_mu_dz[NMaxMuons];               // dz for inner track muons
+  float Reco_mu_dzErr[NMaxMuons];            // dz error for inner track muons
+  float Reco_mu_pt_inner[NMaxMuons];         // pT for inner track muons
+  float Reco_mu_pt_global[NMaxMuons];        // pT for global muons
+  float Reco_mu_ptErr_inner[NMaxMuons];      // pT error for inner track muons
+  float Reco_mu_ptErr_global[NMaxMuons];     // pT error for global muons
+  float Reco_mu_pTrue[NMaxMuons];  // P of the associated generated muon, used to match the Reco_mu with the Gen_mu
+  float Reco_mu_validFraction[NMaxMuons];
+  int Reco_mu_simExtType[NMaxMuons];  //
 
   Short_t muType;  // type of muon (GlbTrk=0, Trk=1, Glb=2, none=-1)
-  std::vector<float>
-      EtaOfWantedMuons;  //To know which single muons to fill, when fillSingleMuons=false and we want only the muons from selected dimuons
-  std::vector<float>
-      EtaOfWantedTracks;  //To know which tracks to fill (only tracks that are part of a selected dimuon-track candidate)
 
   Short_t Reco_trk_size;                  // Number of reconstructed tracks
   Short_t Reco_trk_charge[Max_trk_size];  // Vector of charge of tracks
@@ -331,7 +329,6 @@ private:
   // histos
   TH1F* hGoodMuonsNoTrig = nullptr;
   TH1F* hGoodMuons = nullptr;
-  TH1F* hL1DoubleMu0 = nullptr;
 
   // event counters
   TH1F* hStats = nullptr;
@@ -401,7 +398,6 @@ private:
   std::vector<string> _sglTriggerPathNames;
 
   bool _applycuts;
-  bool _SofterSgMuAcceptance;
   bool _SumETvariables;
   bool _selTightGlobalMuon;
   bool _muonLessPrimaryVertex;
@@ -416,7 +412,6 @@ private:
   bool _fillRooDataSet;
   bool _fillTree;
   bool _fillHistos;
-  bool _theMinimumFlag;
   bool _fillSingleMuons;
   bool _isHI;
   bool _isPA;
@@ -433,7 +428,7 @@ private:
   std::vector<unsigned int> _thePassedCats;
   std::vector<const pat::CompositeCandidate*> _thePassedCands;
 
-  std::vector<reco::GenParticleRef> _Gen_QQ_MomAndTrkBro[Max_QQ_size];
+  std::vector<reco::GenParticleRef> _Gen_Dimuon_MomAndTrkBro[NMaxDimuons];
 
   // number of events
   unsigned int nEvents;
