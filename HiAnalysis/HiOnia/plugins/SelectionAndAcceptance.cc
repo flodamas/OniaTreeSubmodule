@@ -48,7 +48,7 @@ bool HiOniaAnalyzer::selGlobalMuon(const pat::Muon* aMuon) {
   if (!_applycuts)
     return true;
 
-  bool isInAcc = isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)(_SofterSgMuAcceptance ? "GLBSOFT" : "GLB"));
+  bool isInAcc = isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)("GLB"));
   bool isGood = (_selTightGlobalMuon ? aMuon->passed(reco::Muon::CutBasedIdTight) : isSoftMuonBase(aMuon));
 
   return (isInAcc && isGood);
@@ -61,7 +61,7 @@ bool HiOniaAnalyzer::selTrackerMuon(const pat::Muon* aMuon) {
   if (!_applycuts)
     return true;
 
-  bool isInAcc = isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)(_SofterSgMuAcceptance ? "TRKSOFT" : "TRK"));
+  bool isInAcc = isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)("TRK"));
   bool isGood = isSoftMuonBase(aMuon);
 
   return (isInAcc && isGood);
@@ -74,7 +74,7 @@ bool HiOniaAnalyzer::selGlobalOrTrackerMuon(const pat::Muon* aMuon) {
   if (!_applycuts)
     return true;
 
-  bool isInAcc = isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)(_SofterSgMuAcceptance ? "TRKSOFT" : "TRK"));
+  bool isInAcc = isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)("TRK"));
   bool isGood = isSoftMuonBase(aMuon);
 
   return (isInAcc && isGood);

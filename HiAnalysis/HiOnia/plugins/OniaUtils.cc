@@ -85,10 +85,7 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
             if (checkCuts(cand, muon1, muon2, &HiOniaAnalyzer::selGlobalMuon, &HiOniaAnalyzer::selGlobalMuon)) {
               _thePassedCats.push_back(Glb_Glb);
               _thePassedCands.push_back(cand);
-              if (!_fillSingleMuons) {
-                EtaOfWantedMuons.push_back(muon1->eta());
-                EtaOfWantedMuons.push_back(muon2->eta());
-              }
+              
             }
             muonSelFound = true;
           }
@@ -96,10 +93,7 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
             if (checkCuts(cand, muon1, muon2, &HiOniaAnalyzer::selGlobalMuon, &HiOniaAnalyzer::selGlobalMuon)) {
               _thePassedCats.push_back(GlbTrk_GlbTrk);
               _thePassedCands.push_back(cand);
-              if (!_fillSingleMuons) {
-                EtaOfWantedMuons.push_back(muon1->eta());
-                EtaOfWantedMuons.push_back(muon2->eta());
-              }
+              
             }
             muonSelFound = true;
           }
@@ -107,10 +101,7 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
             if (checkCuts(cand, muon1, muon2, &HiOniaAnalyzer::selTrackerMuon, &HiOniaAnalyzer::selTrackerMuon)) {
               _thePassedCats.push_back(Trk_Trk);
               _thePassedCands.push_back(cand);
-              if (!_fillSingleMuons) {
-                EtaOfWantedMuons.push_back(muon1->eta());
-                EtaOfWantedMuons.push_back(muon2->eta());
-              }
+              
             }
             muonSelFound = true;
           }
@@ -122,20 +113,13 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
                           &HiOniaAnalyzer::selGlobalOrTrackerMuon)) {
               _thePassedCats.push_back(GlbOrTrk_GlbOrTrk);
               _thePassedCands.push_back(cand);
-              if (!_fillSingleMuons) {
-                EtaOfWantedMuons.push_back(muon1->eta());
-                EtaOfWantedMuons.push_back(muon2->eta());
-              }
+              
             }
             muonSelFound = true;
           }
           if (_muonSel == (std::string)("All")) {
               _thePassedCats.push_back(All_All);
               _thePassedCands.push_back(cand);
-              if (!_fillSingleMuons) {
-                EtaOfWantedMuons.push_back(muon1->eta());
-                EtaOfWantedMuons.push_back(muon2->eta());
-              }
             
             muonSelFound = true;
           }
