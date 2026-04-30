@@ -46,7 +46,11 @@ options = VarParsing.VarParsing ('analysis')
 # Input and Output File Name
 
 options.inputFiles = [
-  '/store/hidata/HIRun2025A/HIPhysicsRawPrime1/MINIAOD/PbPbEW-PromptReco-v1/000/399/589/00000/97032cc3-16bb-4f43-8a25-a4c8d0aa8482.root'
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime1/MINIAOD/PbPbEW-PromptReco-v1/000/399/589/00000/97032cc3-16bb-4f43-8a25-a4c8d0aa8482.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/399/710/00000/35e71205-b440-4689-8689-d22475f4835f.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/399/710/00000/9aa7a097-b77f-44e5-943c-50310094cd41.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/400/339/00000/b72d5207-f9e4-4904-af9b-a8b25045a2b4.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/400/357/00000/e14979db-32ec-4842-8972-c3765fc27ceb.root'
 ]
 
 options.outputFile = 'Oniatree_PbPb2025PromptRecoData.root'
@@ -119,7 +123,7 @@ oniaTreeAnalyzer(process,
 )
 
 process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.0 && abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 25")
-process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.4")
+process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.4 && isGlobalMuon")
 
 #if applyCuts:
 process.onia2MuMuPatGlbGlb.LateDimuonSel = cms.string("userFloat(\"vProb\")>0.001")
@@ -147,7 +151,7 @@ if applyEventSel:
   # HLT trigger firing events
   import HLTrigger.HLTfilters.hltHighLevel_cfi
   process.hltHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-  process.hltHI.HLTPaths = ["HLT_HIL*SingleMu*_v*", "HLT_HIMinimumBiasHF1AND*_v*"]
+  process.hltHI.HLTPaths = ["HLT_HIL2SingleMu*_v*", "HLT_HIMinimumBiasHF1AND*_v*"]
   process.hltHI.throw = False
   process.hltHI.andOr = True
 
@@ -203,7 +207,7 @@ process.TFileService = cms.Service("TFileService",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-#process.options.numberOfThreads = 4
+process.options.numberOfThreads = 4
 
 
 process.schedule  = cms.Schedule( process.oniaTreeAna )
