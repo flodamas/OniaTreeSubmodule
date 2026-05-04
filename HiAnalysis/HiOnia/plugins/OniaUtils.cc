@@ -89,6 +89,14 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
             }
             muonSelFound = true;
           }
+          if (_muonSel == (std::string)("Tight")) {
+            if (checkCuts(cand, muon1, muon2, &HiOniaAnalyzer::selTightMuon, &HiOniaAnalyzer::selTightMuon)) {
+              _thePassedCats.push_back(Tight_Tight);
+              _thePassedCands.push_back(cand);
+              
+            }
+            muonSelFound = true;
+          }
           if (_muonSel == (std::string)("GlbTrk")) {
             if (checkCuts(cand, muon1, muon2, &HiOniaAnalyzer::selGlobalMuon, &HiOniaAnalyzer::selGlobalMuon)) {
               _thePassedCats.push_back(GlbTrk_GlbTrk);
@@ -125,7 +133,7 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
           }
           if (!muonSelFound) {
             std::cout << "[HiOniaAnalyzer::makeCuts] --- The muon selection: " << _muonSel
-                      << " is invalid. The supported options are: All, Glb, GlbTrk, GlbOrTrk, Trk"
+                      << " is invalid. The supported options are: All, Glb, GlbTrk, GlbOrTrk, Trk, Tight"
                       << std::endl;
           }
         }
@@ -175,8 +183,8 @@ int HiOniaAnalyzer::IndexOfThisTrack(const float trackPt, bool isGen) {
 int HiOniaAnalyzer::IndexOfThisJpsi(int mu1_idx, int mu2_idx) {
   int GoodIndex = -1;
   for (int iJpsi = 0; iJpsi < Reco_Dimuon_size; iJpsi++) {
-    if (((Reco_Dimuon_mumi_idx[iJpsi] == mu1_idx && Reco_Dimuon_mupl_idx[iJpsi] == mu2_idx) ||
-         (Reco_Dimuon_mumi_idx[iJpsi] == mu2_idx && Reco_Dimuon_mupl_idx[iJpsi] == mu1_idx))) {
+    if (((Reco_Dimuon_muonMinusIndex[iJpsi] == mu1_idx && Reco_Dimuon_muonPlusIndex[iJpsi] == mu2_idx) ||
+         (Reco_Dimuon_muonMinusIndex[iJpsi] == mu2_idx && Reco_Dimuon_muonPlusIndex[iJpsi] == mu1_idx))) {
       GoodIndex = iJpsi;
       break;
     }

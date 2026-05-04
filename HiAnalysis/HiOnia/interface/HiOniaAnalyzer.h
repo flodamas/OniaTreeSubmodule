@@ -99,6 +99,7 @@ private:
   double CorrectMass(const reco::Muon& mu1, const reco::Muon& mu2, int mode);
 
   bool selGlobalMuon(const pat::Muon* aMuon);
+  bool selTightMuon(const pat::Muon* aMuon);
   bool selTrackerMuon(const pat::Muon* aMuon);
   bool selGlobalOrTrackerMuon(const pat::Muon* aMuon);
   bool selTrk(const reco::TrackRef aTrk);
@@ -126,10 +127,11 @@ private:
     Glb_Glb = 1,
     Trk_Trk = 2,
     GlbOrTrk_GlbOrTrk = 3,
-    All_All = 4
+    Tight_Tight = 4,
+    All_All = 5
   };
 
-  enum muonCategories { GlbTrk = 0, Trk = 1, Glb = 2, GlbOrTrk = 3, All = 4 };
+  enum muonCategories { GlbTrk = 0, Trk = 1, Glb = 2, GlbOrTrk = 3, Tight = 4, All = 5 };
 
   std::vector<std::string> theRegions;
   std::vector<std::string> theCentralities;
@@ -141,8 +143,8 @@ private:
   HLTConfigProvider hltConfig;
   bool hltConfigInit;
 
-  float etaMin;
-  float etaMax;
+  //float etaMin;
+  //float etaMax;
 
   // TFileService
   edm::Service<TFileService> fs;
@@ -153,55 +155,55 @@ private:
   // TTree
   TTree* myTree;
 
-  std::vector<LorentzVector> Gen_mu_4mom;
+  std::vector<LorentzVector> Gen_Muon_4mom;
   std::vector<LorentzVector> Gen_Dimuon_4mom;
-  std::vector<LorentzVector> Reco_mu_4mom;
+  std::vector<LorentzVector> Reco_Muon_4mom;
 
   std::vector<float> Reco_Dimuon_vtx_xpos;
   std::vector<float> Reco_Dimuon_vtx_ypos;
   std::vector<float> Reco_Dimuon_vtx_zpos;
 
   
-  std::vector<float> Reco_mu_4mom_pt;
-  std::vector<float> Reco_mu_L1_4mom_pt;
+  std::vector<float> Reco_Muon_4mom_pt;
+  std::vector<float> Reco_Muon_L1_4mom_pt;
   std::vector<float> Reco_Dimuon_4mom_pt;
   std::vector<float> Reco_Dimuon_mumi_4mom_pt;
   std::vector<float> Reco_Dimuon_mupl_4mom_pt;
   std::vector<float> Reco_Dimuon_Muons_pTdiff;
 
 
-  std::vector<float> Gen_mu_4mom_pt;
+  std::vector<float> Gen_Muon_4mom_pt;
   std::vector<float> Gen_Dimuon_4mom_pt;
   std::vector<float> Gen_Dimuon_Muons_pTdiff;
 
-  std::vector<float> Reco_mu_4mom_eta;
-  std::vector<float> Reco_mu_L1_4mom_eta;
+  std::vector<float> Reco_Muon_4mom_eta;
+  std::vector<float> Reco_Muon_L1_4mom_eta;
   std::vector<float> Reco_Dimuon_4mom_eta;
   std::vector<float> Reco_Dimuon_mumi_4mom_eta;
   std::vector<float> Reco_Dimuon_mupl_4mom_eta;
 
-  std::vector<float> Gen_mu_4mom_eta;
+  std::vector<float> Gen_Muon_4mom_eta;
   std::vector<float> Gen_Dimuon_4mom_eta;
 
   std::vector<float> Gen_Dimuon_4mom_y;
   std::vector<float> Reco_Dimuon_4mom_y;
 
-  std::vector<float> Reco_mu_4mom_phi;
-  std::vector<float> Reco_mu_L1_4mom_phi;
+  std::vector<float> Reco_Muon_4mom_phi;
+  std::vector<float> Reco_Muon_L1_4mom_phi;
   std::vector<float> Reco_Dimuon_4mom_phi;
   std::vector<float> Reco_Dimuon_mumi_4mom_phi;
   std::vector<float> Reco_Dimuon_mupl_4mom_phi;
 
-  std::vector<float> Gen_mu_4mom_phi;
+  std::vector<float> Gen_Muon_4mom_phi;
   std::vector<float> Gen_Dimuon_4mom_phi;
 
-  std::vector<float> Reco_mu_4mom_m;
-  std::vector<float> Reco_mu_L1_4mom_m;
+  std::vector<float> Reco_Muon_4mom_m;
+  std::vector<float> Reco_Muon_L1_4mom_m;
   std::vector<float> Reco_Dimuon_4mom_m;
   std::vector<float> Reco_Dimuon_mumi_4mom_m;
   std::vector<float> Reco_Dimuon_mupl_4mom_m;
 
-  std::vector<float> Gen_mu_4mom_m;
+  std::vector<float> Gen_Muon_4mom_m;
   std::vector<float> Gen_Dimuon_4mom_m;
 
   static const int NMaxDimuons = 1000;
@@ -218,28 +220,28 @@ private:
   int Gen_Dimuon_momId
       [NMaxDimuons];  // PDG ID of the generated mother of the Gen QQ, going back far enough in the geneaology to find a potential B mother
   float Gen_Dimuon_momPt[NMaxDimuons];       // Pt of mother particle of 2 muons
-  Short_t Gen_Dimuon_mupl_idx[NMaxDimuons];  // index of the muon plus from Jpsi, in the full list of muons
-  Short_t Gen_Dimuon_mumi_idx[NMaxDimuons];  // index of the muon minus from Jpsi, in the full list of muons
+  Short_t Gen_Dimuon_muonPlusIndex[NMaxDimuons];  // index of the muon plus from Jpsi, in the full list of muons
+  Short_t Gen_Dimuon_muonMinusIndex[NMaxDimuons];  // index of the muon minus from Jpsi, in the full list of muons
   Short_t Gen_Dimuon_whichRec
       [NMaxDimuons];  // index of the reconstructed Jpsi that was matched with this gen Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed. Is -2 if the two muons were reconstructed, but the dimuon was not selected
 
-  Short_t Gen_mu_size;                 // number of generated muons
-  Short_t Gen_mu_charge[NMaxMuons];  // muon charge
-  Short_t Gen_mu_type[NMaxMuons];    // muon type: prompt, non-prompt, unmatched
-  Short_t Gen_mu_whichRec
+  Short_t Gen_Muon_size;                 // number of generated muons
+  Short_t Gen_Muon_charge[NMaxMuons];  // muon charge
+  Short_t Gen_Muon_type[NMaxMuons];    // muon type: prompt, non-prompt, unmatched
+  Short_t Gen_Muon_whichRec
       [NMaxMuons];  // index of the reconstructed muon that was matched with this gen muon. Is -1 if the muon was not reconstructed
-  float Gen_mu_MatchDeltaR[NMaxMuons];  // deltaR between reco and gen matched muons
+  float Gen_Muon_MatchDeltaR[NMaxMuons];  // deltaR between reco and gen matched muons
 
 
-  Short_t Reco_Dimuon_size;                   // Number of reconstructed Onia
-  Short_t Reco_Dimuon_type[NMaxDimuons];      // Onia category: GG, GT, TT
+  Short_t Reco_Dimuon_size;                   // Number of reconstructed dimuons
+  Short_t Reco_Dimuon_type[NMaxDimuons];      // Dimuon category: GG, GT, TT
   Short_t Reco_Dimuon_sign[NMaxDimuons];      /* Mu Mu combinations sign:
                              0 = +/- (signal)
                              1 = +/+
                              2 = -/- 
                           */
-  Short_t Reco_Dimuon_mupl_idx[NMaxDimuons];  // index of the muon plus from Jpsi, in the full list of muons
-  Short_t Reco_Dimuon_mumi_idx[NMaxDimuons];  // index of the muon minus from Jpsi, in the full list of muons
+  Short_t Reco_Dimuon_muonPlusIndex[NMaxDimuons];  // index of the muon plus from Jpsi, in the full list of muons
+  Short_t Reco_Dimuon_muonMinusIndex[NMaxDimuons];  // index of the muon minus from Jpsi, in the full list of muons
   Short_t Reco_Dimuon_whichGen
       [NMaxDimuons];  // index of the generated Jpsi that was matched with this rec Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed
   ULong64_t Reco_Dimuon_trig[NMaxDimuons];  // Vector of trigger bits matched to the Onia
@@ -261,53 +263,57 @@ private:
   float Reco_Dimuon_mupl_dz[NMaxDimuons];   // dz for plus inner track muons
   float Reco_Dimuon_mumi_dz[NMaxDimuons];   // dz for minus inner track muons
 
-  Short_t Reco_mu_size;  // Number of reconstructed muons
-  int Reco_mu_SelectionType[NMaxMuons];
-  ULong64_t Reco_mu_trig[NMaxMuons];  // Vector of trigger bits matched to the muon
-  Short_t Reco_mu_charge[NMaxMuons];  // Vector of charge of muons
-  Short_t Reco_mu_type[NMaxMuons];    // Vector of type of muon (global=0, tracker=1, calo=2)
-  Short_t Reco_mu_whichGen
+  Short_t Reco_Muon_size;  // Number of reconstructed muons
+  int Reco_Muon_SelectionType[NMaxMuons];
+  ULong64_t Reco_Muon_trig[NMaxMuons];  // Vector of trigger bits matched to the muon
+  Short_t Reco_Muon_charge[NMaxMuons];  // Vector of charge of muons
+  Short_t Reco_Muon_type[NMaxMuons];    // Vector of type of muon (global=0, tracker=1, calo=2)
+  Short_t Reco_Muon_whichGen
       [NMaxMuons];  // index of the generated muon that was matched with this reco muon. Is -1 if the muon is not associated with a generated muon (fake, or very bad resolution)
 
-  bool Reco_mu_highPurity[NMaxMuons];     // Vector of high purity flag
-  bool Reco_mu_TrkMuArb[NMaxMuons];       // Vector of TrackerMuonArbitrated
-  bool Reco_mu_TMOneStaTight[NMaxMuons];  // Vector of TMOneStationTight
-  Short_t Reco_mu_candType
+  bool Reco_Muon_highPurity[NMaxMuons];     // Vector of high purity flag
+  bool Reco_Muon_TrkMuArb[NMaxMuons];       // Vector of TrackerMuonArbitrated
+  bool Reco_Muon_TMOneStaTight[NMaxMuons];  // Vector of TMOneStationTight
+  Short_t Reco_Muon_candType
       [NMaxMuons];  // candidate type of muon. 0 (or not present): muon collection, 1: packedPFCandidate, 2: lostTrack collection
-  bool Reco_mu_isPF[NMaxMuons];  // Vector of isParticleFlow muon
-  bool Reco_mu_isTracker[NMaxMuons];
-  bool Reco_mu_isGlobal[NMaxMuons];
-  bool Reco_mu_isSoftCutBased[NMaxMuons];
-  float Reco_mu_softMvaRun3Value[NMaxMuons];
-  bool Reco_mu_isHybridSoft[NMaxMuons];
-  bool Reco_mu_isMediumCutBased[NMaxMuons];
-  bool Reco_mu_isTightCutBased[NMaxMuons];
-  bool Reco_mu_InTightAcc[NMaxMuons];  // Is in the tight acceptance for global muons
-  bool Reco_mu_InLooseAcc[NMaxMuons];  // Is in the loose acceptance for global muons
+  bool Reco_Muon_isPF[NMaxMuons];  // Vector of isParticleFlow muon
+  bool Reco_Muon_isTracker[NMaxMuons];
+  bool Reco_Muon_isGlobal[NMaxMuons];
+  bool Reco_Muon_isSoftCutBased[NMaxMuons];
+  bool Reco_Muon_isHybridSoft[NMaxMuons];
+  bool Reco_Muon_isLooseCutBased[NMaxMuons];
+  bool Reco_Muon_isMediumCutBased[NMaxMuons];
+  bool Reco_Muon_isTightCutBased[NMaxMuons];
 
-  int Reco_mu_nPixValHits[NMaxMuons];      // Number of valid pixel hits in sta muons
-  int Reco_mu_nMuValHits[NMaxMuons];       // Number of valid muon hits in sta muons
-  int Reco_mu_nTrkHits[NMaxMuons];         // track hits global muons
-  int Reco_mu_nPixWMea[NMaxMuons];         // pixel layers with measurement for inner track muons
-  int Reco_mu_nTrkWMea[NMaxMuons];         // track layers with measurement for inner track muons
-  int Reco_mu_StationsMatched[NMaxMuons];  // number of stations matched for inner track muons
-  float Reco_mu_segmentComp[NMaxMuons];
-  float Reco_mu_kink[NMaxMuons];
-  float Reco_mu_localChi2[NMaxMuons];
-  float Reco_mu_normChi2_bestTracker[NMaxMuons];
-  float Reco_mu_normChi2_inner[NMaxMuons];   // chi2/ndof for inner track muons
-  float Reco_mu_normChi2_global[NMaxMuons];  // chi2/ndof for global muons
-  float Reco_mu_dxy[NMaxMuons];              // dxy for inner track muons
-  float Reco_mu_dxyErr[NMaxMuons];           // dxy error for inner track muons
-  float Reco_mu_dz[NMaxMuons];               // dz for inner track muons
-  float Reco_mu_dzErr[NMaxMuons];            // dz error for inner track muons
-  float Reco_mu_pt_inner[NMaxMuons];         // pT for inner track muons
-  float Reco_mu_pt_global[NMaxMuons];        // pT for global muons
-  float Reco_mu_ptErr_inner[NMaxMuons];      // pT error for inner track muons
-  float Reco_mu_ptErr_global[NMaxMuons];     // pT error for global muons
-  float Reco_mu_pTrue[NMaxMuons];  // P of the associated generated muon, used to match the Reco_mu with the Gen_mu
-  float Reco_mu_validFraction[NMaxMuons];
-  int Reco_mu_simExtType[NMaxMuons];  //
+  float Reco_Muon_softMVAValue[NMaxMuons];
+  float Reco_Muon_muonMVAValue[NMaxMuons]; // https://muon-wiki.docs.cern.ch/guidelines/recommendations/#muon-mva
+
+  bool Reco_Muon_InTightAcc[NMaxMuons];  // Is in the tight acceptance for global muons
+  bool Reco_Muon_InLooseAcc[NMaxMuons];  // Is in the loose acceptance for global muons
+
+  int Reco_Muon_nPixValHits[NMaxMuons];      // Number of valid pixel hits in sta muons
+  int Reco_Muon_nMuValHits[NMaxMuons];       // Number of valid muon hits in sta muons
+  int Reco_Muon_nTrkHits[NMaxMuons];         // track hits global muons
+  int Reco_Muon_nPixWMea[NMaxMuons];         // pixel layers with measurement for inner track muons
+  int Reco_Muon_nTrkWMea[NMaxMuons];         // track layers with measurement for inner track muons
+  int Reco_Muon_nStationsMatched[NMaxMuons];  // number of stations matched for inner track muons
+  float Reco_Muon_segmentComp[NMaxMuons];
+  float Reco_Muon_kink[NMaxMuons];
+  float Reco_Muon_localChi2[NMaxMuons];
+  float Reco_Muon_normChi2_bestTracker[NMaxMuons];
+  float Reco_Muon_normChi2_inner[NMaxMuons];   // chi2/ndof for inner track muons
+  float Reco_Muon_normChi2_global[NMaxMuons];  // chi2/ndof for global muons
+  float Reco_Muon_dxy[NMaxMuons];              // dxy for inner track muons
+  float Reco_Muon_dxyErr[NMaxMuons];           // dxy error for inner track muons
+  float Reco_Muon_dz[NMaxMuons];               // dz for inner track muons
+  float Reco_Muon_dzErr[NMaxMuons];            // dz error for inner track muons
+  float Reco_Muon_pt_inner[NMaxMuons];         // pT for inner track muons
+  float Reco_Muon_pt_global[NMaxMuons];        // pT for global muons
+  float Reco_Muon_ptErr_inner[NMaxMuons];      // pT error for inner track muons
+  float Reco_Muon_ptErr_global[NMaxMuons];     // pT error for global muons
+  float Reco_Muon_pTrue[NMaxMuons];  // P of the associated generated muon, used to match the Reco_Muon with the Gen_Muon
+  float Reco_Muon_validFraction[NMaxMuons];
+  int Reco_Muon_simExtType[NMaxMuons];  //
 
   Short_t muType;  // type of muon (GlbTrk=0, Trk=1, Glb=2, none=-1)
 
@@ -363,7 +369,7 @@ private:
   float rpSin_origin[50];
 
   // handles
-  edm::Handle<pat::CompositeCandidateCollection> collJpsi;
+  edm::Handle<pat::CompositeCandidateCollection> collDimuon;
   edm::Handle<pat::MuonCollection> collMuon;
   edm::Handle<pat::MuonCollection> collMuonNoTrig;
   edm::Handle<reco::TrackCollection> collTracks;
@@ -439,13 +445,12 @@ private:
   unsigned int lumiSection;
 
   // limits
-  float JpsiMassMin;
-  float JpsiMassMax;
-  float JpsiPtMin;   // SET BY
-  float JpsiPtMax;   // DEFINITION
-  float JpsiRapMin;  // OF BIN
-  float JpsiRapMax;  // LIMITS
-  float JpsiPDGMass = 3.09609;
+  //float JpsiMassMin;
+  //float JpsiMassMax;
+  //float JpsiPtMin;   // SET BY
+  //float JpsiPtMax;   // DEFINITION
+  //float JpsiRapMin;  // OF BIN
+  //float JpsiRapMax;  // LIMITS
 
   math::XYZPoint RefVtx;
   float RefVtx_xError;

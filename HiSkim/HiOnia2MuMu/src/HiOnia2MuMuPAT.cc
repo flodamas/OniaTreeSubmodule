@@ -502,7 +502,7 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
       for (const auto &i : userVertex) {
         myCandTmp.addUserData(i.first, i.second);
       }
-      // ---- Push back output of this Jpsi candidate ----
+      // ---- Push back output of this candidate ----
       oniaOutput->push_back(myCandTmp);
         
 

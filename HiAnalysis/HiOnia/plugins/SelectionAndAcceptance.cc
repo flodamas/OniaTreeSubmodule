@@ -7,6 +7,10 @@ bool HiOniaAnalyzer::isInAcceptance(const float eta, const float pt, std::string
   if (absEta > 2.4)
     return false;
 
+  if (muonType == (std::string)("TIGHT")) {
+    return pt > 6.0;
+  }
+
   if (muonType == (std::string)("GLB")) {
     return ((absEta < 1.2 && pt >= 3.5) || (1.2 <= absEta && absEta < 2.1 &&
                                            pt >= 5.47 - 1.89 * absEta) ||
@@ -93,6 +97,19 @@ bool HiOniaAnalyzer::selTrk(const reco::TrackRef aTrk) {
           2.4;  //(aTrk->pt())>0.2 && fabs(aTrk->eta())<2.4 && aTrk->ptError()/aTrk->pt()<0.1 && fabs(aTrk->dxy(RefVtx))<0.35 && fabs(aTrk->dz(RefVtx))<20; //keep margin in dxy and dz, if the RefVtx is not the good one due to muonlessPV
 
   return (isInAcc);
+};
+
+bool HiOniaAnalyzer::selTightMuon(const pat::Muon* aMuon) {
+  if (!aMuon->isGlobalMuon())
+    return false;
+
+  if (!_applycuts)
+    return true;
+
+  bool isInAcc = isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)("TIGHT"));
+  bool isGood = aMuon->passed(reco::Muon::CutBasedIdTight);
+
+  return (isInAcc && isGood);
 };
 
 bool HiOniaAnalyzer::isAbHadron(int pdgID) {

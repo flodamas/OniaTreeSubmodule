@@ -35,8 +35,8 @@ void HiOniaAnalyzer::fillGenInfo() {
     return;
   }
 
-  if (Gen_mu_size >= NMaxMuons) {
-    std::cout << "Too many muons: " << Gen_mu_size << std::endl;
+  if (Gen_Muon_size >= NMaxMuons) {
+    std::cout << "Too many muons: " << Gen_Muon_size << std::endl;
     std::cout << "Maximum allowed: " << NMaxMuons << std::endl;
     return;
   }
@@ -52,20 +52,20 @@ void HiOniaAnalyzer::fillGenInfo() {
     for (const auto& gen : *collGenParticles){
 
       if (abs(gen.pdgId()) == 13 && (gen.status() == 1)) {
-        Gen_mu_type[Gen_mu_size] = _isPromptMC ? 0 : 1;  // prompt: 0, non-prompt: 1
-        Gen_mu_charge[Gen_mu_size] = gen.charge();
+        Gen_Muon_type[Gen_Muon_size] = _isPromptMC ? 0 : 1;  // prompt: 0, non-prompt: 1
+        Gen_Muon_charge[Gen_Muon_size] = gen.charge();
 
         LorentzVector muonLV = gen.p4();
-	      Gen_mu_4mom.emplace_back(muonLV);
-        Gen_mu_4mom_pt.push_back(muonLV.Pt());
-        Gen_mu_4mom_eta.push_back(muonLV.Eta());
-        Gen_mu_4mom_phi.push_back(muonLV.Phi());
-        Gen_mu_4mom_m.push_back(muonLV.M());
+	      Gen_Muon_4mom.emplace_back(muonLV);
+        Gen_Muon_4mom_pt.push_back(muonLV.Pt());
+        Gen_Muon_4mom_eta.push_back(muonLV.Eta());
+        Gen_Muon_4mom_phi.push_back(muonLV.Phi());
+        Gen_Muon_4mom_m.push_back(muonLV.M());
 
         //Fill map of the muon indices. Use long int keys, to avoid rounding errors on a float key. Implies a precision of 10^-6
-        mapGenMuonMomToIndex_[FloatToIntkey(muonLV.Pt())] = Gen_mu_size;
+        mapGenMuonMomToIndex_[FloatToIntkey(muonLV.Pt())] = Gen_Muon_size;
 
-        Gen_mu_size++;
+        Gen_Muon_size++;
       }
     }
 
@@ -98,12 +98,12 @@ void HiOniaAnalyzer::fillGenInfo() {
 
           float genMuonPtDiff = 0.0;
           if (genMuon1->charge() > genMuon2->charge()) {
-            Gen_Dimuon_mupl_idx[Gen_Dimuon_size] = IndexOfThisMuon(genMuon1->pt(), true);
-            Gen_Dimuon_mumi_idx[Gen_Dimuon_size] = IndexOfThisMuon(genMuon2->pt(), true);
+            Gen_Dimuon_muonPlusIndex[Gen_Dimuon_size] = IndexOfThisMuon(genMuon1->pt(), true);
+            Gen_Dimuon_muonMinusIndex[Gen_Dimuon_size] = IndexOfThisMuon(genMuon2->pt(), true);
             genMuonPtDiff = genMuon1->pt() - genMuon2->pt();
           } else {
-            Gen_Dimuon_mupl_idx[Gen_Dimuon_size] = IndexOfThisMuon(genMuon2->pt(), true);
-            Gen_Dimuon_mumi_idx[Gen_Dimuon_size] = IndexOfThisMuon(genMuon1->pt(), true);
+            Gen_Dimuon_muonPlusIndex[Gen_Dimuon_size] = IndexOfThisMuon(genMuon2->pt(), true);
+            Gen_Dimuon_muonMinusIndex[Gen_Dimuon_size] = IndexOfThisMuon(genMuon1->pt(), true);
             genMuonPtDiff = genMuon2->pt() - genMuon1->pt();
           }
 
@@ -299,16 +299,16 @@ std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAna
 void HiOniaAnalyzer::fillQQMatchingInfo() {
   for (int igen = 0; igen < Gen_Dimuon_size; igen++) {
     Gen_Dimuon_whichRec[igen] = -1;
-    int Reco_mupl_idx =
-        Gen_mu_whichRec[Gen_Dimuon_mupl_idx[igen]];  //index of the reconstructed mupl associated to the generated mupl of Jpsi
-    int Reco_mumi_idx =
-        Gen_mu_whichRec[Gen_Dimuon_mumi_idx[igen]];  //index of the reconstructed mumi associated to the generated mumi of Jpsi
+    int Reco_muonPlusIndex =
+        Gen_Muon_whichRec[Gen_Dimuon_muonPlusIndex[igen]];  //index of the reconstructed mupl associated to the generated mupl of Jpsi
+    int Reco_muonMinusIndex =
+        Gen_Muon_whichRec[Gen_Dimuon_muonMinusIndex[igen]];  //index of the reconstructed mumi associated to the generated mumi of Jpsi
 
-    if ((Reco_mupl_idx >= 0) && (Reco_mumi_idx >= 0)) {  //Search for Reco_Dimuon only if both muons are reco
+    if ((Reco_muonPlusIndex >= 0) && (Reco_muonMinusIndex >= 0)) {  //Search for Reco_Dimuon only if both muons are reco
       for (int irec = 0; irec < Reco_Dimuon_size; irec++) {
-        if (((Reco_mupl_idx == Reco_Dimuon_mupl_idx[irec]) &&
-             (Reco_mumi_idx == Reco_Dimuon_mumi_idx[irec])) ||  //the charges might be wrong in reco
-            ((Reco_mupl_idx == Reco_Dimuon_mumi_idx[irec]) && (Reco_mumi_idx == Reco_Dimuon_mupl_idx[irec]))) {
+        if (((Reco_muonPlusIndex == Reco_Dimuon_muonPlusIndex[irec]) &&
+             (Reco_muonMinusIndex == Reco_Dimuon_muonMinusIndex[irec])) ||  //the charges might be wrong in reco
+            ((Reco_muonPlusIndex == Reco_Dimuon_muonMinusIndex[irec]) && (Reco_muonMinusIndex == Reco_Dimuon_muonPlusIndex[irec]))) {
           Gen_Dimuon_whichRec[igen] = irec;
           break;
         }

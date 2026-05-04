@@ -7,7 +7,7 @@ from Configuration.StandardSequences.Eras import eras
 # Setup Settings for ONIA TREE: 2025 PbPb data
 
 isMC           = False # if input is MONTECARLO: True or if it's DATA: False
-muonSelection  = "Glb" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk are available
+muonSelection  = "Glb" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, Tight are available
 applyEventSel  = True # Only apply Event Selection if the required collections are present
 applyCuts      = False # At HiAnalysis level, apply kinematic acceptance cuts + identification cuts (isSoftMuon (without highPurity) or isTightMuon, depending on TightGlobalMuon flag) for muons from selected di(tri)muons + hard-coded cuts on the di(tri)muon that you would want to add (but recommended to add everything in LateDimuonSelection, applied at the end of HiSkim)
 SumETvariables = True  # Whether to write out SumET-related variables
@@ -173,7 +173,7 @@ if applyEventSel:
 
   process.dimuonSelection = cms.EDProducer("CandViewShallowCloneCombiner",
                                     checkCharge = cms.bool(False),
-                                    cut = cms.string("mass > 2.0"),
+                                    cut = cms.string("mass > 2.4"),
                                     decay = cms.string("muonSelector muonSelector")
                                     )
 
@@ -207,7 +207,7 @@ process.TFileService = cms.Service("TFileService",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-process.options.numberOfThreads = 4
+#process.options.numberOfThreads = 4
 
 
 process.schedule  = cms.Schedule( process.oniaTreeAna )

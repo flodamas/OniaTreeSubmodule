@@ -32,6 +32,11 @@ def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], muonSelection="Trk"
         process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("")
         lowP = "isGlobalMuon"; # BOTH muons must pass this selection
         process.onia2MuMuPatGlbGlb.lowerPuritySelection = cms.string("("+lowP+commonP1+")"+commonP2)
+    if muonSelection == "Tight":
+        highP = "isGlobalMuon && pt > 10";
+        process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("")
+        lowP = "isGlobalMuon"; # BOTH muons must pass this selection
+        process.onia2MuMuPatGlbGlb.lowerPuritySelection = cms.string("("+lowP+commonP1+")"+commonP2)
     elif muonSelection == "GlbTrk":
         highP = "(isGlobalMuon && isTrackerMuon)";
         process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("")
@@ -51,7 +56,7 @@ def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], muonSelection="Trk"
         process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("")
         process.onia2MuMuPatGlbGlb.lowerPuritySelection = cms.string("pt > 0")
     else:
-        print("ERROR: Incorrect muon selection " + muonSelection + " . Valid options are: Glb, Trk, GlbTrk");
+        print("ERROR: Incorrect muon selection " + muonSelection + " . Valid options are: Glb, Trk, GlbTrk, Tight");
 
 ###################### HiOnia Analyzer #################################################
 
