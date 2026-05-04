@@ -103,6 +103,7 @@ oniaTreeAnalyzer(process,
                  muonSelection=muonSelection, L1Stage=2, isMC=isMC, pdgID=pdgId, outputFileName=options.outputFile
 )
 
+process.onia2MuMuPatGlbGlb.dimuonMassHypothesis  = cms.double(91.19)
 process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 20")
 process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.")
 
