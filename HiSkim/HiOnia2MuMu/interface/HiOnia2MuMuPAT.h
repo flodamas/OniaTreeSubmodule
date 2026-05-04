@@ -56,7 +56,6 @@ private:
   edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
   edm::EDGetTokenT<reco::BeamSpot> thebeamspotToken_;
   edm::EDGetTokenT<reco::VertexCollection> thePVsToken_;
-  edm::EDGetTokenT<reco::TrackCollection> recoTracksToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> theGenParticlesToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> trackBuilderToken_;

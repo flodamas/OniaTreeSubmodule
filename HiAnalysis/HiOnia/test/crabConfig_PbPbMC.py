@@ -3,14 +3,14 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = "PromptJpsiEmbedded"
+config.General.requestName = "DrellYan_preRun2026"
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True
 config.General.transferLogs = False
 
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
-config.JobType.psetName = "hioniaanalyzer_PbPbPrompt_MC_cfg.py"
+config.JobType.psetName = "dimuonAnalyzer_PbPb2026_MC_cfg.py"
 config.JobType.maxMemoryMB = 2000         # request high memory machines.
 #config.JobType.numCores = 4
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
@@ -26,7 +26,7 @@ config.Data.splitting = "FileBased"
 config.Data.allowNonValidInputDataset = True
 config.Data.outputDatasetTag = config.General.requestName
 
-config.Data.outLFNDirBase = '/store/user/fdamas/PPRef2024/RunPrepMC/'
+config.Data.outLFNDirBase = '/store/user/fdamas/'
 config.Data.publication = False
 
 config.section_("Site")

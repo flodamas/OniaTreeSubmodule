@@ -74,7 +74,6 @@ private:
 
   reco::GenParticleRef findDaughterRef(reco::GenParticleRef GenParticleDaughter, int GenParticlePDG);
   int IndexOfThisMuon(const float pt, bool isGen = false);
-  int IndexOfThisTrack(const float pt, bool isGen = false);
   int IndexOfThisDimuon(int mu1_idx, int mu2_idx);
   void fillGenInfo();
   void fillMuMatchingInfo();
@@ -102,7 +101,6 @@ private:
   bool selTightMuon(const pat::Muon* aMuon);
   bool selTrackerMuon(const pat::Muon* aMuon);
   bool selGlobalOrTrackerMuon(const pat::Muon* aMuon);
-  bool selTrk(const reco::TrackRef aTrk);
 
   void fillRecoHistos();
   void fillRecoDimuon(int count, std::string trigName, std::string centName);
@@ -142,8 +140,6 @@ private:
   HLTConfigProvider hltConfig;
   bool hltConfigInit;
 
-  //float etaMin;
-  //float etaMax;
 
   // TFileService
   edm::Service<TFileService> fs;
@@ -207,7 +203,6 @@ private:
 
   static const int NMaxDimuons = 1000;
   static const int NMaxMuons = 1000;
-  static const int Max_trk_size = 10000;
 
   float Gen_weight;  // generator weight
   float Gen_pthat;   // ptHat scale of generated hard scattering
@@ -316,21 +311,6 @@ private:
 
   Short_t muType;  // type of muon (GlbTrk=0, Trk=1, Glb=2, none=-1)
 
-  Short_t Reco_trk_size;                  // Number of reconstructed tracks
-  Short_t Reco_trk_charge[Max_trk_size];  // Vector of charge of tracks
-  bool Reco_trk_highPurity[Max_trk_size];
-  Short_t Reco_trk_whichGenmu[Max_trk_size];
-  bool Reco_trk_InLooseAcc[Max_trk_size];
-  bool Reco_trk_InTightAcc[Max_trk_size];
-  float Reco_trk_dxyError[Max_trk_size];
-  float Reco_trk_dzError[Max_trk_size];
-  float Reco_trk_dxy[Max_trk_size];
-  float Reco_trk_dz[Max_trk_size];
-  float Reco_trk_ptErr[Max_trk_size];
-  int Reco_trk_originalAlgo[Max_trk_size];
-  int Reco_trk_nPixWMea[Max_trk_size];
-  int Reco_trk_nTrkWMea[Max_trk_size];
-
   // histos
   TH1F* hGoodMuonsNoTrig = nullptr;
   TH1F* hGoodMuons = nullptr;
@@ -371,7 +351,6 @@ private:
   edm::Handle<pat::CompositeCandidateCollection> collDimuon;
   edm::Handle<pat::MuonCollection> collMuon;
   edm::Handle<pat::MuonCollection> collMuonNoTrig;
-  edm::Handle<reco::TrackCollection> collTracks;
   edm::Handle<reco::VertexCollection> SVs;
 
   edm::Handle<reco::GenParticleCollection> collGenParticles;
@@ -383,7 +362,6 @@ private:
   edm::EDGetTokenT<pat::MuonCollection> _patMuonToken;
   edm::EDGetTokenT<pat::MuonCollection> _patMuonNoTrigToken;
   edm::EDGetTokenT<pat::CompositeCandidateCollection> _patDimuonToken;
-  edm::EDGetTokenT<reco::TrackCollection> _recoTracksToken;
   edm::EDGetTokenT<reco::GenParticleCollection> _genParticleToken;
   edm::EDGetTokenT<GenEventInfoProduct> _genInfoToken;
   edm::EDGetTokenT<reco::VertexCollection> _thePVsToken;
@@ -397,8 +375,6 @@ private:
   std::string _muonSel;
 
   std::vector<double> _centralityranges;
-  std::vector<double> _ptbinranges;
-  std::vector<double> _etabinranges;
   std::vector<string> _dblTriggerPathNames;
   std::vector<string> _sglTriggerPathNames;
 
@@ -414,7 +390,6 @@ private:
   bool _storeSs;
   bool _AtLeastOneCand;
   bool _combineCategories;
-  bool _fillRooDataSet;
   bool _fillTree;
   bool _fillHistos;
   bool _fillSingleMuons;
@@ -443,14 +418,6 @@ private:
   unsigned int eventNb;
   unsigned int lumiSection;
 
-  // limits
-  //float DimuonMassMin;
-  //float DimuonMassMax;
-  //float DimuonPtMin;   // SET BY
-  //float DimuonPtMax;   // DEFINITION
-  //float DimuonRapMin;  // OF BIN
-  //float DimuonRapMax;  // LIMITS
-
   math::XYZPoint RefVtx;
   float RefVtx_xError;
   float RefVtx_yError;
@@ -475,7 +442,6 @@ private:
   std::map<std::string, int> mapTriggerNameToPrescaleFac_;
   std::map<long int, int> mapMuonMomToIndex_;
   std::map<long int, int> mapGenMuonMomToIndex_;
-  std::map<long int, int> mapTrkMomToIndex_;
 
   HLTPrescaleProvider hltPrescaleProvider;
   bool hltPrescaleInit;

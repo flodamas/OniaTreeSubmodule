@@ -20,7 +20,7 @@ config.General.transferLogs = False
 
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
-config.JobType.psetName = "hioniaanalyzer_PbPbPrompt_DATA_cfg.py"
+config.JobType.psetName = "dimuonAnalyzer_PbPb2025_Data_cfg.py"
 
 config.JobType.maxMemoryMB = 2400         # request high memory machines.
 #config.JobType.numCores = 4

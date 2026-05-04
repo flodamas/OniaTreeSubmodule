@@ -6,7 +6,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         srcMuonNoTrig    = cms.InputTag("patMuonsWithoutTrigger"),
                         srcDimuon        = cms.InputTag("onia2MuMuPatGlbGlb"),
                         srcSV            = cms.InputTag("inclusiveSecondaryVerticesLoose",""), # Name of SV collection
-                        srcTracks        = cms.InputTag("generalTracks"),
                         genParticles     = cms.InputTag("genParticles"),
                         EvtPlane         = cms.InputTag("hiEvtPlaneFlat"),
                         primaryVertexTag = cms.InputTag("offlinePrimaryVertices"),
@@ -23,8 +22,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         #--
                         maxAbsZ = cms.double(24.0),
 
-                        pTBinRanges = cms.vdouble(0.0, 6.0, 8.0, 9.0, 10.0, 12.0, 15.0, 40.0),
-                        etaBinRanges = cms.vdouble(0.0, 2.5),
                         centralityRanges = cms.vdouble(20,40,100),
 
                         applyCuts = cms.bool(False),
@@ -54,7 +51,6 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
 
                         #-- Histogram configuration
                         combineCategories = cms.bool(False),
-                        fillRooDataSet = cms.bool(False),
                         fillTree = cms.bool(True),
                         fillHistos = cms.bool(False),
                         fillSingleMuons = cms.bool(True),

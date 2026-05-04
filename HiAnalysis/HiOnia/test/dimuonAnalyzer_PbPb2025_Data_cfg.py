@@ -4,7 +4,7 @@ from Configuration.StandardSequences.Eras import eras
 
 #----------------------------------------------------------------------------
 
-# Setup Settings for ONIA TREE: 2025 PbPb data
+globalTag = '151X_dataRun3_Prompt_v1'
 
 isMC           = False # if input is MONTECARLO: True or if it's DATA: False
 muonSelection  = "Tight" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, Tight are available
@@ -23,7 +23,7 @@ addEventPlane = False
 
 # Print Onia Tree settings:
 print( " " )
-print( "[INFO] Settings used for ONIA TREE: " )
+print( "[INFO] Settings: " )
 print( "[INFO] isMC                 = " + ("True" if isMC else "False") )
 print( "[INFO] applyEventSel        = " + ("True" if applyEventSel else "False") )
 print( "[INFO] applyCuts            = " + ("True" if applyCuts else "False") )
@@ -55,10 +55,12 @@ options.inputFiles = [
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime40/MINIAOD/PbPbEW-PromptReco-v1/000/400/059/00000/2229e9e9-c9ad-43e7-8b04-804c33db15bf.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime53/MINIAOD/PbPbEW-PromptReco-v1/000/400/357/00000/39c56d61-14a0-46e0-9fab-1911f4a61ded.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime53/MINIAOD/PbPbEW-PromptReco-v1/000/400/387/00000/e2127a1e-cbc8-416d-8bca-b4a7eefdf318.root',
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime53/MINIAOD/PbPbEW-PromptReco-v1/000/400/426/00000/7dbf9fca-be00-453e-9416-64a75308016d.root'
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime53/MINIAOD/PbPbEW-PromptReco-v1/000/400/426/00000/7dbf9fca-be00-453e-9416-64a75308016d.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime11/MINIAOD/PbPbEW-PromptReco-v1/000/399/720/00000/59f38378-d28c-43d5-81ff-b44d49d587e0.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime11/MINIAOD/PbPbEW-PromptReco-v1/000/399/937/00000/65d0ec45-53d4-44b9-8d60-57fc4d72776c.root'
 ]
 
-options.outputFile = 'Oniatree_PbPb2025PromptRecoData.root'
+options.outputFile = 'DimuonTree_HighPtMuons_PbPb2025_Data.root'
 options.secondaryOutputFile = "Jpsi_Dataset.root"
 
 options.maxEvents = -1 # -1 means all events
@@ -76,20 +78,13 @@ triggerList    = {
                         ),
                 # Single Muon Trigger List
                 'SingleMuonTrigger' : cms.vstring(
-                        "HLT_HIL1SingleMu0_Open_v",#4
-                        "HLT_HIL1SingleMu0_v",#5
-                        "HLT_HIL2SingleMu3_Open_v",#6
-                        "HLT_HIL2SingleMu5_v",#7
-                        "HLT_HIL2SingleMu7_v",#8
-                        "HLT_HIL2SingleMu12_v",#9
+                        "HLT_HIL2SingleMu3_Open_v",#4
+                        "HLT_HIL2SingleMu5_v",#5
+                        "HLT_HIL2SingleMu7_v",#6
+                        "HLT_HIL2SingleMu12_v",#7
 			)
 }
 
-# Global tag, see https://github.com/cms-sw/cmssw/blob/master/Configuration/AlCa/python/autoCond.py
-if isMC:
-  globalTag = 'auto:phase1_2025_realistic_hi'
-else:
-  globalTag = '151X_dataRun3_Prompt_v1'
 
 #----------------------------------------------------------------------------
 
@@ -127,7 +122,7 @@ oniaTreeAnalyzer(process,
                  muonSelection=muonSelection, L1Stage=2, isMC=isMC, pdgID=pdgId, outputFileName=options.outputFile
 )
 
-process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.0 && abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 25")
+process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.4 && abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 25")
 process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.4 && isGlobalMuon")
 
 #if applyCuts:

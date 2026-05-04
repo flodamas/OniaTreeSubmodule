@@ -4,24 +4,24 @@ from Configuration.StandardSequences.Eras import eras
 
 #----------------------------------------------------------------------------
 
-# Setup Settings for ONIA TREE: 2025 PbPb MC
+globalTag = '151X_mcRun3_2025_realistic_HI_v5'
 
 isMC           = True # if input is MONTECARLO: True or if it's DATA: False
-muonSelection  = "All" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, TwoGlbAmongThree (which requires two isGlobal for a trimuon, and one isGlobal for a dimuon) are available
+muonSelection  = "All" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk
 applyEventSel  = True # Only apply Event Selection if the required collections are present
 applyCuts      = False # At HiAnalysis level, apply kinematic acceptance cuts + identification cuts (isSoftMuon (without highPurity) or isTightMuon, depending on TightGlobalMuon flag) for muons from selected di(tri)muons + hard-coded cuts on the di(tri)muon that you would want to add (but recommended to add everything in LateDimuonSelection, applied at the end of HiSkim)
 SumETvariables = True  # Whether to write out SumET-related variables
-atLeastOneCand = False # Keep only events that have one selected dimuon (or at least one trimuon if doTrimuons = true). BEWARE this can cause trouble in .root output if no event is selected by onia2MuMuPatGlbGlbFilter!
-OneMatchedHLTMu = -1   # Keep only di(tri)muons of which the one(two) muon(s) are matched to the HLT Filter of this number. You can get the desired number in the output of oniaTree. Set to -1 for no matching.
+atLeastOneCand = False # Keep only events that have one selected dimuon. BEWARE this can cause trouble in .root output if no event is selected by onia2MuMuPatGlbGlbFilter!
+OneMatchedHLTMu = -1   # Keep only dimuons of which the one(two) muon(s) are matched to the HLT Filter of this number. You can get the desired number in the output of oniaTree. Set to -1 for no matching.
 #############################################################################
 miniAOD        = True # whether the input file is in miniAOD format (default is AOD)
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
-pdgId = 23 # J/Psi : 443, Y(1S) : 553
+pdgId = 23 # J/Psi : 443, Y(1S) : 553, Z : 23
 #----------------------------------------------------------------------------
 
 # Print Onia Tree settings:
 print( " " )
-print( "[INFO] Settings used for ONIA TREE: " )
+print( "[INFO] Settings: " )
 print( "[INFO] isMC                 = " + ("True" if isMC else "False") )
 print( "[INFO] applyEventSel        = " + ("True" if applyEventSel else "False") )
 print( "[INFO] applyCuts            = " + ("True" if applyCuts else "False") )
@@ -40,7 +40,7 @@ process = cms.Process("HIOnia", eras.Run3_pp_on_PbPb_2026)
 options = VarParsing.VarParsing ('analysis')
 
 # Input and Output File Name
-options.outputFile = "Oniatree_MC_miniAOD.root"
+options.outputFile = "MadGraph_prePbPb2026_HydjetEmbeddedMC.root"
 options.secondaryOutputFile = "Jpsi_DataSet.root"
 options.inputFiles =[
   'root://cmsxrootd.fnal.gov//store/user/fdamas/PbPb2026/RunPrepMC/DrellYan_HighMass_MadGraph_HydjetEmbedded_1610pre3/PATwith161pre4_151X_mcRun3_2025_realistic_HI_v5/260420_113941/0000/step4_PAT_102.root'
@@ -57,24 +57,16 @@ triggerList    = {
                         "HLT_HIL1DoubleMu0_v",#1
                         "HLT_HIL1DoubleMu0_SQ_v",#2
                         "HLT_HIL2DoubleMu0_Open_v",#3
-                        "HLT_HIL2DoubleMu0_SQ_v",#4
                         ),
                 # Single Muon Trigger List
                 'SingleMuonTrigger' : cms.vstring(
-                        "HLT_HIL1SingleMu0_Open_v",#5
-                        "HLT_HIL1SingleMu0_v",#6
-                        "HLT_HIL2SingleMu3_Open_v",#7
-                        "HLT_HIL2SingleMu5_v",#8
-                        "HLT_HIL2SingleMu7_v",#9
-                        "HLT_HIL2SingleMu12_v",#10
+                        "HLT_HIL2SingleMu3_Open_v",#4
+                        "HLT_HIL2SingleMu5_v",#5
+                        "HLT_HIL2SingleMu7_v",#6
+                        "HLT_HIL2SingleMu12_v",#7
 			)
 }
 
-## Global tag
-if isMC:
-  globalTag = '151X_mcRun3_2025_realistic_HI_v5' #for Run3 MC : phase1_2023_realistic_hi
-else:
-  globalTag = '132X_dataRun3_Prompt_v7' # 'auto:run3_data_prompt'
 
 #----------------------------------------------------------------------------
 
@@ -132,7 +124,8 @@ process.oniaTreeAna.replace(process.hionia, process.centralityBin * process.hion
 if applyEventSel:
   process.load('HeavyIonsAnalysis.EventAnalysis.collisionEventSelection_cff')
   process.load('HeavyIonsAnalysis.EventAnalysis.hffilter_cfi')
-  process.oniaTreeAna.replace(process.patMuonSequence, process.phfCoincFilter2Th4 * process.primaryVertexFilter * process.patMuonSequence )
+  process.load('HeavyIonsAnalysis.EventAnalysis.hffilterPF_cfi')
+  process.oniaTreeAna.replace(process.patMuonSequence, process.phfCoincFilterPF2Th4 * process.primaryVertexFilter * process.patMuonSequence )
 
 process.oniaTreeAna = cms.Path(process.oniaTreeAna)
 if miniAOD:

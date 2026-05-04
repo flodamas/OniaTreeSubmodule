@@ -190,7 +190,6 @@ std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleR
 
         if (!(ggrandDau.isNonnull() && ggrandDau->status() > 0 && ggrandDau->status() < 1000))
           continue;
-        //if(Reco_3mu_size>0) cout<<"        grand-grand-daughter #"<<k<<" pdg = "<< ggrandDau->pdgId()<<" pt,eta = "<<ggrandDau->pt()<<" "<<ggrandDau->eta()<<endl;
         if (isChargedTrack(ggrandDau->pdgId())) {
           res.push_back(ggrandDau);
         }

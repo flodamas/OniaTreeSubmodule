@@ -84,21 +84,6 @@ bool HiOniaAnalyzer::selGlobalOrTrackerMuon(const pat::Muon* aMuon) {
   return (isInAcc && isGood);
 };
 
-bool HiOniaAnalyzer::selTrk(const reco::TrackRef aTrk) {
-  if (!(aTrk->qualityByName("highPurity") && aTrk->ptError() / aTrk->pt() < 0.1))
-    return false;
-
-  if (!_applycuts)
-    return true;
-
-  bool isInAcc =
-      aTrk->pt() > 1.2 &&
-      abs(aTrk->eta()) <
-          2.4;  //(aTrk->pt())>0.2 && fabs(aTrk->eta())<2.4 && aTrk->ptError()/aTrk->pt()<0.1 && fabs(aTrk->dxy(RefVtx))<0.35 && fabs(aTrk->dz(RefVtx))<20; //keep margin in dxy and dz, if the RefVtx is not the good one due to muonlessPV
-
-  return (isInAcc);
-};
-
 bool HiOniaAnalyzer::selTightMuon(const pat::Muon* aMuon) {
   if (!aMuon->isGlobalMuon())
     return false;

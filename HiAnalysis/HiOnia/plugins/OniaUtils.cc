@@ -167,16 +167,6 @@ int HiOniaAnalyzer::IndexOfThisMuon(const float muonPt, bool isGen) {
     return mapMuIdx.at(muPt);
 };
 
-int HiOniaAnalyzer::IndexOfThisTrack(const float trackPt, bool isGen) {
-  const auto& mapTrkIdx = (isGen ? mapTrkMomToIndex_ : mapTrkMomToIndex_);
-  const long int& trkPt = FloatToIntkey(trackPt);
-
-  if (mapTrkIdx.count(trkPt) == 0)
-    return -1;
-  else
-    return mapTrkIdx.at(trkPt);
-};
-
 int HiOniaAnalyzer::IndexOfThisDimuon(int mu1_idx, int mu2_idx) {
   int GoodIndex = -1;
   for (int iDimuon = 0; iDimuon < Reco_Dimuon_size; iDimuon++) {
