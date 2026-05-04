@@ -177,12 +177,12 @@ int HiOniaAnalyzer::IndexOfThisTrack(const float trackPt, bool isGen) {
     return mapTrkIdx.at(trkPt);
 };
 
-int HiOniaAnalyzer::IndexOfThisJpsi(int mu1_idx, int mu2_idx) {
+int HiOniaAnalyzer::IndexOfThisDimuon(int mu1_idx, int mu2_idx) {
   int GoodIndex = -1;
-  for (int iJpsi = 0; iJpsi < Reco_Dimuon_size; iJpsi++) {
-    if (((Reco_Dimuon_muonMinusIndex[iJpsi] == mu1_idx && Reco_Dimuon_muonPlusIndex[iJpsi] == mu2_idx) ||
-         (Reco_Dimuon_muonMinusIndex[iJpsi] == mu2_idx && Reco_Dimuon_muonPlusIndex[iJpsi] == mu1_idx))) {
-      GoodIndex = iJpsi;
+  for (int iDimuon = 0; iDimuon < Reco_Dimuon_size; iDimuon++) {
+    if (((Reco_Dimuon_muonMinusIndex[iDimuon] == mu1_idx && Reco_Dimuon_muonPlusIndex[iDimuon] == mu2_idx) ||
+         (Reco_Dimuon_muonMinusIndex[iDimuon] == mu2_idx && Reco_Dimuon_muonPlusIndex[iDimuon] == mu1_idx))) {
+      GoodIndex = iDimuon;
       break;
     }
   }

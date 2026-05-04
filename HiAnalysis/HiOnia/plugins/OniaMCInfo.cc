@@ -128,8 +128,8 @@ reco::GenParticleRef HiOniaAnalyzer::findMotherRef(reco::GenParticleRef GenParti
   return GenParticleMother;
 };
 
-std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleRef GenParticleMother, int GenJpsiPDG) {
-  bool foundJpsi = false;
+std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleRef GenParticleMother, int GenDimuonPDG) {
+  bool foundDimuon = false;
   std::vector<reco::GenParticleRef> res;
 
   if (!GenParticleMother.isNonnull())
@@ -152,8 +152,8 @@ std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleR
     if (isChargedTrack(dau->pdgId())) {
       res.push_back(dau);
     }
-    if (dau->pdgId() == GenJpsiPDG) {
-      foundJpsi = true;  //continue;
+    if (dau->pdgId() == GenDimuonPDG) {
+      foundDimuon = true;  //continue;
     }
 
     for (int j = 0; j < (int)dau->numberOfDaughters(); j++) {
@@ -173,8 +173,8 @@ std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleR
       if (isChargedTrack(grandDau->pdgId())) {
         res.push_back(grandDau);
       }
-      if (grandDau->pdgId() == GenJpsiPDG) {
-        foundJpsi = true;  //continue;
+      if (grandDau->pdgId() == GenDimuonPDG) {
+        foundDimuon = true;  //continue;
       }
 
       for (int k = 0; k < (int)grandDau->numberOfDaughters(); k++) {
@@ -194,115 +194,115 @@ std::vector<reco::GenParticleRef> HiOniaAnalyzer::GenBrothers(reco::GenParticleR
         if (isChargedTrack(ggrandDau->pdgId())) {
           res.push_back(ggrandDau);
         }
-        if (ggrandDau->pdgId() == GenJpsiPDG) {
-          foundJpsi = true;  //continue;
+        if (ggrandDau->pdgId() == GenDimuonPDG) {
+          foundDimuon = true;  //continue;
         }
       }
     }
   }
 
-  if (!foundJpsi) {
-    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!! Incoherence in genealogy: Jpsi not found in the daughters!\n" << endl;
+  if (!foundDimuon) {
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!! Incoherence in genealogy: Dimuon not found in the daughters!\n" << endl;
   }
   // if(!isAbHadron(GenParticleMother->pdgId())){
-  //   cout<<"\n!!!!!!!!!!!!!!!!!!!!!!!!!!!! Jpsi ancestor is not a b-hadron! pdgID(mother of this ancestor) = "<<findMotherRef(GenParticleMother->motherRef() , GenParticleMother->pdgId())->pdgId()<<endl;
+  //   cout<<"\n!!!!!!!!!!!!!!!!!!!!!!!!!!!! Dimuon ancestor is not a b-hadron! pdgID(mother of this ancestor) = "<<findMotherRef(GenParticleMother->motherRef() , GenParticleMother->pdgId())->pdgId()<<endl;
   // }
 
   return res;
 };
 
 std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > HiOniaAnalyzer::findGenMCInfo(
-    const reco::GenParticle& genJpsi) {
+    const reco::GenParticle& genDimuon) {
   float trueLife = -99.;
   float trueLife3D = -99.;
-  std::vector<reco::GenParticleRef> JpsiBrothers;
+  std::vector<reco::GenParticleRef> DimuonBrothers;
 
-  if (genJpsi.numberOfMothers() > 0) {
+  if (genDimuon.numberOfMothers() > 0) {
     math::XYZPoint trueVtxMom(0.0, 0.0, 0.0);
 
-    math::XYZPoint trueVtx = genJpsi.vertex();
+    math::XYZPoint trueVtx = genDimuon.vertex();
     
     bool aBhadron = false;
-    reco::GenParticleRef Jpsimom_final;
-    reco::GenParticleRef Jpsimom = findMotherRef(genJpsi.motherRef(), genJpsi.pdgId());
+    reco::GenParticleRef Dimuonmom_final;
+    reco::GenParticleRef Dimuonmom = findMotherRef(genDimuon.motherRef(), genDimuon.pdgId());
 
-    if (Jpsimom.isNull()) {
+    if (Dimuonmom.isNull()) {
       std::pair<float, float> trueLifePair = std::make_pair(trueLife, trueLife3D);
       std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > result =
-          std::make_pair(JpsiBrothers, trueLifePair);
+          std::make_pair(DimuonBrothers, trueLifePair);
       return result;
-    } else if (Jpsimom->numberOfMothers() <= 0) {
-      if (isAbHadron(Jpsimom->pdgId())) {
-        Jpsimom_final = Jpsimom;
+    } else if (Dimuonmom->numberOfMothers() <= 0) {
+      if (isAbHadron(Dimuonmom->pdgId())) {
+        Dimuonmom_final = Dimuonmom;
         aBhadron = true;
       }
     }
 
     else {
-      reco::GenParticleRef Jpsigrandmom = findMotherRef(Jpsimom->motherRef(), Jpsimom->pdgId());
-      if (isAbHadron(Jpsimom->pdgId())) {
-        if (Jpsigrandmom.isNonnull() && isAMixedbHadron(Jpsimom->pdgId(), Jpsigrandmom->pdgId())) {
-          Jpsimom_final = Jpsigrandmom;
+      reco::GenParticleRef Dimuongrandmom = findMotherRef(Dimuonmom->motherRef(), Dimuonmom->pdgId());
+      if (isAbHadron(Dimuonmom->pdgId())) {
+        if (Dimuongrandmom.isNonnull() && isAMixedbHadron(Dimuonmom->pdgId(), Dimuongrandmom->pdgId())) {
+          Dimuonmom_final = Dimuongrandmom;
         } else {
-          Jpsimom_final = Jpsimom;
+          Dimuonmom_final = Dimuonmom;
         }
         aBhadron = true;
       }
 
-      else if (Jpsigrandmom.isNonnull() && isAbHadron(Jpsigrandmom->pdgId())) {
-        if (Jpsigrandmom->numberOfMothers() <= 0) {
-          Jpsimom_final = Jpsigrandmom;
+      else if (Dimuongrandmom.isNonnull() && isAbHadron(Dimuongrandmom->pdgId())) {
+        if (Dimuongrandmom->numberOfMothers() <= 0) {
+          Dimuonmom_final = Dimuongrandmom;
         } else {
-          reco::GenParticleRef JpsiGrandgrandmom = findMotherRef(Jpsigrandmom->motherRef(), Jpsigrandmom->pdgId());
-          if (JpsiGrandgrandmom.isNonnull() && isAMixedbHadron(Jpsigrandmom->pdgId(), JpsiGrandgrandmom->pdgId())) {
-            Jpsimom_final = JpsiGrandgrandmom;
+          reco::GenParticleRef DimuonGrandgrandmom = findMotherRef(Dimuongrandmom->motherRef(), Dimuongrandmom->pdgId());
+          if (DimuonGrandgrandmom.isNonnull() && isAMixedbHadron(Dimuongrandmom->pdgId(), DimuonGrandgrandmom->pdgId())) {
+            Dimuonmom_final = DimuonGrandgrandmom;
           } else {
-            Jpsimom_final = Jpsigrandmom;
+            Dimuonmom_final = Dimuongrandmom;
           }
         }
         aBhadron = true;
       }
 
-      //This is to forcefully find the b-like mother of Jpsi
-      else if (Jpsigrandmom.isNonnull() && Jpsigrandmom->numberOfMothers() > 0) {
-        reco::GenParticleRef JpsiGrandgrandmom = findMotherRef(Jpsigrandmom->motherRef(), Jpsigrandmom->pdgId());
-        if (JpsiGrandgrandmom.isNonnull() && isAbHadron(JpsiGrandgrandmom->pdgId())) {
-          Jpsimom_final = JpsiGrandgrandmom;
+      //This is to forcefully find the b-like mother of Dimuon
+      else if (Dimuongrandmom.isNonnull() && Dimuongrandmom->numberOfMothers() > 0) {
+        reco::GenParticleRef DimuonGrandgrandmom = findMotherRef(Dimuongrandmom->motherRef(), Dimuongrandmom->pdgId());
+        if (DimuonGrandgrandmom.isNonnull() && isAbHadron(DimuonGrandgrandmom->pdgId())) {
+          Dimuonmom_final = DimuonGrandgrandmom;
           aBhadron = true;
         }
       }
     }
     if (!aBhadron) {
-      Jpsimom_final = Jpsimom;
+      Dimuonmom_final = Dimuonmom;
     }
 
-    if (Jpsimom_final.isNonnull()) {
-      trueVtxMom = Jpsimom_final->vertex();
+    if (Dimuonmom_final.isNonnull()) {
+      trueVtxMom = Dimuonmom_final->vertex();
       if (_genealogyInfo) {
-        JpsiBrothers = GenBrothers(Jpsimom_final, genJpsi.pdgId());
+        DimuonBrothers = GenBrothers(Dimuonmom_final, genDimuon.pdgId());
       }
-      JpsiBrothers.insert(JpsiBrothers.begin(), Jpsimom_final);
+      DimuonBrothers.insert(DimuonBrothers.begin(), Dimuonmom_final);
     }
 
     auto vdiff = trueVtx - trueVtxMom;
-    trueLife = std::sqrt(vdiff.Perp2()) * genJpsi.mass() / genJpsi.pt();
-    trueLife3D = std::sqrt(vdiff.Mag2()) * genJpsi.mass() / genJpsi.p();
+    trueLife = std::sqrt(vdiff.Perp2()) * genDimuon.mass() / genDimuon.pt();
+    trueLife3D = std::sqrt(vdiff.Mag2()) * genDimuon.mass() / genDimuon.p();
   }
 
   std::pair<float, float> trueLifePair = std::make_pair(trueLife, trueLife3D);
   std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > result =
-      std::make_pair(JpsiBrothers, trueLifePair);
+      std::make_pair(DimuonBrothers, trueLifePair);
   return result;
 };
 
-//Find the indices of the reconstructed J/psi matching each generated J/psi (when the two daughter muons are reconstructed), and vice versa
-void HiOniaAnalyzer::fillQQMatchingInfo() {
+//Find the indices of the reconstructed dimuon matching each generated resonance (when the two daughter muons are reconstructed), and vice versa
+void HiOniaAnalyzer::fillDimuonMatchingInfo() {
   for (int igen = 0; igen < Gen_Dimuon_size; igen++) {
     Gen_Dimuon_whichRec[igen] = -1;
     int Reco_muonPlusIndex =
-        Gen_Muon_whichRec[Gen_Dimuon_muonPlusIndex[igen]];  //index of the reconstructed mupl associated to the generated mupl of Jpsi
+        Gen_Muon_whichRec[Gen_Dimuon_muonPlusIndex[igen]];  //index of the reconstructed mupl associated to the generated mupl of Dimuon
     int Reco_muonMinusIndex =
-        Gen_Muon_whichRec[Gen_Dimuon_muonMinusIndex[igen]];  //index of the reconstructed mumi associated to the generated mumi of Jpsi
+        Gen_Muon_whichRec[Gen_Dimuon_muonMinusIndex[igen]];  //index of the reconstructed mumi associated to the generated mumi of Dimuon
 
     if ((Reco_muonPlusIndex >= 0) && (Reco_muonMinusIndex >= 0)) {  //Search for Reco_Dimuon only if both muons are reco
       for (int irec = 0; irec < Reco_Dimuon_size; irec++) {

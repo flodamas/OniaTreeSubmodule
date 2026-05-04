@@ -20,7 +20,6 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
-//#include "TMath.h"
 #include "Math/VectorUtil.h"
 #include "Math/DistFunc.h"
 
@@ -147,8 +146,8 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
       LorentzVector mu2 = it2.p4();
 
       // ---- define and set candidate's 4momentum  ----
-      LorentzVector jpsi = mu1 + mu2;
-      myCand.setP4(jpsi);
+      LorentzVector Dimuon = mu1 + mu2;
+      myCand.setP4(Dimuon);
       myCand.setCharge(it.charge() + it2.charge());
 
 
@@ -161,7 +160,7 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
       
       myVertex = vtxFitter.vertex(t_tks);
 
-      MassWErr = Measurement1D(jpsi.M(), -9999.);
+      MassWErr = Measurement1D(Dimuon.M(), -9999.);
       if (bField.nominalValue() > 0) {
 	      MassWErr = massCalculator.invariantMass(VtxForInvMass, muMasses);
       } else {
@@ -279,7 +278,7 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
           }
         }  // ---- end refit vtx without the muon tracks ----
 
-        // ---- count the number of high Purity tracks with pT > 500 MeV attached to the chosen vertex ----
+        // ---- count the number of high purity tracks with pT > 500 MeV attached to the chosen vertex ----
         // this makes sense only in case of pp reconstruction
           double vertexWeight = -1., sumPTPV = -1.;
           int countTksOfPV = -1;
@@ -339,11 +338,11 @@ void HiOnia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
         VertexDistance3D vdistXYZ;
 
 	      math::XYZPoint vtx(myVertex.position().x(), myVertex.position().y(), 0);
-        math::XYZPoint pperp(jpsi.px(), jpsi.py(), 0);
+        math::XYZPoint pperp(Dimuon.px(), Dimuon.py(), 0);
         AlgebraicVector3 vpperp(pperp.x(), pperp.y(), 0.);
 
         math::XYZPoint vtx3D(myVertex.position().x(), myVertex.position().y(), myVertex.position().z());
-        math::XYZPoint pxyz(jpsi.px(), jpsi.py(), jpsi.pz());
+        math::XYZPoint pxyz(Dimuon.px(), Dimuon.py(), Dimuon.pz());
         AlgebraicVector3 vpxyz(pxyz.x(), pxyz.y(), pxyz.z());
 
         ///DCA

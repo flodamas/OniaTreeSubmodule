@@ -32,7 +32,7 @@ def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], muonSelection="Trk"
         process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("")
         lowP = "isGlobalMuon"; # BOTH muons must pass this selection
         process.onia2MuMuPatGlbGlb.lowerPuritySelection = cms.string("("+lowP+commonP1+")"+commonP2)
-    if muonSelection == "Tight":
+    elif muonSelection == "Tight":
         highP = "isGlobalMuon && pt > 10";
         process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("")
         lowP = "isGlobalMuon"; # BOTH muons must pass this selection

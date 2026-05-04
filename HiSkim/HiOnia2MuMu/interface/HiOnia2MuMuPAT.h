@@ -49,7 +49,7 @@ private:
   bool isAbHadron(int pdgID) const;
   bool isAMixedbHadron(int pdgID, int momPdgID) const;
   reco::GenParticleRef findMotherRef(reco::GenParticleRef GenParticle, int GenParticlePDG);
-  std::pair<int, std::pair<float, float> > findJpsiMCInfo(reco::GenParticleRef genJpsi) const;
+  std::pair<int, std::pair<float, float> > findDimuonMCInfo(reco::GenParticleRef genDimuon) const;
 
   // ----------member data ---------------------------
 private:

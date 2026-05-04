@@ -75,17 +75,17 @@ private:
   reco::GenParticleRef findDaughterRef(reco::GenParticleRef GenParticleDaughter, int GenParticlePDG);
   int IndexOfThisMuon(const float pt, bool isGen = false);
   int IndexOfThisTrack(const float pt, bool isGen = false);
-  int IndexOfThisJpsi(int mu1_idx, int mu2_idx);
+  int IndexOfThisDimuon(int mu1_idx, int mu2_idx);
   void fillGenInfo();
   void fillMuMatchingInfo();
-  void fillQQMatchingInfo();
+  void fillDimuonMatchingInfo();
   bool isAbHadron(int pdgID);
   bool isNeutrino(int pdgID);
   bool isAMixedbHadron(int pdgID, int momPdgID);
   bool isChargedTrack(int pdgId);
-  std::vector<reco::GenParticleRef> GenBrothers(reco::GenParticleRef GenParticleMother, int GenJpsiPDG);
+  std::vector<reco::GenParticleRef> GenBrothers(reco::GenParticleRef GenParticleMother, int GenDimuonPDG);
   reco::GenParticleRef findMotherRef(reco::GenParticleRef GenParticleMother, int GenParticlePDG);
-  std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > findGenMCInfo(const reco::GenParticle& genJpsi);
+  std::pair<std::vector<reco::GenParticleRef>, std::pair<float, float> > findGenMCInfo(const reco::GenParticle& genDimuon);
 
   void fillRecoMuons(int theCentralityBin);
   bool isInAcceptance(const float eta, const float pt, std::string muonType);
@@ -105,12 +105,12 @@ private:
   bool selTrk(const reco::TrackRef aTrk);
 
   void fillRecoHistos();
-  void fillRecoJpsi(int count, std::string trigName, std::string centName);
+  void fillRecoDimuon(int count, std::string trigName, std::string centName);
 
   void fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t trigBits);
-  void fillTreeJpsi(int count);
+  void fillTreeDimuon(int count);
 
-  void checkTriggers(const pat::CompositeCandidate* aJpsiCand);
+  void checkTriggers(const pat::CompositeCandidate* aDimuonCand);
   void hltReport(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   long int FloatToIntkey(float v);
@@ -133,7 +133,6 @@ private:
 
   enum muonCategories { GlbTrk = 0, Trk = 1, Glb = 2, GlbOrTrk = 3, Tight = 4, All = 5 };
 
-  std::vector<std::string> theRegions;
   std::vector<std::string> theCentralities;
   std::vector<std::string> theTriggerNames;
   std::vector<std::string> theSign;
@@ -220,10 +219,10 @@ private:
   int Gen_Dimuon_momId
       [NMaxDimuons];  // PDG ID of the generated mother of the Gen QQ, going back far enough in the geneaology to find a potential B mother
   float Gen_Dimuon_momPt[NMaxDimuons];       // Pt of mother particle of 2 muons
-  Short_t Gen_Dimuon_muonPlusIndex[NMaxDimuons];  // index of the muon plus from Jpsi, in the full list of muons
-  Short_t Gen_Dimuon_muonMinusIndex[NMaxDimuons];  // index of the muon minus from Jpsi, in the full list of muons
+  Short_t Gen_Dimuon_muonPlusIndex[NMaxDimuons];  // index of the muon plus from Dimuon, in the full list of muons
+  Short_t Gen_Dimuon_muonMinusIndex[NMaxDimuons];  // index of the muon minus from Dimuon, in the full list of muons
   Short_t Gen_Dimuon_whichRec
-      [NMaxDimuons];  // index of the reconstructed Jpsi that was matched with this gen Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed. Is -2 if the two muons were reconstructed, but the dimuon was not selected
+      [NMaxDimuons];  // index of the reconstructed Dimuon that was matched with this gen Dimuon. Is -1 if one of the 2 muons from Dimuon was not reconstructed. Is -2 if the two muons were reconstructed, but the dimuon was not selected
 
   Short_t Gen_Muon_size;                 // number of generated muons
   Short_t Gen_Muon_charge[NMaxMuons];  // muon charge
@@ -240,20 +239,20 @@ private:
                              1 = +/+
                              2 = -/- 
                           */
-  Short_t Reco_Dimuon_muonPlusIndex[NMaxDimuons];  // index of the muon plus from Jpsi, in the full list of muons
-  Short_t Reco_Dimuon_muonMinusIndex[NMaxDimuons];  // index of the muon minus from Jpsi, in the full list of muons
+  Short_t Reco_Dimuon_muonPlusIndex[NMaxDimuons];  // index of the muon plus from Dimuon, in the full list of muons
+  Short_t Reco_Dimuon_muonMinusIndex[NMaxDimuons];  // index of the muon minus from Dimuon, in the full list of muons
   Short_t Reco_Dimuon_whichGen
-      [NMaxDimuons];  // index of the generated Jpsi that was matched with this rec Jpsi. Is -1 if one of the 2 muons from Jpsi was not reconstructed
+      [NMaxDimuons];  // index of the generated Dimuon that was matched with this rec Dimuon. Is -1 if one of the 2 muons from Dimuon was not reconstructed
   ULong64_t Reco_Dimuon_trig[NMaxDimuons];  // Vector of trigger bits matched to the Onia
   float Reco_Dimuon_VtxProb[NMaxDimuons];   // chi2 probability of vertex fitting
   float Reco_Dimuon_ctau[NMaxDimuons];      // ctau: flight time
   float Reco_Dimuon_ctauErr[NMaxDimuons];   // error on ctau
   float Reco_Dimuon_cosAlpha
-      [NMaxDimuons];  // cosine of angle between momentum of Jpsi and direction of PV--displaced vertex segment (in XY plane)
+      [NMaxDimuons];  // cosine of angle between momentum of Dimuon and direction of PV--displaced vertex segment (in XY plane)
   float Reco_Dimuon_ctau3D[NMaxDimuons];     // ctau: flight time in 3D
   float Reco_Dimuon_ctauErr3D[NMaxDimuons];  // error on ctau in 3D
   float Reco_Dimuon_cosAlpha3D
-      [NMaxDimuons];  // cosine of angle between momentum of Jpsi and direction of PV--displaced vertex segment (3D)
+      [NMaxDimuons];  // cosine of angle between momentum of Dimuon and direction of PV--displaced vertex segment (3D)
   float Reco_Dimuon_dca[NMaxDimuons];
   float Reco_Dimuon_MassErr[NMaxDimuons];
 
@@ -445,12 +444,12 @@ private:
   unsigned int lumiSection;
 
   // limits
-  //float JpsiMassMin;
-  //float JpsiMassMax;
-  //float JpsiPtMin;   // SET BY
-  //float JpsiPtMax;   // DEFINITION
-  //float JpsiRapMin;  // OF BIN
-  //float JpsiRapMax;  // LIMITS
+  //float DimuonMassMin;
+  //float DimuonMassMax;
+  //float DimuonPtMin;   // SET BY
+  //float DimuonPtMax;   // DEFINITION
+  //float DimuonRapMin;  // OF BIN
+  //float DimuonRapMax;  // LIMITS
 
   math::XYZPoint RefVtx;
   float RefVtx_xError;

@@ -7,7 +7,7 @@ from Configuration.StandardSequences.Eras import eras
 # Setup Settings for ONIA TREE: 2025 PbPb data
 
 isMC           = False # if input is MONTECARLO: True or if it's DATA: False
-muonSelection  = "Glb" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, Tight are available
+muonSelection  = "Tight" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, Tight are available
 applyEventSel  = True # Only apply Event Selection if the required collections are present
 applyCuts      = False # At HiAnalysis level, apply kinematic acceptance cuts + identification cuts (isSoftMuon (without highPurity) or isTightMuon, depending on TightGlobalMuon flag) for muons from selected di(tri)muons + hard-coded cuts on the di(tri)muon that you would want to add (but recommended to add everything in LateDimuonSelection, applied at the end of HiSkim)
 SumETvariables = True  # Whether to write out SumET-related variables
@@ -46,11 +46,16 @@ options = VarParsing.VarParsing ('analysis')
 # Input and Output File Name
 
 options.inputFiles = [
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime1/MINIAOD/PbPbEW-PromptReco-v1/000/399/589/00000/97032cc3-16bb-4f43-8a25-a4c8d0aa8482.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/399/710/00000/35e71205-b440-4689-8689-d22475f4835f.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/399/710/00000/9aa7a097-b77f-44e5-943c-50310094cd41.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/400/339/00000/b72d5207-f9e4-4904-af9b-a8b25045a2b4.root',
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/400/357/00000/e14979db-32ec-4842-8972-c3765fc27ceb.root'
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/400/357/00000/e14979db-32ec-4842-8972-c3765fc27ceb.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime40/MINIAOD/PbPbEW-PromptReco-v1/000/399/767/00000/527cf17f-fd7d-40bd-8514-774afe51d260.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime40/MINIAOD/PbPbEW-PromptReco-v1/000/399/925/00000/a25645c7-8674-488b-9080-75c2aab48406.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime40/MINIAOD/PbPbEW-PromptReco-v1/000/400/059/00000/2229e9e9-c9ad-43e7-8b04-804c33db15bf.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime53/MINIAOD/PbPbEW-PromptReco-v1/000/400/357/00000/39c56d61-14a0-46e0-9fab-1911f4a61ded.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime53/MINIAOD/PbPbEW-PromptReco-v1/000/400/387/00000/e2127a1e-cbc8-416d-8bca-b4a7eefdf318.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime53/MINIAOD/PbPbEW-PromptReco-v1/000/400/426/00000/7dbf9fca-be00-453e-9416-64a75308016d.root'
 ]
 
 options.outputFile = 'Oniatree_PbPb2025PromptRecoData.root'

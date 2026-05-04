@@ -58,9 +58,6 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
   nEvents = 0;
   passedCandidates = 0;
 
-  theRegions.push_back("All");
-  theRegions.push_back("Barrel");
-  theRegions.push_back("EndCap");
 
   std::stringstream centLabel;
   for (unsigned int iCent = 0; iCent < _centralityranges.size(); ++iCent) {
@@ -111,18 +108,18 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
               << theTriggerNames[_OneMatchedHLTMu] << " filter." << std::endl;
 
 
-  //JpsiMassMin = 2.6;
-  //JpsiMassMax = 3.5;
+  //DimuonMassMin = 2.6;
+  //DimuonMassMax = 3.5;
 
-  //JpsiPtMin = _ptbinranges[0];
-  //std::cout << "Pt min = " << JpsiPtMin << std::endl;
-  //JpsiPtMax = _ptbinranges[_ptbinranges.size() - 1];
-  //std::cout << "Pt max = " << JpsiPtMax << std::endl;
+  //DimuonPtMin = _ptbinranges[0];
+  //std::cout << "Pt min = " << DimuonPtMin << std::endl;
+  //DimuonPtMax = _ptbinranges[_ptbinranges.size() - 1];
+  //std::cout << "Pt max = " << DimuonPtMax << std::endl;
 
-  //JpsiRapMin = _etabinranges[0];
-  //std::cout << "Rap min = " << JpsiRapMin << std::endl;
-  //JpsiRapMax = _etabinranges[_etabinranges.size() - 1];
-  //std::cout << "Rap max = " << JpsiRapMax << std::endl;
+  //DimuonRapMin = _etabinranges[0];
+  //std::cout << "Rap min = " << DimuonRapMin << std::endl;
+  //DimuonRapMax = _etabinranges[_etabinranges.size() - 1];
+  //std::cout << "Rap max = " << DimuonRapMax << std::endl;
 
   for (std::vector<std::string>::iterator it = theTriggerNames.begin(); it != theTriggerNames.end(); ++it) {
     mapTriggerNameToIntFired_[*it] = -9999;
@@ -329,7 +326,7 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     //MC MATCHING info
     this->fillMuMatchingInfo();  //Needs to be done after fillGenInfo, and the filling of reco muons collections
-    this->fillQQMatchingInfo();  //Needs to be done after fillMuMatchingInfo
+    this->fillDimuonMatchingInfo();  //Needs to be done after fillMuMatchingInfo
     
   }
 
@@ -352,15 +349,15 @@ void HiOniaAnalyzer::fillRecoHistos() {
     
 
       for (unsigned int count = 0; count < _thePassedCands.size(); count++) {
-        const pat::CompositeCandidate* aJpsiCand = _thePassedCands.at(count);
+        const pat::CompositeCandidate* aDimuonCand = _thePassedCands.at(count);
 
-        this->checkTriggers(aJpsiCand);
+        this->checkTriggers(aDimuonCand);
         if (_fillTree)
-          this->fillTreeJpsi(count);
+          this->fillTreeDimuon(count);
 
         for (unsigned int iTr = 0; iTr < NTRIGGERS; ++iTr) {
           if (isTriggerMatched[iTr]) {
-            this->fillRecoJpsi(count, theTriggerNames.at(iTr), theCentralities.at(theCentralityBin));
+            this->fillRecoDimuon(count, theTriggerNames.at(iTr), theCentralities.at(theCentralityBin));
           }
         }
       }
@@ -491,7 +488,7 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
   return;
 };
 
-void HiOniaAnalyzer::fillTreeJpsi(int count) {
+void HiOniaAnalyzer::fillTreeDimuon(int count) {
   if (Reco_Dimuon_size >= NMaxDimuons) {
     std::cout << "Too many dimuons: " << Reco_Dimuon_size << std::endl;
     std::cout << "Maximum allowed: " << NMaxDimuons << std::endl;
@@ -512,7 +509,7 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
     }
 
     if (muon1 == nullptr || muon2 == nullptr) {
-      std::cout << "ERROR: 'muon1' or 'muon2' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
+      std::cout << "ERROR: 'muon1' or 'muon2' pointer in fillTreeDimuon is NULL ! Return now" << std::endl;
       return;
     } else {
       Reco_Dimuon_sign[Reco_Dimuon_size] = muon1->charge() + muon2->charge();
@@ -531,7 +528,7 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
         RefVtx_yError = (*aDimuonCandidate->userData<reco::Vertex>("PVwithmuons")).yError();
         RefVtx_zError = (*aDimuonCandidate->userData<reco::Vertex>("PVwithmuons")).zError();
       } else {
-        cout << "HiOniaAnalyzer::fillTreeJpsi: no PV for muon pair stored" << endl;
+        cout << "HiOniaAnalyzer::fillTreeDimuon: no PV for muon pair stored" << endl;
         return;
       }
 
@@ -551,7 +548,7 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
 
 
       if ((muon1->innerTrack()).isNull() || (muon2->innerTrack()).isNull()) {
-        std::cout << "ERROR: 'iTrack_mupl' or 'iTrack_mumi' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
+        std::cout << "ERROR: 'iTrack_mupl' or 'iTrack_mumi' pointer in fillTreeDimuon is NULL ! Return now" << std::endl;
         return;
       }
 
@@ -702,7 +699,7 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
 
     }
   } else {
-    std::cout << "ERROR: 'aJpsiCand' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
+    std::cout << "ERROR: 'aDimuonCand' pointer in fillTreeDimuon is NULL ! Return now" << std::endl;
     return;
   }
 
@@ -710,19 +707,19 @@ void HiOniaAnalyzer::fillTreeJpsi(int count) {
   return;
 };
 
-void HiOniaAnalyzer::fillRecoJpsi(int count, std::string trigName, std::string centName) {
-  pat::CompositeCandidate* aJpsiCand = _thePassedCands.at(count)->clone();
+void HiOniaAnalyzer::fillRecoDimuon(int count, std::string trigName, std::string centName) {
+  pat::CompositeCandidate* aDimuonCand = _thePassedCands.at(count)->clone();
 
-  if (aJpsiCand == nullptr) {
-    std::cout << "ERROR: 'aJpsiCand' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
+  if (aDimuonCand == nullptr) {
+    std::cout << "ERROR: 'aDimuonCand' pointer in fillTreeDimuon is NULL ! Return now" << std::endl;
     return;
   }
-  aJpsiCand->addUserInt("centBin", centBin);
-  const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon1"));
-  const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon2"));
+  aDimuonCand->addUserInt("centBin", centBin);
+  const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(aDimuonCand->daughter("muon1"));
+  const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(aDimuonCand->daughter("muon2"));
 
   if (muon1 == nullptr || muon2 == nullptr) {
-    std::cout << "ERROR: 'muon1' or 'muon2' pointer in fillTreeJpsi is NULL ! Return now" << std::endl;
+    std::cout << "ERROR: 'muon1' or 'muon2' pointer in fillTreeDimuon is NULL ! Return now" << std::endl;
     return;
   }
   int iSign = muon1->charge() + muon2->charge();
@@ -733,23 +730,23 @@ void HiOniaAnalyzer::fillRecoJpsi(int count, std::string trigName, std::string c
   std::string theLabel = trigName + "_" + centName + "_" + theSign.at(iSign);
 
 
-  //if (iSign == 0 && aJpsiCand->mass() >= JpsiMassMin && aJpsiCand->mass() < JpsiMassMax &&
-      //aJpsiCand->pt() >= JpsiPtMin && aJpsiCand->pt() < JpsiPtMax && abs(aJpsiCand->rapidity()) >= JpsiRapMin && abs(aJpsiCand->rapidity()) < JpsiRapMax)
+  //if (iSign == 0 && aDimuonCand->mass() >= DimuonMassMin && aDimuonCand->mass() < DimuonMassMax &&
+      //aDimuonCand->pt() >= DimuonPtMin && aDimuonCand->pt() < DimuonPtMax && abs(aDimuonCand->rapidity()) >= DimuonRapMin && abs(aDimuonCand->rapidity()) < DimuonRapMax)
     //passedCandidates++;
 
-  delete aJpsiCand;
+  delete aDimuonCand;
   return;
 };
 
 
-void HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aJpsiCand) {
-  if (aJpsiCand == nullptr) {
-    std::cout << "ERROR: 'aJpsiCand' pointer in checkTriggers is NULL ! Return now" << std::endl;
+void HiOniaAnalyzer::checkTriggers(const pat::CompositeCandidate* aDimuonCand) {
+  if (aDimuonCand == nullptr) {
+    std::cout << "ERROR: 'aDimuonCand' pointer in checkTriggers is NULL ! Return now" << std::endl;
     return;
   }
 
-  const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon1"));
-  const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(aJpsiCand->daughter("muon2"));
+  const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(aDimuonCand->daughter("muon1"));
+  const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(aDimuonCand->daughter("muon2"));
 
   if (muon1 == nullptr || muon2 == nullptr) {
     std::cout << "ERROR: 'muon1' or 'muon2' pointer in checkTriggers is NULL ! Return now" << std::endl;
@@ -987,59 +984,48 @@ void HiOniaAnalyzer::InitTree() {
   }
 
 
-    myTree->Branch("Reco_Dimuon_size", &Reco_Dimuon_size, "Reco_Dimuon_size/S");
-    myTree->Branch("Reco_Dimuon_type", Reco_Dimuon_type, "Reco_Dimuon_type[Reco_Dimuon_size]/S");
-    myTree->Branch("Reco_Dimuon_sign", Reco_Dimuon_sign, "Reco_Dimuon_sign[Reco_Dimuon_size]/S");
+  myTree->Branch("Reco_Dimuon_size", &Reco_Dimuon_size, "Reco_Dimuon_size/S");
+  myTree->Branch("Reco_Dimuon_type", Reco_Dimuon_type, "Reco_Dimuon_type[Reco_Dimuon_size]/S");
+  myTree->Branch("Reco_Dimuon_sign", Reco_Dimuon_sign, "Reco_Dimuon_sign[Reco_Dimuon_size]/S");
 
-    myTree->Branch("Reco_Dimuon_pt", &Reco_Dimuon_4mom_pt, 32000, 0);
-    myTree->Branch("Reco_Dimuon_eta", &Reco_Dimuon_4mom_eta, 32000, 0);
-    myTree->Branch("Reco_Dimuon_rap", &Reco_Dimuon_4mom_y, 32000, 0);
-    myTree->Branch("Reco_Dimuon_phi", &Reco_Dimuon_4mom_phi, 32000, 0);
-    myTree->Branch("Reco_Dimuon_invMass", &Reco_Dimuon_4mom_m, 32000, 0);
-    myTree->Branch("Reco_Dimuon_ptDiffMuons", &Reco_Dimuon_Muons_pTdiff, 32000, 0);
+  myTree->Branch("Reco_Dimuon_pt", &Reco_Dimuon_4mom_pt, 32000, 0);
+  myTree->Branch("Reco_Dimuon_eta", &Reco_Dimuon_4mom_eta, 32000, 0);
+  myTree->Branch("Reco_Dimuon_rapidity", &Reco_Dimuon_4mom_y, 32000, 0);
+  myTree->Branch("Reco_Dimuon_phi", &Reco_Dimuon_4mom_phi, 32000, 0);
+  myTree->Branch("Reco_Dimuon_invMass", &Reco_Dimuon_4mom_m, 32000, 0);
+  myTree->Branch("Reco_Dimuon_ptDiffMuons", &Reco_Dimuon_Muons_pTdiff, 32000, 0);
 
     
-    myTree->Branch("Reco_Dimuon_muonPlusIndex", Reco_Dimuon_muonPlusIndex, "Reco_Dimuon_muonPlusIndex[Reco_Dimuon_size]/S");
-    myTree->Branch("Reco_Dimuon_muonMinusIndex", Reco_Dimuon_muonMinusIndex, "Reco_Dimuon_muonMinusIndex[Reco_Dimuon_size]/S");
+  myTree->Branch("Reco_Dimuon_muonPlusIndex", Reco_Dimuon_muonPlusIndex, "Reco_Dimuon_muonPlusIndex[Reco_Dimuon_size]/S");
+  myTree->Branch("Reco_Dimuon_muonMinusIndex", Reco_Dimuon_muonMinusIndex, "Reco_Dimuon_muonMinusIndex[Reco_Dimuon_size]/S");
 
-    myTree->Branch("Reco_Dimuon_trig", Reco_Dimuon_trig, "Reco_Dimuon_trig[Reco_Dimuon_size]/l");
-    myTree->Branch("Reco_Dimuon_ctau", Reco_Dimuon_ctau, "Reco_Dimuon_ctau[Reco_Dimuon_size]/F");
-    myTree->Branch("Reco_Dimuon_ctauErr", Reco_Dimuon_ctauErr, "Reco_Dimuon_ctauErr[Reco_Dimuon_size]/F");
-    myTree->Branch("Reco_Dimuon_cosAlpha", Reco_Dimuon_cosAlpha, "Reco_Dimuon_cosAlpha[Reco_Dimuon_size]/F");
-    myTree->Branch("Reco_Dimuon_ctau3D", Reco_Dimuon_ctau3D, "Reco_Dimuon_ctau3D[Reco_Dimuon_size]/F");
-    myTree->Branch("Reco_Dimuon_ctauErr3D", Reco_Dimuon_ctauErr3D, "Reco_Dimuon_ctauErr3D[Reco_Dimuon_size]/F");
-    myTree->Branch("Reco_Dimuon_cosAlpha3D", Reco_Dimuon_cosAlpha3D, "Reco_Dimuon_cosAlpha3D[Reco_Dimuon_size]/F");
+  myTree->Branch("Reco_Dimuon_trig", Reco_Dimuon_trig, "Reco_Dimuon_trig[Reco_Dimuon_size]/l");
+  myTree->Branch("Reco_Dimuon_ctau", Reco_Dimuon_ctau, "Reco_Dimuon_ctau[Reco_Dimuon_size]/F");
+  myTree->Branch("Reco_Dimuon_ctauErr", Reco_Dimuon_ctauErr, "Reco_Dimuon_ctauErr[Reco_Dimuon_size]/F");
+  myTree->Branch("Reco_Dimuon_cosAlpha", Reco_Dimuon_cosAlpha, "Reco_Dimuon_cosAlpha[Reco_Dimuon_size]/F");
+  myTree->Branch("Reco_Dimuon_ctau3D", Reco_Dimuon_ctau3D, "Reco_Dimuon_ctau3D[Reco_Dimuon_size]/F");
+  myTree->Branch("Reco_Dimuon_ctauErr3D", Reco_Dimuon_ctauErr3D, "Reco_Dimuon_ctauErr3D[Reco_Dimuon_size]/F");
+  myTree->Branch("Reco_Dimuon_cosAlpha3D", Reco_Dimuon_cosAlpha3D, "Reco_Dimuon_cosAlpha3D[Reco_Dimuon_size]/F");
 
-    if (_isMC) {
-      myTree->Branch("Reco_Dimuon_whichGen", Reco_Dimuon_whichGen, "Reco_Dimuon_whichGen[Reco_Dimuon_size]/S");
-    }
-    myTree->Branch("Reco_Dimuon_VtxProb", Reco_Dimuon_VtxProb, "Reco_Dimuon_VtxProb[Reco_Dimuon_size]/F");
-    myTree->Branch("Reco_Dimuon_dca", Reco_Dimuon_dca, "Reco_Dimuon_dca[Reco_Dimuon_size]/F");
-    myTree->Branch("Reco_Dimuon_MassErr", Reco_Dimuon_MassErr, "Reco_Dimuon_MassErr[Reco_Dimuon_size]/F");
-
-    myTree->Branch("Reco_Dimuon_vtx_xpos", &Reco_Dimuon_vtx_xpos, 32000, 0);
-    myTree->Branch("Reco_Dimuon_vtx_ypos", &Reco_Dimuon_vtx_ypos, 32000, 0);
-    myTree->Branch("Reco_Dimuon_vtx_zpos", &Reco_Dimuon_vtx_zpos, 32000, 0);
-      
-    if ( _muonLessPrimaryVertex) {
-      myTree->Branch("Reco_Dimuon_mupl_dxy_muonlessVtx", Reco_Dimuon_mupl_dxy, "Reco_Dimuon_mupl_dxy_muonlessVtx[Reco_Dimuon_size]/F");
-      myTree->Branch("Reco_Dimuon_mumi_dxy_muonlessVtx", Reco_Dimuon_mumi_dxy, "Reco_Dimuon_mumi_dxy_muonlessVtx[Reco_Dimuon_size]/F");
-      myTree->Branch("Reco_Dimuon_mupl_dz_muonlessVtx", Reco_Dimuon_mupl_dz, "Reco_Dimuon_mupl_dz_muonlessVtx[Reco_Dimuon_size]/F");
-      myTree->Branch("Reco_Dimuon_mumi_dz_muonlessVtx", Reco_Dimuon_mumi_dz, "Reco_Dimuon_mumi_dz_muonlessVtx[Reco_Dimuon_size]/F");
-    }
-
-      myTree->Branch("Reco_Dimuon_mumi_4mom_pt", &Reco_Dimuon_mumi_4mom_pt, 32000, 0);
-      myTree->Branch("Reco_Dimuon_mumi_4mom_eta", &Reco_Dimuon_mumi_4mom_eta, 32000, 0);
-      myTree->Branch("Reco_Dimuon_mumi_4mom_phi", &Reco_Dimuon_mumi_4mom_phi, 32000, 0);
-      myTree->Branch("Reco_Dimuon_mumi_4mom_m", &Reco_Dimuon_mumi_4mom_m, 32000, 0);
-      
-      myTree->Branch("Reco_Dimuon_mupl_4mom_pt", &Reco_Dimuon_mupl_4mom_pt, 32000, 0);
-      myTree->Branch("Reco_Dimuon_mupl_4mom_eta", &Reco_Dimuon_mupl_4mom_eta, 32000, 0);
-      myTree->Branch("Reco_Dimuon_mupl_4mom_phi", &Reco_Dimuon_mupl_4mom_phi, 32000, 0);
-      myTree->Branch("Reco_Dimuon_mupl_4mom_m", &Reco_Dimuon_mupl_4mom_m, 32000, 0);
-      
+  if (_isMC) {
+    myTree->Branch("Reco_Dimuon_whichGen", Reco_Dimuon_whichGen, "Reco_Dimuon_whichGen[Reco_Dimuon_size]/S");
+  }
     
-  
+  myTree->Branch("Reco_Dimuon_vtxProb", Reco_Dimuon_VtxProb, "Reco_Dimuon_vtxProb[Reco_Dimuon_size]/F");
+  myTree->Branch("Reco_Dimuon_dca", Reco_Dimuon_dca, "Reco_Dimuon_dca[Reco_Dimuon_size]/F");
+  myTree->Branch("Reco_Dimuon_invMassErr", Reco_Dimuon_MassErr, "Reco_Dimuon_MassErr[Reco_Dimuon_size]/F");
+
+  myTree->Branch("Reco_Dimuon_vtx_xpos", &Reco_Dimuon_vtx_xpos, 32000, 0);
+  myTree->Branch("Reco_Dimuon_vtx_ypos", &Reco_Dimuon_vtx_ypos, 32000, 0);
+  myTree->Branch("Reco_Dimuon_vtx_zpos", &Reco_Dimuon_vtx_zpos, 32000, 0);
+      
+  if ( _muonLessPrimaryVertex) {
+    myTree->Branch("Reco_Dimuon_mupl_dxy_muonlessVtx", Reco_Dimuon_mupl_dxy, "Reco_Dimuon_mupl_dxy_muonlessVtx[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_mumi_dxy_muonlessVtx", Reco_Dimuon_mumi_dxy, "Reco_Dimuon_mumi_dxy_muonlessVtx[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_mupl_dz_muonlessVtx", Reco_Dimuon_mupl_dz, "Reco_Dimuon_mupl_dz_muonlessVtx[Reco_Dimuon_size]/F");
+    myTree->Branch("Reco_Dimuon_mumi_dz_muonlessVtx", Reco_Dimuon_mumi_dz, "Reco_Dimuon_mumi_dz_muonlessVtx[Reco_Dimuon_size]/F");
+  }
+
 
   myTree->Branch("Reco_Muon_size", &Reco_Muon_size, "Reco_Muon_size/S");
   myTree->Branch("Reco_Muon_type", Reco_Muon_type, "Reco_Muon_type[Reco_Muon_size]/S");
@@ -1064,6 +1050,7 @@ void HiOniaAnalyzer::InitTree() {
   myTree->Branch("Reco_Muon_isGlobal", Reco_Muon_isGlobal, "Reco_Muon_isGlobal[Reco_Muon_size]/O");
   myTree->Branch("Reco_Muon_isSoftCutBased", Reco_Muon_isSoftCutBased, "Reco_Muon_isSoftCutBased[Reco_Muon_size]/O");
   myTree->Branch("Reco_Muon_isHybridSoft", Reco_Muon_isHybridSoft, "Reco_Muon_isHybridSoft[Reco_Muon_size]/O");
+  myTree->Branch("Reco_Muon_isLooseCutBased", Reco_Muon_isLooseCutBased, "Reco_Muon_isLooseCutBased[Reco_Muon_size]/O");
   myTree->Branch("Reco_Muon_isMediumCutBased", Reco_Muon_isMediumCutBased, "Reco_Muon_isMediumCutBased[Reco_Muon_size]/O");
   myTree->Branch("Reco_Muon_isTightCutBased", Reco_Muon_isTightCutBased, "Reco_Muon_isTightCutBased[Reco_Muon_size]/O");
 
@@ -1072,8 +1059,8 @@ void HiOniaAnalyzer::InitTree() {
 
   //myTree->Branch("Reco_Muon_InTightAcc", Reco_Muon_InTightAcc, "Reco_Muon_InTightAcc[Reco_Muon_size]/O");
   //myTree->Branch("Reco_Muon_InLooseAcc", Reco_Muon_InLooseAcc, "Reco_Muon_InLooseAcc[Reco_Muon_size]/O");
-  myTree->Branch("Reco_Muon_highPurity", Reco_Muon_highPurity, "Reco_Muon_highPurity[Reco_Muon_size]/O");
-  myTree->Branch("Reco_Muon_TMOneStaTight", Reco_Muon_TMOneStaTight, "Reco_Muon_TMOneStaTight[Reco_Muon_size]/O");
+  myTree->Branch("Reco_Muon_isHighPurity", Reco_Muon_highPurity, "Reco_Muon_highPurity[Reco_Muon_size]/O");
+  //myTree->Branch("Reco_Muon_TMOneStaTight", Reco_Muon_TMOneStaTight, "Reco_Muon_TMOneStaTight[Reco_Muon_size]/O");
   // myTree->Branch("Reco_Muon_TrkMuArb", Reco_Muon_TrkMuArb,   "Reco_Muon_TrkMuArb[Reco_Muon_size]/O");
 
     //myTree->Branch("Reco_Muon_candType", Reco_Muon_candType, "Reco_Muon_candType[Reco_Muon_size]/S");
@@ -1087,8 +1074,8 @@ void HiOniaAnalyzer::InitTree() {
   myTree->Branch("Reco_Muon_normChi2_bestTracker", Reco_Muon_normChi2_bestTracker, "Reco_Muon_normChi2_bestTracker[Reco_Muon_size]/F");
   myTree->Branch("Reco_Muon_normChi2_inner", Reco_Muon_normChi2_inner, "Reco_Muon_normChi2_inner[Reco_Muon_size]/F");
     //myTree->Branch("Reco_Muon_normChi2_global", Reco_Muon_normChi2_global, "Reco_Muon_normChi2_global[Reco_Muon_size]/F");
-    myTree->Branch("Reco_Muon_nPixWMea", Reco_Muon_nPixWMea, "Reco_Muon_nPixWMea[Reco_Muon_size]/I");
-    myTree->Branch("Reco_Muon_nTrkWMea", Reco_Muon_nTrkWMea, "Reco_Muon_nTrkWMea[Reco_Muon_size]/I");
+  myTree->Branch("Reco_Muon_nPixWMea", Reco_Muon_nPixWMea, "Reco_Muon_nPixWMea[Reco_Muon_size]/I");
+  myTree->Branch("Reco_Muon_nTrkWMea", Reco_Muon_nTrkWMea, "Reco_Muon_nTrkWMea[Reco_Muon_size]/I");
   myTree->Branch("Reco_Muon_nStationsMatched", Reco_Muon_nStationsMatched, "Reco_Muon_nStationsMatched[Reco_Muon_size]/I");
     //myTree->Branch("Reco_Muon_dxy", Reco_Muon_dxy, "Reco_Muon_dxy[Reco_Muon_size]/F");
     //myTree->Branch("Reco_Muon_dxyErr", Reco_Muon_dxyErr, "Reco_Muon_dxyErr[Reco_Muon_size]/F");
@@ -1107,23 +1094,23 @@ genOnly2:
       //myTree->Branch("Reco_Muon_simExtType", Reco_Muon_simExtType, "Reco_Muon_simExtType[Reco_Muon_size]/I");
     }
     
-    myTree->Branch("Gen_weight", &Gen_weight, "Gen_weight/F");
-    myTree->Branch("Gen_pthat", &Gen_pthat, "Gen_pthat/F");
+  myTree->Branch("Gen_weight", &Gen_weight, "Gen_weight/F");
+  myTree->Branch("Gen_pthat", &Gen_pthat, "Gen_pthat/F");
 
-    myTree->Branch("Gen_Dimuon_size", &Gen_Dimuon_size, "Gen_Dimuon_size/S");
+  myTree->Branch("Gen_Dimuon_size", &Gen_Dimuon_size, "Gen_Dimuon_size/S");
     //myTree->Branch("Gen_Dimuon_type",      Gen_Dimuon_type,    "Gen_Dimuon_type[Gen_Dimuon_size]/S");
-	  myTree->Branch("Gen_Dimuon_4mom_pt", &Gen_Dimuon_4mom_pt, 32000, 0);
-	  myTree->Branch("Gen_Dimuon_4mom_eta", &Gen_Dimuon_4mom_eta, 32000, 0);
-	  myTree->Branch("Gen_Dimuon_4mom_y", &Gen_Dimuon_4mom_y, 32000, 0);
-	  myTree->Branch("Gen_Dimuon_4mom_phi", &Gen_Dimuon_4mom_phi, 32000, 0);
-	  myTree->Branch("Gen_Dimuon_4mom_m", &Gen_Dimuon_4mom_m, 32000, 0);
+	myTree->Branch("Gen_Dimuon_pt", &Gen_Dimuon_4mom_pt, 32000, 0);
+	myTree->Branch("Gen_Dimuon_eta", &Gen_Dimuon_4mom_eta, 32000, 0);
+	myTree->Branch("Gen_Dimuon_rapidity", &Gen_Dimuon_4mom_y, 32000, 0);
+	myTree->Branch("Gen_Dimuon_phi", &Gen_Dimuon_4mom_phi, 32000, 0);
+	myTree->Branch("Gen_Dimuon_mass", &Gen_Dimuon_4mom_m, 32000, 0);
 
       
     myTree->Branch("Gen_Dimuon_ctau", Gen_Dimuon_ctau, "Gen_Dimuon_ctau[Gen_Dimuon_size]/F");
     myTree->Branch("Gen_Dimuon_ctau3D", Gen_Dimuon_ctau3D, "Gen_Dimuon_ctau3D[Gen_Dimuon_size]/F");
     myTree->Branch("Gen_Dimuon_muonPlusIndex", Gen_Dimuon_muonPlusIndex, "Gen_Dimuon_muonPlusIndex[Gen_Dimuon_size]/S");
     myTree->Branch("Gen_Dimuon_muonMinusIndex", Gen_Dimuon_muonMinusIndex, "Gen_Dimuon_muonMinusIndex[Gen_Dimuon_size]/S");
-    myTree->Branch("Gen_Dimuon_Muons_pTdiff", &Gen_Dimuon_Muons_pTdiff, 32000, 0);
+    myTree->Branch("Gen_Dimuon_ptDiffMuons", &Gen_Dimuon_Muons_pTdiff, 32000, 0);
 
 
     myTree->Branch("Gen_Dimuon_whichRec", Gen_Dimuon_whichRec, "Gen_Dimuon_whichRec[Gen_Dimuon_size]/S");
@@ -1135,10 +1122,10 @@ genOnly2:
     //myTree->Branch("Gen_Muon_type",   Gen_Muon_type,   "Gen_Muon_type[Gen_Muon_size]/S");
     myTree->Branch("Gen_Muon_charge", Gen_Muon_charge, "Gen_Muon_charge[Gen_Muon_size]/S");
     
-    myTree->Branch("Gen_Muon_4mom_pt", &Gen_Muon_4mom_pt, 32000, 0);
-    myTree->Branch("Gen_Muon_4mom_eta", &Gen_Muon_4mom_eta, 32000, 0);
-    myTree->Branch("Gen_Muon_4mom_phi", &Gen_Muon_4mom_phi, 32000, 0);
-    myTree->Branch("Gen_Muon_4mom_m", &Gen_Muon_4mom_m, 32000, 0);
+    myTree->Branch("Gen_Muon_pt", &Gen_Muon_4mom_pt, 32000, 0);
+    myTree->Branch("Gen_Muon_eta", &Gen_Muon_4mom_eta, 32000, 0);
+    myTree->Branch("Gen_Muon_phi", &Gen_Muon_4mom_phi, 32000, 0);
+    myTree->Branch("Gen_Muon_mass", &Gen_Muon_4mom_m, 32000, 0);
     
     myTree->Branch("Gen_Muon_whichRec", Gen_Muon_whichRec, "Gen_Muon_whichRec[Gen_Muon_size]/S");
   }
