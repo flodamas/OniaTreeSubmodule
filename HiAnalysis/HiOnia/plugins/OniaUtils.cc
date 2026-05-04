@@ -3,29 +3,29 @@
 
 //Find the indices of the reconstructed muon matching each generated muon, and vice versa
 void HiOniaAnalyzer::fillMuMatchingInfo() {
-  //initialize Gen_mu_whichRec
-  for (int igen = 0; igen < Gen_mu_size; igen++) {
-    Gen_mu_whichRec[igen] = -1;
+  //initialize Gen_Muon_whichRec
+  for (int igen = 0; igen < Gen_Muon_size; igen++) {
+    Gen_Muon_whichRec[igen] = -1;
   }
 
-  //Find the index of generated muon associated to a reco muon, txs to Reco_mu_pTrue
-  for (int irec = 0; irec < Reco_mu_size; irec++) {
+  //Find the index of generated muon associated to a reco muon, txs to Reco_Muon_pTrue
+  for (int irec = 0; irec < Reco_Muon_size; irec++) {
     int foundGen = -1;
-    if (Reco_mu_pTrue[irec] >= 0) {  //if pTrue=-1, then the reco muon is a fake
-      for (int igen = 0; igen < Gen_mu_size; igen++) {
+    if (Reco_Muon_pTrue[irec] >= 0) {  //if pTrue=-1, then the reco muon is a fake
+      for (int igen = 0; igen < Gen_Muon_size; igen++) {
 	
-        auto genmuMom = Gen_mu_4mom.at(igen).P();
+        auto genmuMom = Gen_Muon_4mom.at(igen).P();
 	
-        if (std::abs(genmuMom - Reco_mu_pTrue[irec]) / Reco_mu_pTrue[irec] < 1e-6 &&
-            Gen_mu_charge[igen] == Reco_mu_charge[irec]) {
+        if (std::abs(genmuMom - Reco_Muon_pTrue[irec]) / Reco_Muon_pTrue[irec] < 1e-6 &&
+            Gen_Muon_charge[igen] == Reco_Muon_charge[irec]) {
           foundGen = igen;
           break;
         }
       }
     }
-    Reco_mu_whichGen[irec] = foundGen;
+    Reco_Muon_whichGen[irec] = foundGen;
     if (foundGen > -1)
-      Gen_mu_whichRec[foundGen] = irec;
+      Gen_Muon_whichRec[foundGen] = irec;
   }
 };
 
@@ -46,8 +46,8 @@ pair<unsigned int, const pat::CompositeCandidate*> HiOniaAnalyzer::theBestQQ() {
 void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
   math::XYZPoint RefVtx_tmp = RefVtx;
 
-  if (collJpsi.isValid()) {
-    for (std::vector<pat::CompositeCandidate>::const_iterator it = collJpsi->begin(); it != collJpsi->end(); ++it) {
+  if (collDimuon.isValid()) {
+    for (std::vector<pat::CompositeCandidate>::const_iterator it = collDimuon->begin(); it != collDimuon->end(); ++it) {
       const pat::CompositeCandidate* cand = &(*it);
 
       if (cand == nullptr) {
@@ -74,9 +74,6 @@ void HiOniaAnalyzer::makeCuts(bool keepSameSign) {
           }
 
           if (std::abs(RefVtx.Z()) > _iConfig.getParameter<double>("maxAbsZ"))
-            continue;
-
-          if (std::abs(muon1->eta()) >= etaMax || std::abs(muon2->eta()) >= etaMax)
             continue;
 
           //Pass muon selection?
