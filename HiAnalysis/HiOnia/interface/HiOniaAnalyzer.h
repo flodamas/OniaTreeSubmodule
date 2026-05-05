@@ -282,6 +282,14 @@ private:
   float Reco_Muon_softMVAValue[NMaxMuons];
   float Reco_Muon_muonMVAValue[NMaxMuons]; // https://muon-wiki.docs.cern.ch/guidelines/recommendations/#muon-mva
 
+  // muon isolation
+
+  // from muon POG's recommendations (TO DO)
+  
+  // HI specific
+  std::vector<float> Reco_Muon_HIMVAIso;
+  std::map<std::string, std::vector<bool>> Reco_Muon_HIMVAIsoWPs{{{"WP95",{}}, {"WP90",{}}, {"WP85",{}}, {"WP80",{}}}};
+
   bool Reco_Muon_InTightAcc[NMaxMuons];  // Is in the tight acceptance for global muons
   bool Reco_Muon_InLooseAcc[NMaxMuons];  // Is in the loose acceptance for global muons
 

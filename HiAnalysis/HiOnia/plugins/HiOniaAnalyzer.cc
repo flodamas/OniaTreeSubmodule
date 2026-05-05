@@ -465,6 +465,11 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
     return;
   }
 
+  // Isolation variables
+  Reco_Muon_HIMVAIso.push_back(muon->hasUserFloat("hiMVAIso") ? muon->userFloat("hiMVAIso") : -99);
+  for (auto& w : Reco_Muon_HIMVAIsoWPs)
+    w.second.push_back(muon->hasUserInt("hiMVAIso"+w.first) && muon->userInt("hiMVAIso"+w.first)>0);
+
   Reco_Muon_size++;
   return;
 };
@@ -825,6 +830,10 @@ void HiOniaAnalyzer::InitEvent() {
 
   mapMuonMomToIndex_.clear();
 
+  Reco_Muon_HIMVAIso.clear();
+  for (auto& w : Reco_Muon_HIMVAIsoWPs)
+    w.second.clear();
+
   for (std::map<std::string, int>::iterator clearIt = mapTriggerNameToIntFired_.begin();
        clearIt != mapTriggerNameToIntFired_.end();
        clearIt++) {
@@ -1032,6 +1041,10 @@ void HiOniaAnalyzer::InitTree() {
   myTree->Branch("Reco_Muon_softMVAValue", Reco_Muon_softMVAValue, "Reco_Muon_softMVAValue[Reco_Muon_size]/F");
   myTree->Branch("Reco_Muon_muonMVAValue", Reco_Muon_muonMVAValue, "Reco_Muon_muonMVAValue[Reco_Muon_size]/F");
 
+  myTree->Branch("Reco_Muon_HIMVAIso", &Reco_Muon_HIMVAIso);
+  for (auto& w : Reco_Muon_HIMVAIsoWPs)
+    myTree->Branch(("Reco_Muon_HIMVAIso"+w.first).c_str(), &(w.second));
+  
   //myTree->Branch("Reco_Muon_InTightAcc", Reco_Muon_InTightAcc, "Reco_Muon_InTightAcc[Reco_Muon_size]/O");
   //myTree->Branch("Reco_Muon_InLooseAcc", Reco_Muon_InLooseAcc, "Reco_Muon_InLooseAcc[Reco_Muon_size]/O");
   myTree->Branch("Reco_Muon_isHighPurity", Reco_Muon_highPurity, "Reco_Muon_highPurity[Reco_Muon_size]/O");

@@ -140,8 +140,6 @@ process.hionia.useEvtPlane      = cms.untracked.bool(addEventPlane)
 
 process.hionia.storeSameSign = cms.bool(True)
 
-process.oniaTreeAna.replace(process.hionia, process.centralityBin * process.hionia )
-
 if applyEventSel:
   # Offline event filters
   process.load('HeavyIonsAnalysis.EventAnalysis.collisionEventSelection_cff')
@@ -184,6 +182,9 @@ if applyEventSel:
   
   process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.phfCoincFilterPF2Th4 * process.primaryVertexFilter * process.hltHI * process.patMuonSequence )
 
+# needed for muon isolation
+process.oniaTreeAna.replace(process.patMuonSequence, process.centralityBin * process.patMuonSequence )
+
 if atLeastOneCand:
   process.oniaTreeAna.replace(process.onia2MuMuPatGlbGlb, process.onia2MuMuPatGlbGlb * process.onia2MuMuPatGlbGlbFilter)
   #BEWARE, pseudoDimuonFilterSequence asks for opposite-sign dimuon in given mass range. But saves a lot of time by filtering before running PAT muons
@@ -192,7 +193,7 @@ if atLeastOneCand:
 process.oniaTreeAna = cms.Path(process.oniaTreeAna)
 if miniAOD:
   from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import changeToMiniAOD
-  changeToMiniAOD(process)
+  changeToMiniAOD(process, addIsolation = True)
   process.unpackedMuons.addPropToMuonSt = cms.bool(UsePropToMuonSt)
 
 #----------------------------------------------------------------------------

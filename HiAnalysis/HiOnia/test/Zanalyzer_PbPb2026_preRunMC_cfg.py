@@ -120,18 +120,19 @@ process.hionia.OneMatchedHLTMu  = cms.int32(OneMatchedHLTMu)
 process.hionia.checkTrigNames   = cms.bool(False)#change this to get the event-level trigger info in hStats output (but creates lots of warnings when fake trigger names are used)
 process.hionia.genealogyInfo    = cms.bool(True)
 
-process.oniaTreeAna.replace(process.hionia, process.centralityBin * process.hionia )
-
 if applyEventSel:
   process.load('HeavyIonsAnalysis.EventAnalysis.collisionEventSelection_cff')
   process.load('HeavyIonsAnalysis.EventAnalysis.hffilter_cfi')
   process.load('HeavyIonsAnalysis.EventAnalysis.hffilterPF_cfi')
   process.oniaTreeAna.replace(process.patMuonSequence, process.phfCoincFilterPF2Th4 * process.primaryVertexFilter * process.patMuonSequence )
 
+# needed for muon isolation
+process.oniaTreeAna.replace(process.patMuonSequence, process.centralityBin * process.patMuonSequence )
+
 process.oniaTreeAna = cms.Path(process.oniaTreeAna)
 if miniAOD:
   from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import changeToMiniAOD
-  changeToMiniAOD(process)
+  changeToMiniAOD(process, addIsolation = True)
   process.unpackedMuons.addPropToMuonSt = cms.bool(UsePropToMuonSt)
 
 #----------------------------------------------------------------------------
