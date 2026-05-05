@@ -31,6 +31,8 @@ hionia = cms.EDAnalyzer('HiOniaAnalyzer',
                         storeSameSign = cms.bool(True),
                         AtLeastOneCand = cms.bool(False),
 
+                        addMuonIsolation = cms.bool(True),
+
                         genealogyInfo = cms.bool(False),
                         removeSignalEvents = cms.untracked.bool(False),
                         removeTrueMuons = cms.untracked.bool(False),

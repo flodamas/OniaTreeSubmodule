@@ -19,6 +19,8 @@ UsePropToMuonSt = True # whether to use L1 propagated muons (works only for mini
 pdgId = 443 # J/Psi : 443, Y(1S) : 553
 
 addEventPlane = False
+
+addMuonIsolation = True
 #----------------------------------------------------------------------------
 
 # Print Onia Tree settings:
@@ -33,6 +35,7 @@ print( "[INFO] atLeastOneCand       = " + ("True" if atLeastOneCand else "False"
 print( "[INFO] OneMatchedHLTMu      = " + ("True" if OneMatchedHLTMu > -1 else "False") )
 print( "[INFO] miniAOD              = " + ("True" if miniAOD else "False") )
 print( "[INFO] UsePropToMuonSt      = " + ("True" if UsePropToMuonSt else "False") )
+print( "[INFO] addMuonIsolation     = " + ("True" if addMuonIsolation else "False") )
 print( "[INFO] addEventPlane        = " + ("True" if addEventPlane else "False") )
 
 print( " " )
@@ -138,6 +141,8 @@ process.hionia.checkTrigNames   = cms.bool(False)#change this to get the event-l
 
 process.hionia.useEvtPlane      = cms.untracked.bool(addEventPlane)
 
+process.hionia.addMuonIsolation = cms.bool(True)
+
 process.hionia.storeSameSign = cms.bool(True)
 
 if applyEventSel:
@@ -193,7 +198,7 @@ if atLeastOneCand:
 process.oniaTreeAna = cms.Path(process.oniaTreeAna)
 if miniAOD:
   from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import changeToMiniAOD
-  changeToMiniAOD(process, addIsolation = True)
+  changeToMiniAOD(process, addIsolation = addMuonIsolation)
   process.unpackedMuons.addPropToMuonSt = cms.bool(UsePropToMuonSt)
 
 #----------------------------------------------------------------------------

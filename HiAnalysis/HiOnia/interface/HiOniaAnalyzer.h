@@ -284,7 +284,16 @@ private:
 
   // muon isolation
 
-  // from muon POG's recommendations (TO DO)
+  // from muon POG's recommendations https://muon-wiki.docs.cern.ch/guidelines/recommendations/#muon-isolation
+  
+  std::vector<bool> Reco_Muon_passesPFIsoLoose;
+  std::vector<bool> Reco_Muon_passesPFIsoMedium;
+  std::vector<bool> Reco_Muon_passesPFIsoTight;
+  std::vector<bool> Reco_Muon_passesPFIsoVeryTight;
+
+  std::vector<float> Reco_Muon_isoTrackSumPt;
+
+  std::vector<bool> Reco_Muon_passesMultiIsoMedium;
   
   // HI specific
   std::vector<float> Reco_Muon_HIMVAIso;
@@ -412,6 +421,8 @@ private:
   int _OneMatchedHLTMu;
   bool _checkTrigNames;
   bool _genOnly;
+
+  bool _addMuonIsolation;
 
   std::vector<unsigned int> _thePassedCats;
   std::vector<const pat::CompositeCandidate*> _thePassedCands;

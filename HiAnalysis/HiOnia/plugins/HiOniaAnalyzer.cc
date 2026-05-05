@@ -45,6 +45,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
       _OneMatchedHLTMu(iConfig.getParameter<int>("OneMatchedHLTMu")),
       _checkTrigNames(iConfig.getParameter<bool>("checkTrigNames")),
       _genOnly(iConfig.getParameter<bool>("genOnly")),
+      _addMuonIsolation(iConfig.getParameter<bool>("addMuonIsolation")),
       hltPrescaleProvider(iConfig, consumesCollector(), *this),
       _iConfig(iConfig) {
   usesResource(TFileService::kSharedResource);
@@ -466,9 +467,21 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
   }
 
   // Isolation variables
-  Reco_Muon_HIMVAIso.push_back(muon->hasUserFloat("hiMVAIso") ? muon->userFloat("hiMVAIso") : -99);
-  for (auto& w : Reco_Muon_HIMVAIsoWPs)
-    w.second.push_back(muon->hasUserInt("hiMVAIso"+w.first) && muon->userInt("hiMVAIso"+w.first)>0);
+  if (_addMuonIsolation){
+    
+    Reco_Muon_passesPFIsoLoose.push_back(muon->passed('PFIsoLoose'));
+    Reco_Muon_passesPFIsoMedium.push_back(muon->passed('PFIsoMedium'));
+    Reco_Muon_passesPFIsoTight.push_back(muon->passed('PFIsoTight'));
+    Reco_Muon_passesPFIsoVeryTight.push_back(muon->passed('PFIsoVeryTight'));
+
+    Reco_Muon_isoTrackSumPt.push_back(muon->isolationR03().sumPt);
+
+    Reco_Muon_passesMultiIsoMedium.push_back(muon->passed('MultiIsoMedium'));
+
+    Reco_Muon_HIMVAIso.push_back(muon->hasUserFloat("hiMVAIso") ? muon->userFloat("hiMVAIso") : -99);
+    for (auto& w : Reco_Muon_HIMVAIsoWPs)
+      w.second.push_back(muon->hasUserInt("hiMVAIso"+w.first) && muon->userInt("hiMVAIso"+w.first)>0);
+  }
 
   Reco_Muon_size++;
   return;
@@ -830,9 +843,20 @@ void HiOniaAnalyzer::InitEvent() {
 
   mapMuonMomToIndex_.clear();
 
-  Reco_Muon_HIMVAIso.clear();
-  for (auto& w : Reco_Muon_HIMVAIsoWPs)
-    w.second.clear();
+  if (_addMuonIsolation){
+    
+    Reco_Muon_passesPFIsoLoose.clear();
+    Reco_Muon_passesPFIsoMedium.clear();
+    Reco_Muon_passesPFIsoTight.clear();
+    Reco_Muon_passesPFIsoVeryTight.clear();
+
+    Reco_Muon_isoTrackSumPt.clear();
+    Reco_Muon_passesMultiIsoMedium.clear();
+
+    Reco_Muon_HIMVAIso.clear();
+    for (auto& w : Reco_Muon_HIMVAIsoWPs)
+      w.second.clear();
+  }
 
   for (std::map<std::string, int>::iterator clearIt = mapTriggerNameToIntFired_.begin();
        clearIt != mapTriggerNameToIntFired_.end();
@@ -1041,9 +1065,23 @@ void HiOniaAnalyzer::InitTree() {
   myTree->Branch("Reco_Muon_softMVAValue", Reco_Muon_softMVAValue, "Reco_Muon_softMVAValue[Reco_Muon_size]/F");
   myTree->Branch("Reco_Muon_muonMVAValue", Reco_Muon_muonMVAValue, "Reco_Muon_muonMVAValue[Reco_Muon_size]/F");
 
-  myTree->Branch("Reco_Muon_HIMVAIso", &Reco_Muon_HIMVAIso);
-  for (auto& w : Reco_Muon_HIMVAIsoWPs)
-    myTree->Branch(("Reco_Muon_HIMVAIso"+w.first).c_str(), &(w.second));
+  // muon isolation variables
+  if (_addMuonIsolation){
+    myTree->Branch("Reco_Muon_passesPFIsoLoose", &Reco_Muon_passesPFIsoLoose);
+    myTree->Branch("Reco_Muon_passesPFIsoMedium", &Reco_Muon_passesPFIsoMedium);
+    myTree->Branch("Reco_Muon_passesPFIsoTight", &Reco_Muon_passesPFIsoTight);
+    myTree->Branch("Reco_Muon_passesPFIsoVeryTight", &Reco_Muon_passesPFIsoVeryTight);
+
+    myTree->Branch("Reco_Muon_isoTrackSumPt", &Reco_Muon_isoTrackSumPt);
+
+    myTree->Branch("Reco_Muon_passesMultiIsoMedium", &Reco_Muon_passesMultiIsoMedium);
+    
+
+    myTree->Branch("Reco_Muon_HIMVAIso", &Reco_Muon_HIMVAIso);
+    for (auto& w : Reco_Muon_HIMVAIsoWPs)
+      myTree->Branch(("Reco_Muon_HIMVAIso"+w.first).c_str(), &(w.second));
+  }
+  
   
   //myTree->Branch("Reco_Muon_InTightAcc", Reco_Muon_InTightAcc, "Reco_Muon_InTightAcc[Reco_Muon_size]/O");
   //myTree->Branch("Reco_Muon_InLooseAcc", Reco_Muon_InLooseAcc, "Reco_Muon_InLooseAcc[Reco_Muon_size]/O");
