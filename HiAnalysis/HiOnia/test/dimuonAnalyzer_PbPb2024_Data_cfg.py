@@ -7,7 +7,7 @@ from Configuration.StandardSequences.Eras import eras
 globalTag = '141X_dataRun3_Prompt_v3'
 
 isMC           = False # if input is MONTECARLO: True or if it's DATA: False
-muonSelection  = "Tight" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, Tight are available
+muonSelection  = "Glb" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, Tight are available
 applyEventSel  = True # Only apply Event Selection if the required collections are present
 applyCuts      = True # At HiAnalysis level, apply kinematic acceptance cuts + identification cuts (isSoftMuon (without highPurity) or isTightMuon, depending on TightGlobalMuon flag) for muons from selected di(tri)muons + hard-coded cuts on the di(tri)muon that you would want to add (but recommended to add everything in LateDimuonSelection, applied at the end of HiSkim)
 SumETvariables = True  # Whether to write out SumET-related variables
@@ -50,7 +50,6 @@ options = VarParsing.VarParsing ('analysis')
 
 options.inputFiles = [
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/1dda444c-9316-4096-bdc4-42f25d54b4fa.root',
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/4e2e6274-dc3e-410b-ada6-8ff1cee9cdd5.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/31d04fe3-5590-4c70-8f9c-c6a6d71d8484.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime2/MINIAOD/PromptReco-v2/000/388/468/00000/f3eccc31-3237-4db2-a0af-f9adeab67001.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime2/MINIAOD/PromptReco-v2/000/388/468/00000/472dc37a-3323-4f81-a688-43289d168c8d.root',
@@ -122,8 +121,8 @@ oniaTreeAnalyzer(process,
 process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.4 && abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 20")
 process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.4 && isGlobalMuon")
 
-#if applyCuts:
-process.onia2MuMuPatGlbGlb.LateDimuonSel = cms.string("userFloat(\"vProb\")>0.001")
+if applyCuts:
+  process.onia2MuMuPatGlbGlb.LateDimuonSel = cms.string("userFloat(\"vProb\")>0.001")
 
 process.hionia.CentralitySrc    = cms.InputTag("hiCentrality")
 process.hionia.CentralityBinSrc = cms.InputTag("centralityBin","HFtowers")

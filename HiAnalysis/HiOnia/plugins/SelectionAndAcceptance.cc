@@ -8,7 +8,7 @@ bool HiOniaAnalyzer::isInAcceptance(const float eta, const float pt, std::string
     return false;
 
   if (muonType == (std::string)("TIGHT")) {
-    return pt > 8.0;
+    return pt >= 8.0;
   }
 
   if (muonType == (std::string)("GLB")) {

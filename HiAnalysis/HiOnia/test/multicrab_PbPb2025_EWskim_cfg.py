@@ -22,10 +22,10 @@ config.section_("JobType")
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "dimuonAnalyzer_PbPb2025_Data_cfg.py"
 
-config.JobType.maxMemoryMB = 2400         # request high memory machines.
+config.JobType.maxMemoryMB = 2000         # request high memory machines.
 #config.JobType.numCores = 4
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.maxJobRuntimeMin = 1200 # max = 2750
+config.JobType.maxJobRuntimeMin = 300 # max = 2750
 
 config.section_("Data")
 config.Data.inputDBS = 'global'
@@ -38,7 +38,7 @@ config.Data.publication = False
 config.Data.runRange = '399465-400426'
 config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions25HI/Cert_Collisions2025_HI_399465_400426_Muon.json'
 
-config.Data.outLFNDirBase = '/store/user/' + username + '/PbPb2025/'
+config.Data.outLFNDirBase = '/store/user/' + username + '/Z/Data/PbPb2025/'
 
 
 config.section_("Site")
