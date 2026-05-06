@@ -198,7 +198,7 @@ void pat::HIMuonMVAProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("rhoMap", edm::InputTag("hiFJRhoProducerFinerBins:mapToRho"))->setComment("rho");
   desc.add<double>("pf_maxAbsEta", 2.8)->setComment("Maximum absolute eta for PF candidates");
   desc.add<double>("sk_radius", 0.4)->setComment("Radius for soft killer threshold");
-  desc.add<double>("muon_minPt", 0.0)->setComment("Muon minimum pt");
+  desc.add<double>("muon_minPt", 1.0)->setComment("Muon minimum pt");
   desc.add<double>("iso_rVeto", 1.E-3)->setComment("Isolation veto radius");
   desc.add<double>("iso_rCone", 0.3)->setComment("Isolation cone radius");
   desc.add<edm::FileInPath>("file_isoModel", edm::FileInPath("HeavyIonsAnalysis/Configuration/data/Run3_2023_PbPb/muiso_BDT.ubj"))->setComment("Path to isolation model");

@@ -8,7 +8,7 @@ bool HiOniaAnalyzer::isInAcceptance(const float eta, const float pt, std::string
     return false;
 
   if (muonType == (std::string)("TIGHT")) {
-    return pt > 6.0;
+    return pt > 8.0;
   }
 
   if (muonType == (std::string)("GLB")) {
@@ -53,9 +53,9 @@ bool HiOniaAnalyzer::selGlobalMuon(const pat::Muon* aMuon) {
     return true;
 
   bool isInAcc = isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)("GLB"));
-  bool isGood = (_selTightGlobalMuon ? aMuon->passed(reco::Muon::CutBasedIdTight) : isSoftMuonBase(aMuon));
+  //bool isGood = (_selTightGlobalMuon ? aMuon->passed(reco::Muon::CutBasedIdTight) : isSoftMuonBase(aMuon));
 
-  return (isInAcc && isGood);
+  return (isInAcc);
 };
 
 bool HiOniaAnalyzer::selTrackerMuon(const pat::Muon* aMuon) {

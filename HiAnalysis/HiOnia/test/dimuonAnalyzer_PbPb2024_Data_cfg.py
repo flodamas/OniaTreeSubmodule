@@ -9,7 +9,7 @@ globalTag = '141X_dataRun3_Prompt_v3'
 isMC           = False # if input is MONTECARLO: True or if it's DATA: False
 muonSelection  = "Tight" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, Tight are available
 applyEventSel  = True # Only apply Event Selection if the required collections are present
-applyCuts      = False # At HiAnalysis level, apply kinematic acceptance cuts + identification cuts (isSoftMuon (without highPurity) or isTightMuon, depending on TightGlobalMuon flag) for muons from selected di(tri)muons + hard-coded cuts on the di(tri)muon that you would want to add (but recommended to add everything in LateDimuonSelection, applied at the end of HiSkim)
+applyCuts      = True # At HiAnalysis level, apply kinematic acceptance cuts + identification cuts (isSoftMuon (without highPurity) or isTightMuon, depending on TightGlobalMuon flag) for muons from selected di(tri)muons + hard-coded cuts on the di(tri)muon that you would want to add (but recommended to add everything in LateDimuonSelection, applied at the end of HiSkim)
 SumETvariables = True  # Whether to write out SumET-related variables
 atLeastOneCand = False # Keep only events that have one selected dimuon. BEWARE this can cause trouble in .root output if no event is selected by onia2MuMuPatGlbGlbFilter!
 OneMatchedHLTMu = -1   # Keep only di(tri)muons of which the one(two) muon(s) are matched to the HLT Filter of this number. You can get the desired number in the output of oniaTree. Set to -1 for no matching.
@@ -51,8 +51,10 @@ options = VarParsing.VarParsing ('analysis')
 options.inputFiles = [
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/1dda444c-9316-4096-bdc4-42f25d54b4fa.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/4e2e6274-dc3e-410b-ada6-8ff1cee9cdd5.root',
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/8fd55e5b-7943-43ac-8aaa-9de4e25d425a.root',
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/31d04fe3-5590-4c70-8f9c-c6a6d71d8484.root'
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/31d04fe3-5590-4c70-8f9c-c6a6d71d8484.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime2/MINIAOD/PromptReco-v2/000/388/468/00000/f3eccc31-3237-4db2-a0af-f9adeab67001.root',
+  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime2/MINIAOD/PromptReco-v2/000/388/468/00000/472dc37a-3323-4f81-a688-43289d168c8d.root',
+
 ]
 
 options.outputFile = 'DimuonTree_HighPtMuons_PbPb2024_Data.root'
@@ -168,7 +170,7 @@ if applyEventSel:
 
   process.dimuonSelection = cms.EDProducer("CandViewShallowCloneCombiner",
                                     checkCharge = cms.bool(False),
-                                    cut = cms.string("mass > 2.4"),
+                                    cut = cms.string("mass > 2.0"),
                                     decay = cms.string("muonSelector muonSelector")
                                     )
 

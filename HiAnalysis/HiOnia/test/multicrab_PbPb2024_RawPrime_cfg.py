@@ -35,7 +35,7 @@ config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/
 
 config.section_("Site")
 config.Site.storageSite = "T3_CH_CERNBOX"
-config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*", "T2_DE_*"]
+config.Site.whitelist = ["T2_US_Vanderbilt", "T2_CH_*", "T2_DE_*", "T1_FR_*"]
 
 # Multi crab part
 

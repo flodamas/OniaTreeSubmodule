@@ -43,7 +43,7 @@ config.Data.outLFNDirBase = '/store/user/' + username + '/PbPb2025/'
 
 config.section_("Site")
 config.Site.storageSite = "T3_CH_CERNBOX"
-#config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
+config.Site.whitelist = ["T2_US_Vanderbilt","T2_CH_CERN","T1_US_*"]
 
 # Multi crab part
 
