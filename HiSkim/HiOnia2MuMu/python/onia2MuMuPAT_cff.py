@@ -143,7 +143,7 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stag
     )
 
 
-def changeToMiniAOD(process, addIsolation = False):
+def changeToMiniAOD(process):
 
     if hasattr(process, "patMuonsWithTrigger"):
         from MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff import useExistingPATMuons
@@ -161,7 +161,7 @@ def changeToMiniAOD(process, addIsolation = False):
             process.unpackedMuons.muonSelectors = []
         process.patMuonSequence.insert(1, process.unpackedMuons)
 
-        if addIsolation:
+        if process.hionia.addMuonIsolation and process.hionia.isHI:
             process.load('RecoHI.HiJetAlgos.HiRecoPFJets_cff')
             process.load('HiAnalysis.HiOnia.hiMuons_cfi')
             from HeavyIonsAnalysis.Configuration.hiFJRhoProducer import hiFJRhoProducerFinerBins

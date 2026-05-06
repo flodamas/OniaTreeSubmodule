@@ -576,7 +576,6 @@ void HiOniaAnalyzer::fillTreeDimuon(int count) {
 
         muonPtDiff = muon2->pt() - muon1->pt();
 
-
         iTrack_mupl = mu2Trk;
         iTrack_mumi = mu1Trk;
 
@@ -604,7 +603,8 @@ void HiOniaAnalyzer::fillTreeDimuon(int count) {
       Reco_Dimuon_4mom_phi.push_back(dimuonLV.Phi());
       Reco_Dimuon_4mom_m.push_back(dimuonLV.M());
 
-      Reco_Dimuon_Muons_pTdiff.push_back(muonPtDiff);
+      Reco_Dimuon_muonPtDiff.push_back(muonPtDiff);
+      Reco_Dimuon_muonPtRelDiff.push_back(muonPtDiff / (muon1->pt() + muon2->pt()));
 
       if (_useBS) {
         if (aDimuonCandidate->hasUserFloat("ppdlBS")) {
@@ -784,7 +784,8 @@ void HiOniaAnalyzer::InitEvent() {
   Reco_Dimuon_4mom_y.clear();
   Reco_Dimuon_4mom_phi.clear();
   Reco_Dimuon_4mom_m.clear();
-  Reco_Dimuon_Muons_pTdiff.clear();
+  Reco_Dimuon_muonPtDiff.clear();
+  Reco_Dimuon_muonPtRelDiff.clear();
 
   Reco_Dimuon_mupl_4mom_pt.clear();
   Reco_Dimuon_mupl_4mom_eta.clear();
@@ -817,7 +818,8 @@ void HiOniaAnalyzer::InitEvent() {
     Gen_Dimuon_4mom_y.clear();
     Gen_Dimuon_4mom_phi.clear();
     Gen_Dimuon_4mom_m.clear();
-    Gen_Dimuon_Muons_pTdiff.clear();
+    Gen_Dimuon_muonPtDiff.clear();
+    Gen_Dimuon_muonPtRelDiff.clear();
 
     Gen_Muon_4mom.clear();
     Gen_Muon_4mom_pt.clear();
@@ -845,9 +847,12 @@ void HiOniaAnalyzer::InitEvent() {
     Reco_Muon_isoTrackSumPt.clear();
     Reco_Muon_passesMultiIsoMedium.clear();
 
-    Reco_Muon_HIMVAIso.clear();
-    for (auto& w : Reco_Muon_HIMVAIsoWPs)
-      w.second.clear();
+    if (_isHI){
+      Reco_Muon_HIMVAIso.clear();
+      for (auto& w : Reco_Muon_HIMVAIsoWPs)
+        w.second.clear();
+    }
+    
   }
 
   for (std::map<std::string, int>::iterator clearIt = mapTriggerNameToIntFired_.begin();
@@ -993,8 +998,8 @@ void HiOniaAnalyzer::InitTree() {
   myTree->Branch("Reco_Dimuon_rapidity", &Reco_Dimuon_4mom_y, 32000, 0);
   myTree->Branch("Reco_Dimuon_phi", &Reco_Dimuon_4mom_phi, 32000, 0);
   myTree->Branch("Reco_Dimuon_invMass", &Reco_Dimuon_4mom_m, 32000, 0);
-  myTree->Branch("Reco_Dimuon_ptDiffMuons", &Reco_Dimuon_Muons_pTdiff, 32000, 0);
-
+  myTree->Branch("Reco_Dimuon_muonPtDiff", &Reco_Dimuon_muonPtDiff, 32000, 0);
+  myTree->Branch("Reco_Dimuon_muonPtRelDiff", &Reco_Dimuon_muonPtRelDiff, 32000, 0);
     
   myTree->Branch("Reco_Dimuon_muonPlusIndex", Reco_Dimuon_muonPlusIndex, "Reco_Dimuon_muonPlusIndex[Reco_Dimuon_size]/S");
   myTree->Branch("Reco_Dimuon_muonMinusIndex", Reco_Dimuon_muonMinusIndex, "Reco_Dimuon_muonMinusIndex[Reco_Dimuon_size]/S");
@@ -1069,9 +1074,11 @@ void HiOniaAnalyzer::InitTree() {
     myTree->Branch("Reco_Muon_passesMultiIsoMedium", &Reco_Muon_passesMultiIsoMedium);
     
 
-    myTree->Branch("Reco_Muon_HIMVAIso", &Reco_Muon_HIMVAIso);
-    for (auto& w : Reco_Muon_HIMVAIsoWPs)
-      myTree->Branch(("Reco_Muon_HIMVAIso"+w.first).c_str(), &(w.second));
+    if (_isHI){
+      myTree->Branch("Reco_Muon_HIMVAIso", &Reco_Muon_HIMVAIso);
+      for (auto& w : Reco_Muon_HIMVAIsoWPs)
+        myTree->Branch(("Reco_Muon_HIMVAIso"+w.first).c_str(), &(w.second));
+    }
   }
   
   
@@ -1127,7 +1134,8 @@ genOnly2:
     myTree->Branch("Gen_Dimuon_ctau3D", Gen_Dimuon_ctau3D, "Gen_Dimuon_ctau3D[Gen_Dimuon_size]/F");
     myTree->Branch("Gen_Dimuon_muonPlusIndex", Gen_Dimuon_muonPlusIndex, "Gen_Dimuon_muonPlusIndex[Gen_Dimuon_size]/S");
     myTree->Branch("Gen_Dimuon_muonMinusIndex", Gen_Dimuon_muonMinusIndex, "Gen_Dimuon_muonMinusIndex[Gen_Dimuon_size]/S");
-    myTree->Branch("Gen_Dimuon_ptDiffMuons", &Gen_Dimuon_Muons_pTdiff, 32000, 0);
+    myTree->Branch("Gen_Dimuon_muonPtDiff", &Gen_Dimuon_muonPtDiff, 32000, 0);
+    myTree->Branch("Gen_Dimuon_muonPtRelDiff", &Gen_Dimuon_muonPtRelDiff, 32000, 0);
 
 
     myTree->Branch("Gen_Dimuon_whichRec", Gen_Dimuon_whichRec, "Gen_Dimuon_whichRec[Gen_Dimuon_size]/S");

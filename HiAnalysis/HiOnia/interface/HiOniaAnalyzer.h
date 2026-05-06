@@ -164,12 +164,14 @@ private:
   std::vector<float> Reco_Dimuon_4mom_pt;
   std::vector<float> Reco_Dimuon_mumi_4mom_pt;
   std::vector<float> Reco_Dimuon_mupl_4mom_pt;
-  std::vector<float> Reco_Dimuon_Muons_pTdiff;
+  std::vector<float> Reco_Dimuon_muonPtDiff;
+  std::vector<float> Reco_Dimuon_muonPtRelDiff;
 
 
   std::vector<float> Gen_Muon_4mom_pt;
   std::vector<float> Gen_Dimuon_4mom_pt;
-  std::vector<float> Gen_Dimuon_Muons_pTdiff;
+  std::vector<float> Gen_Dimuon_muonPtDiff;
+  std::vector<float> Gen_Dimuon_muonPtRelDiff;
 
   std::vector<float> Reco_Muon_4mom_eta;
   std::vector<float> Reco_Muon_L1_4mom_eta;

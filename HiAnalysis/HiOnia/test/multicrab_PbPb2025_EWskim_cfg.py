@@ -25,7 +25,7 @@ config.JobType.psetName = "dimuonAnalyzer_PbPb2025_Data_cfg.py"
 config.JobType.maxMemoryMB = 2000         # request high memory machines.
 #config.JobType.numCores = 4
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.maxJobRuntimeMin = 300 # max = 2750
+config.JobType.maxJobRuntimeMin = 200 # max = 2750
 
 config.section_("Data")
 config.Data.inputDBS = 'global'
@@ -43,7 +43,7 @@ config.Data.outLFNDirBase = '/store/user/' + username + '/Z/Data/PbPb2025/'
 
 config.section_("Site")
 config.Site.storageSite = "T3_CH_CERNBOX"
-config.Site.whitelist = ["T2_US_Vanderbilt","T2_CH_CERN","T1_US_*"]
+config.Site.whitelist = ["T2_US_Vanderbilt","T2_CH_*","T1_US_*","T1_FR_*","T1_IT_*","T1_DE_*","T2_US_UCSD","T2_DE_DESY","T2_FR_*"]
 
 # Multi crab part
 

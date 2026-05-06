@@ -107,7 +107,8 @@ void HiOniaAnalyzer::fillGenInfo() {
             genMuonPtDiff = genMuon2->pt() - genMuon1->pt();
           }
 
-          Gen_Dimuon_Muons_pTdiff.push_back(genMuonPtDiff);
+          Gen_Dimuon_muonPtDiff.push_back(genMuonPtDiff);
+          Gen_Dimuon_muonPtRelDiff.push_back(genMuonPtDiff / (genMuon1->pt() + genMuon2->pt()));
 
           Gen_Dimuon_size++;
         }
