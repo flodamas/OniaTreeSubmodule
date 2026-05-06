@@ -50,7 +50,6 @@ options = VarParsing.VarParsing ('analysis')
 
 options.inputFiles = [
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/399/710/00000/35e71205-b440-4689-8689-d22475f4835f.root',
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/399/710/00000/9aa7a097-b77f-44e5-943c-50310094cd41.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/400/339/00000/b72d5207-f9e4-4904-af9b-a8b25045a2b4.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime24/MINIAOD/PbPbEW-PromptReco-v1/000/400/357/00000/e14979db-32ec-4842-8972-c3765fc27ceb.root',
   'root://cmsxrootd.fnal.gov//store/hidata/HIRun2025A/HIPhysicsRawPrime40/MINIAOD/PbPbEW-PromptReco-v1/000/399/767/00000/527cf17f-fd7d-40bd-8514-774afe51d260.root',
@@ -141,7 +140,7 @@ process.hionia.checkTrigNames   = cms.bool(False)#change this to get the event-l
 
 process.hionia.useEvtPlane      = cms.untracked.bool(addEventPlane)
 
-process.hionia.addMuonIsolation = cms.bool(True)
+process.hionia.addMuonIsolation = cms.bool(addMuonIsolation)
 
 process.hionia.storeSameSign = cms.bool(True)
 
