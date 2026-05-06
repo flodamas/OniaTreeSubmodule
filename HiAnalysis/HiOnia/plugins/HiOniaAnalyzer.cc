@@ -363,22 +363,13 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
     LorentzVector vMuon = muon->p4();
     Reco_Muon_4mom.emplace_back(vMuon);
     
-    Reco_Muon_4mom_pt.push_back(vMuon.pt());
-    Reco_Muon_4mom_eta.push_back(vMuon.eta());
-    Reco_Muon_4mom_phi.push_back(vMuon.phi());
+    Reco_Muon_4mom_pt.push_back(muon->pt());
+    Reco_Muon_4mom_eta.push_back(muon->eta());
+    Reco_Muon_4mom_phi.push_back(muon->phi());
     Reco_Muon_4mom_m.push_back(vMuon.mass());
-
-    LorentzVector vMuonL1;
-    if (muon->hasUserFloat("l1Eta") && muon->hasUserFloat("l1Phi")) {
-      vMuonL1 = LorentzVector(vMuon.pt(), muon->userFloat("l1Eta"), muon->userFloat("l1Phi"), vMuon.mass());
-    } else {
-      vMuonL1 = LorentzVector(0, 0, 0, 0);
-    }
     
-    Reco_Muon_L1_4mom_pt.push_back(vMuonL1.pt());
-    Reco_Muon_L1_4mom_eta.push_back(vMuonL1.eta());
-    Reco_Muon_L1_4mom_phi.push_back(vMuonL1.phi());
-    Reco_Muon_L1_4mom_m.push_back(vMuonL1.mass());
+    Reco_Muon_L1_4mom_eta.push_back(muon->hasUserFloat("l1Eta") ? muon->userFloat("l1Eta") : -99);
+    Reco_Muon_L1_4mom_phi.push_back(muon->hasUserFloat("l1Phi") ? muon->userFloat("l1Phi") : -99);
 
     //Fill map of the muon indices. Use long int keys, to avoid rounding errors on a float key. Implies a precision of 10^-6
     mapMuonMomToIndex_[FloatToIntkey(vMuon.pt())] = Reco_Muon_size;
@@ -433,9 +424,10 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
         Reco_Muon_dz[Reco_Muon_size] = iTrack->dz(RefVtx);
         Reco_Muon_dzErr[Reco_Muon_size] = iTrack->dzError();
         Reco_Muon_pt_inner[Reco_Muon_size] = iTrack->pt();
-        Reco_Muon_ptErr_inner[Reco_Muon_size] = iTrack->ptError();
+        Reco_Muon_ptErr_inner.push_back(iTrack->ptError());
         Reco_Muon_validFraction[Reco_Muon_size] = iTrack->validFraction();
     } else if (_muonSel != (std::string)("All")) {
+        Reco_Muon_ptErr_inner.push_back(iTrack->ptError());
         std::cout << "ERROR: 'iTrack' pointer in fillTreeMuon is NULL ! Return now" << std::endl;
         return;
     }
@@ -469,14 +461,14 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
   // Isolation variables
   if (_addMuonIsolation){
     
-    Reco_Muon_passesPFIsoLoose.push_back(muon->passed('PFIsoLoose'));
-    Reco_Muon_passesPFIsoMedium.push_back(muon->passed('PFIsoMedium'));
-    Reco_Muon_passesPFIsoTight.push_back(muon->passed('PFIsoTight'));
-    Reco_Muon_passesPFIsoVeryTight.push_back(muon->passed('PFIsoVeryTight'));
+    Reco_Muon_passesPFIsoLoose.push_back(muon->passed(reco::Muon::PFIsoLoose));
+    Reco_Muon_passesPFIsoMedium.push_back(muon->passed(reco::Muon::PFIsoMedium));
+    Reco_Muon_passesPFIsoTight.push_back(muon->passed(reco::Muon::PFIsoTight));
+    Reco_Muon_passesPFIsoVeryTight.push_back(muon->passed(reco::Muon::PFIsoVeryTight));
 
     Reco_Muon_isoTrackSumPt.push_back(muon->isolationR03().sumPt);
 
-    Reco_Muon_passesMultiIsoMedium.push_back(muon->passed('MultiIsoMedium'));
+    Reco_Muon_passesMultiIsoMedium.push_back(muon->passed(reco::Muon::MultiIsoMedium));
 
     Reco_Muon_HIMVAIso.push_back(muon->hasUserFloat("hiMVAIso") ? muon->userFloat("hiMVAIso") : -99);
     for (auto& w : Reco_Muon_HIMVAIsoWPs)
@@ -809,13 +801,13 @@ void HiOniaAnalyzer::InitEvent() {
   
   Reco_Muon_4mom.clear();
   Reco_Muon_4mom_pt.clear();
+  Reco_Muon_ptErr_inner.clear();
+
   Reco_Muon_4mom_eta.clear();
   Reco_Muon_4mom_phi.clear();
   Reco_Muon_4mom_m.clear();
-  Reco_Muon_L1_4mom_pt.clear();
   Reco_Muon_L1_4mom_eta.clear();
   Reco_Muon_L1_4mom_phi.clear();
-  Reco_Muon_L1_4mom_m.clear();
 
 
   if (_isMC) {
@@ -957,7 +949,7 @@ void HiOniaAnalyzer::InitTree() {
   myTree->Branch("nPV", &nPV, "nPV/S");
   if (_isHI || _isPA) {
     myTree->Branch("Centrality", &centBin, "Centrality/I");
-    myTree->Branch("Npix", &Npix, "Npix/S");
+    //myTree->Branch("Npix", &Npix, "Npix/S");
     myTree->Branch("NpixelTracks", &NpixelTracks, "NpixelTracks/S");
   }
 
@@ -1036,19 +1028,19 @@ void HiOniaAnalyzer::InitTree() {
 
 
   myTree->Branch("Reco_Muon_size", &Reco_Muon_size, "Reco_Muon_size/S");
-  myTree->Branch("Reco_Muon_type", Reco_Muon_type, "Reco_Muon_type[Reco_Muon_size]/S");
+  //myTree->Branch("Reco_Muon_type", Reco_Muon_type, "Reco_Muon_type[Reco_Muon_size]/S");
   if (_isMC) {
     myTree->Branch("Reco_Muon_whichGen", Reco_Muon_whichGen, "Reco_Muon_whichGen[Reco_Muon_size]/S");
   }
   //myTree->Branch("Reco_Muon_SelectionType", Reco_Muon_SelectionType, "Reco_Muon_SelectionType[Reco_Muon_size]/I");
   myTree->Branch("Reco_Muon_pt", &Reco_Muon_4mom_pt, 32000, 0);
+  myTree->Branch("Reco_Muon_ptErrTrk", &Reco_Muon_ptErr_inner, 32000, 0);
+
   myTree->Branch("Reco_Muon_eta", &Reco_Muon_4mom_eta, 32000, 0);
   myTree->Branch("Reco_Muon_phi", &Reco_Muon_4mom_phi, 32000, 0);
   myTree->Branch("Reco_Muon_mass", &Reco_Muon_4mom_m, 32000, 0);
-  myTree->Branch("Reco_Muon_ptL1", &Reco_Muon_L1_4mom_pt, 32000, 0);
   myTree->Branch("Reco_Muon_etaL1", &Reco_Muon_L1_4mom_eta, 32000, 0);
   myTree->Branch("Reco_Muon_phiL1", &Reco_Muon_L1_4mom_phi, 32000, 0);
-  //myTree->Branch("Reco_Muon_L1_4mom_m", &Reco_Muon_L1_4mom_m, 32000, 0);
   
   myTree->Branch("Reco_Muon_trig", Reco_Muon_trig, "Reco_Muon_trig[Reco_Muon_size]/l");
 
@@ -1085,31 +1077,30 @@ void HiOniaAnalyzer::InitTree() {
   
   //myTree->Branch("Reco_Muon_InTightAcc", Reco_Muon_InTightAcc, "Reco_Muon_InTightAcc[Reco_Muon_size]/O");
   //myTree->Branch("Reco_Muon_InLooseAcc", Reco_Muon_InLooseAcc, "Reco_Muon_InLooseAcc[Reco_Muon_size]/O");
-  myTree->Branch("Reco_Muon_isHighPurity", Reco_Muon_highPurity, "Reco_Muon_highPurity[Reco_Muon_size]/O");
+  //myTree->Branch("Reco_Muon_isHighPurity", Reco_Muon_highPurity, "Reco_Muon_highPurity[Reco_Muon_size]/O");
   //myTree->Branch("Reco_Muon_TMOneStaTight", Reco_Muon_TMOneStaTight, "Reco_Muon_TMOneStaTight[Reco_Muon_size]/O");
   // myTree->Branch("Reco_Muon_TrkMuArb", Reco_Muon_TrkMuArb,   "Reco_Muon_TrkMuArb[Reco_Muon_size]/O");
 
     //myTree->Branch("Reco_Muon_candType", Reco_Muon_candType, "Reco_Muon_candType[Reco_Muon_size]/S");
-    myTree->Branch("Reco_Muon_nPixValHits", Reco_Muon_nPixValHits, "Reco_Muon_nPixValHits[Reco_Muon_size]/I");
-    myTree->Branch("Reco_Muon_nMuValHits", Reco_Muon_nMuValHits, "Reco_Muon_nMuValHits[Reco_Muon_size]/I");
-    myTree->Branch("Reco_Muon_nTrkHits", Reco_Muon_nTrkHits, "Reco_Muon_nTrkHits[Reco_Muon_size]/I");
+    //myTree->Branch("Reco_Muon_nPixValHits", Reco_Muon_nPixValHits, "Reco_Muon_nPixValHits[Reco_Muon_size]/I");
+    //myTree->Branch("Reco_Muon_nMuValHits", Reco_Muon_nMuValHits, "Reco_Muon_nMuValHits[Reco_Muon_size]/I");
+    //myTree->Branch("Reco_Muon_nTrkHits", Reco_Muon_nTrkHits, "Reco_Muon_nTrkHits[Reco_Muon_size]/I");
     //myTree->Branch("Reco_Muon_segmentComp", Reco_Muon_segmentComp, "Reco_Muon_segmentComp[Reco_Muon_size]/F");
     //myTree->Branch("Reco_Muon_kink", Reco_Muon_kink, "Reco_Muon_kink[Reco_Muon_size]/F");
     //myTree->Branch("Reco_Muon_localChi2", Reco_Muon_localChi2, "Reco_Muon_localChi2[Reco_Muon_size]/F");
     //myTree->Branch("Reco_Muon_validFraction", Reco_Muon_validFraction, "Reco_Muon_validFraction[Reco_Muon_size]/F");
-  myTree->Branch("Reco_Muon_normChi2_bestTracker", Reco_Muon_normChi2_bestTracker, "Reco_Muon_normChi2_bestTracker[Reco_Muon_size]/F");
-  myTree->Branch("Reco_Muon_normChi2_inner", Reco_Muon_normChi2_inner, "Reco_Muon_normChi2_inner[Reco_Muon_size]/F");
+  //myTree->Branch("Reco_Muon_normChi2_bestTracker", Reco_Muon_normChi2_bestTracker, "Reco_Muon_normChi2_bestTracker[Reco_Muon_size]/F");
+  //myTree->Branch("Reco_Muon_normChi2_inner", Reco_Muon_normChi2_inner, "Reco_Muon_normChi2_inner[Reco_Muon_size]/F");
     //myTree->Branch("Reco_Muon_normChi2_global", Reco_Muon_normChi2_global, "Reco_Muon_normChi2_global[Reco_Muon_size]/F");
-  myTree->Branch("Reco_Muon_nPixWMea", Reco_Muon_nPixWMea, "Reco_Muon_nPixWMea[Reco_Muon_size]/I");
-  myTree->Branch("Reco_Muon_nTrkWMea", Reco_Muon_nTrkWMea, "Reco_Muon_nTrkWMea[Reco_Muon_size]/I");
-  myTree->Branch("Reco_Muon_nStationsMatched", Reco_Muon_nStationsMatched, "Reco_Muon_nStationsMatched[Reco_Muon_size]/I");
+  //myTree->Branch("Reco_Muon_nPixWMea", Reco_Muon_nPixWMea, "Reco_Muon_nPixWMea[Reco_Muon_size]/I");
+  //myTree->Branch("Reco_Muon_nTrkWMea", Reco_Muon_nTrkWMea, "Reco_Muon_nTrkWMea[Reco_Muon_size]/I");
+  //myTree->Branch("Reco_Muon_nStationsMatched", Reco_Muon_nStationsMatched, "Reco_Muon_nStationsMatched[Reco_Muon_size]/I");
     //myTree->Branch("Reco_Muon_dxy", Reco_Muon_dxy, "Reco_Muon_dxy[Reco_Muon_size]/F");
     //myTree->Branch("Reco_Muon_dxyErr", Reco_Muon_dxyErr, "Reco_Muon_dxyErr[Reco_Muon_size]/F");
     //myTree->Branch("Reco_Muon_dz", Reco_Muon_dz, "Reco_Muon_dz[Reco_Muon_size]/F");
     //myTree->Branch("Reco_Muon_dzErr", Reco_Muon_dzErr, "Reco_Muon_dzErr[Reco_Muon_size]/F");
     // myTree->Branch("Reco_Muon_pt_inner",Reco_Muon_pt_inner, "Reco_Muon_pt_inner[Reco_Muon_size]/F");
     // myTree->Branch("Reco_Muon_pt_global",Reco_Muon_pt_global, "Reco_Muon_pt_global[Reco_Muon_size]/F");
-  myTree->Branch("Reco_Muon_ptErr_inner", Reco_Muon_ptErr_inner, "Reco_Muon_ptErr_inner[Reco_Muon_size]/F");
     // myTree->Branch("Reco_Muon_ptErr_global",Reco_Muon_ptErr_global, "Reco_Muon_ptErr_global[Reco_Muon_size]/F");
   
 

@@ -160,7 +160,7 @@ private:
 
   
   std::vector<float> Reco_Muon_4mom_pt;
-  std::vector<float> Reco_Muon_L1_4mom_pt;
+  std::vector<float> Reco_Muon_ptErr_inner;
   std::vector<float> Reco_Dimuon_4mom_pt;
   std::vector<float> Reco_Dimuon_mumi_4mom_pt;
   std::vector<float> Reco_Dimuon_mupl_4mom_pt;
@@ -320,7 +320,6 @@ private:
   float Reco_Muon_dzErr[NMaxMuons];            // dz error for inner track muons
   float Reco_Muon_pt_inner[NMaxMuons];         // pT for inner track muons
   float Reco_Muon_pt_global[NMaxMuons];        // pT for global muons
-  float Reco_Muon_ptErr_inner[NMaxMuons];      // pT error for inner track muons
   float Reco_Muon_ptErr_global[NMaxMuons];     // pT error for global muons
   float Reco_Muon_pTrue[NMaxMuons];  // P of the associated generated muon, used to match the Reco_Muon with the Gen_Muon
   float Reco_Muon_validFraction[NMaxMuons];
