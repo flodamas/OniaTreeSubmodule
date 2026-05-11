@@ -51,7 +51,8 @@ options.secondaryOutputFile = "Jpsi_DataSet.root"
 
 options.inputFiles =[
   '/store/data/Run2024J/PPRefSingleMuon3/MINIAOD/PromptReco-v1/000/387/721/00000/f067bcfd-94c5-455e-913d-7f9aa4c854fa.root',
-  '/store/data/Run2024J/PPRefSingleMuon3/MINIAOD/PromptReco-v1/000/387/574/00000/04d444bf-e732-4caf-ba51-90d171628622.root'
+  '/store/data/Run2024J/PPRefSingleMuon3/MINIAOD/PromptReco-v1/000/387/574/00000/04d444bf-e732-4caf-ba51-90d171628622.root',
+  '/store/data/Run2024J/PPRefSingleMuon1/MINIAOD/PromptReco-v1/000/387/528/00000/73922167-311c-498e-b1bd-6fcb4bcb52e6.root'
 ]
 options.maxEvents = -1 # -1 means all events
 
@@ -73,7 +74,6 @@ triggerList    = {
             "HLT_PPRefL1SingleMu12_v",
             "HLT_PPRefL2SingleMu7_v",
             "HLT_PPRefL2SingleMu12_v",
-            "HLT_PPRefL2SingleMu15_v",
 			)
                 }
 
@@ -101,11 +101,11 @@ oniaTreeAnalyzer(process,
                  muonSelection=muonSelection, L1Stage=2, isMC=isMC, pdgID=pdgId, outputFileName=options.outputFile
 )
 
-process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.4 &&  abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 20")
+process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.3 &&  abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 20")
 process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.4 && isGlobalMuon")
 #process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("") ## No need to repeat lowerPuritySelection in there, already included
 if applyCuts:
-  process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.001")
+  process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.0001")
 
 #process.hionia.muonLessPV       = cms.bool(False)
 process.hionia.SumETvariables   = cms.bool(SumETvariables)
@@ -157,7 +157,7 @@ if applyEventSel:
                                         minNumber = cms.uint32(1)
                                         )
     
-    process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.primaryVertexFilter *  process.patMuonSequence )
+    process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.hltHI * process.primaryVertexFilter *  process.patMuonSequence )
 
 if atLeastOneCand:
   process.oniaTreeAna.replace(process.onia2MuMuPatGlbGlb, process.onia2MuMuPatGlbGlb * process.onia2MuMuPatGlbGlbFilter)
@@ -185,6 +185,6 @@ process.TFileService = cms.Service("TFileService",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.options   = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-process.options.numberOfThreads = 2
+process.options.numberOfThreads = 4
 
 process.schedule  = cms.Schedule( process.oniaTreeAna )
