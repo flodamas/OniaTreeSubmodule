@@ -18,7 +18,7 @@ miniAOD        = True # whether the input file is in miniAOD format (default is 
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
 pdgId = 443 # J/Psi : 443, Y(1S) : 553
 
-addEventPlane = False
+addEventPlane = True
 
 addMuonIsolation = True
 #----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ oniaTreeAnalyzer(process,
 )
 
 process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.4 && abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 20")
-process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.4 && isGlobalMuon")
+process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.41 && isGlobalMuon")
 
 if applyCuts:
   process.onia2MuMuPatGlbGlb.LateDimuonSel = cms.string("userFloat(\"vProb\")>0.001")
@@ -153,7 +153,7 @@ if applyEventSel:
 
   # Muon filtering
 
-  MUONCUT = "isGlobalMuon && pt > 10.0 && abs(eta) < 2.4"
+  MUONCUT = "isGlobalMuon && pt > 10.0 && abs(eta) < 2.42"
   
   process.muonSelector = cms.EDFilter("PATMuonRefSelector",
                                         src = cms.InputTag("slimmedMuons"),
@@ -169,7 +169,7 @@ if applyEventSel:
 
   process.dimuonSelection = cms.EDProducer("CandViewShallowCloneCombiner",
                                     checkCharge = cms.bool(False),
-                                    cut = cms.string("mass > 2.0"),
+                                    cut = cms.string("mass > 2.1"),
                                     decay = cms.string("muonSelector muonSelector")
                                     )
 

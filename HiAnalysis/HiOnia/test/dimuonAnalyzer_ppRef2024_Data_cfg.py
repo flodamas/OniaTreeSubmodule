@@ -102,7 +102,7 @@ oniaTreeAnalyzer(process,
 )
 
 process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.3 &&  abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 20")
-process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.4 && isGlobalMuon")
+process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.41 && isGlobalMuon")
 #process.onia2MuMuPatGlbGlb.higherPuritySelection = cms.string("") ## No need to repeat lowerPuritySelection in there, already included
 if applyCuts:
   process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.0001")
@@ -131,7 +131,7 @@ if applyEventSel:
     process.hltHI.andOr = True
 
     # Muon filtering
-    MUONCUT = "isGlobalMuon && pt > 10.0 && abs(eta) < 2.4"
+    MUONCUT = "isGlobalMuon && pt > 10.0 && abs(eta) < 2.42"
   
     process.muonSelector = cms.EDFilter("PATMuonRefSelector",
                                         src = cms.InputTag("slimmedMuons"),
@@ -157,7 +157,7 @@ if applyEventSel:
                                         minNumber = cms.uint32(1)
                                         )
     
-    process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.hltHI * process.primaryVertexFilter *  process.patMuonSequence )
+    process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.hltHI * process.primaryVertexFilter *  process.patMuonSequence )
 
 if atLeastOneCand:
   process.oniaTreeAna.replace(process.onia2MuMuPatGlbGlb, process.onia2MuMuPatGlbGlb * process.onia2MuMuPatGlbGlbFilter)

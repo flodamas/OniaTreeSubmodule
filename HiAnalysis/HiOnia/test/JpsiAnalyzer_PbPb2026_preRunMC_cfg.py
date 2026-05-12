@@ -7,9 +7,9 @@ from Configuration.StandardSequences.Eras import eras
 globalTag = '151X_mcRun3_2025_realistic_HI_v5'
 
 isMC           = True # if input is MONTECARLO: True or if it's DATA: False
-muonSelection  = "All" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk
+muonSelection  = "Glb" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk
 applyEventSel  = True # Only apply Event Selection if the required collections are present
-applyCuts      = False # At HiAnalysis level, apply kinematic acceptance cuts + identification cuts (isSoftMuon (without highPurity) or isTightMuon, depending on TightGlobalMuon flag) for muons from selected di(tri)muons + hard-coded cuts on the di(tri)muon that you would want to add (but recommended to add everything in LateDimuonSelection, applied at the end of HiSkim)
+applyCuts      = True # At HiAnalysis level, apply kinematic acceptance cuts + identification cuts (isSoftMuon (without highPurity) or isTightMuon, depending on TightGlobalMuon flag) for muons from selected di(tri)muons + hard-coded cuts on the di(tri)muon that you would want to add (but recommended to add everything in LateDimuonSelection, applied at the end of HiSkim)
 SumETvariables = True  # Whether to write out SumET-related variables
 atLeastOneCand = False # Keep only events that have one selected dimuon. BEWARE this can cause trouble in .root output if no event is selected by onia2MuMuPatGlbGlbFilter!
 OneMatchedHLTMu = -1   # Keep only dimuons of which the one(two) muon(s) are matched to the HLT Filter of this number. You can get the desired number in the output of oniaTree. Set to -1 for no matching.
@@ -107,7 +107,7 @@ oniaTreeAnalyzer(process,
 process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 1.0")
 
 if applyCuts:
-  process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.01")
+  process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.001")
 
 process.hionia.CentralitySrc    = cms.InputTag("hiCentrality")
 process.hionia.CentralityBinSrc = cms.InputTag("centralityBin","HFtowers")

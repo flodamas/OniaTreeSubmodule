@@ -109,8 +109,8 @@ oniaTreeAnalyzer(process,
 )
 
 process.onia2MuMuPatGlbGlb.dimuonMassHypothesis  = cms.double(91.19)
-process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 20")
-process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.")
+process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 30")
+process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 5.")
 
 if applyCuts:
   process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.01")

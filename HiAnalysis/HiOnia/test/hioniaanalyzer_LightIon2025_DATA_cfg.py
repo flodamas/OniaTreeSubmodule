@@ -16,8 +16,6 @@ SofterSgMuAcceptance = False # Whether to accept muons with a softer acceptance 
 atLeastOneCand = False # Keep only events that have one selected dimuon (or at least one trimuon if doTrimuons = true). BEWARE this can cause trouble in .root output if no event is selected by onia2MuMuPatGlbGlbFilter!
 OneMatchedHLTMu = 3   # Keep only di(tri)muons of which the one(two) muon(s) are matched to the HLT Filter of this number. You can get the desired number in the output of oniaTree. Set to -1 for no matching.
 #############################################################################
-keepExtraColl  = False # General Tracks + Stand Alone Muons + Converted Photon collections
-miniAOD        = True # whether the input file is in miniAOD format (default is AOD)
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
 pdgId = 443 # J/Psi : 443, Y(1S) : 553
 #----------------------------------------------------------------------------
@@ -30,12 +28,10 @@ print( "[INFO] applyEventSel        = " + ("True" if applyEventSel else "False")
 print( "[INFO] applyCuts            = " + ("True" if applyCuts else "False") )
 print( "[INFO] keepExtraColl        = " + ("True" if keepExtraColl else "False") )
 print( "[INFO] SumETvariables       = " + ("True" if SumETvariables else "False") )
-print( "[INFO] SofterSgMuAcceptance = " + ("True" if SofterSgMuAcceptance else "False") )
 print( "[INFO] muonSelection        = " + muonSelection )
 print( "[INFO] onlySoftMuons        = " + ("True" if OnlySoftMuons else "False") )
 print( "[INFO] atLeastOneCand       = " + ("True" if atLeastOneCand else "False") )
 print( "[INFO] OneMatchedHLTMu      = " + ("True" if OneMatchedHLTMu > -1 else "False") )
-print( "[INFO] miniAOD              = " + ("True" if miniAOD else "False") )
 print( "[INFO] UsePropToMuonSt      = " + ("True" if UsePropToMuonSt else "False") )
 print( " " )
 
@@ -75,7 +71,6 @@ triggerList    = {
                         "HLT_MinimumBiasHF_OR_BptxAND_v", #9
                         "HLT_MinimumBiasHF_AND_BptxAND_v", #10
                         "HLT_MinimumBiasZDC1n_OR_BptxAND_v", #11
-                        "HLT_MinimumBiasZDC1n_OR_MinimumBiasHF_AND_BptxAND_v" #12
                         )
 }
 
@@ -116,7 +111,6 @@ if applyCuts:
   process.onia2MuMuPatGlbGlb.LateDimuonSel = cms.string("userFloat(\"vProb\")>0.001")
 #process.hionia.CentralitySrc    = cms.InputTag("hiCentrality")
 #process.hionia.CentralityBinSrc = cms.InputTag("centralityBin","HFtowers")
-process.hionia.SofterSgMuAcceptance = cms.bool(SofterSgMuAcceptance)
 process.hionia.SumETvariables   = cms.bool(SumETvariables)
 process.hionia.applyCuts        = cms.bool(applyCuts)
 process.hionia.AtLeastOneCand   = cms.bool(atLeastOneCand)

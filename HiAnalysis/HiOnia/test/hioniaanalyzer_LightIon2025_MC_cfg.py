@@ -14,12 +14,9 @@ OnlySoftMuons  = False # Keep only isSoftMuon's (without highPurity, and without
 applyCuts      = False # At HiAnalysis level, apply kinematic acceptance cuts + identification cuts (isSoftMuon (without highPurity) or isTightMuon, depending on TightGlobalMuon flag) for muons from selected di(tri)muons + hard-coded cuts on the di(tri)muon that you would want to add (but recommended to add everything in LateDimuonSelection, applied at the end of HiSkim)
 SumETvariables = True  # Whether to write out SumET-related variables
 SofterSgMuAcceptance = False # Whether to accept muons with a softer acceptance cuts than the usual (pt>3.5GeV at central eta, pt>1.5 at high |eta|). Applies when applyCuts=True
-doTrimuons     = False # Make collections of trimuon candidates in addition to dimuons, and keep only events with >0 trimuons (if atLeastOneCand)
-doDimuonTrk    = False # Make collections of Jpsi+track candidates in addition to dimuons
 atLeastOneCand = False # Keep only events that have one selected dimuon (or at least one trimuon if doTrimuons = true). BEWARE this can cause trouble in .root output if no event is selected by onia2MuMuPatGlbGlbFilter!
 OneMatchedHLTMu = -1   # Keep only di(tri)muons of which the one(two) muon(s) are matched to the HLT Filter of this number. You can get the desired number in the output of oniaTree. Set to -1 for no matching.
 #############################################################################
-keepExtraColl  = False # General Tracks + Stand Alone Muons + Converted Photon collections
 miniAOD        = True # whether the input file is in miniAOD format (default is AOD)
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
 pdgId = 443 # J/Psi : 443, Y(1S) : 553
@@ -31,16 +28,11 @@ print( "[INFO] Settings used for ONIA TREE: " )
 print( "[INFO] isMC                 = " + ("True" if isMC else "False") )
 print( "[INFO] applyEventSel        = " + ("True" if applyEventSel else "False") )
 print( "[INFO] applyCuts            = " + ("True" if applyCuts else "False") )
-print( "[INFO] keepExtraColl        = " + ("True" if keepExtraColl else "False") )
 print( "[INFO] SumETvariables       = " + ("True" if SumETvariables else "False") )
 print( "[INFO] SofterSgMuAcceptance = " + ("True" if SofterSgMuAcceptance else "False") )
 print( "[INFO] muonSelection        = " + muonSelection )
-print( "[INFO] onlySoftMuons        = " + ("True" if OnlySoftMuons else "False") )
-print( "[INFO] doTrimuons           = " + ("True" if doTrimuons else "False") )
-print( "[INFO] doDimuonTrk          = " + ("True" if doDimuonTrk else "False") )
 print( "[INFO] atLeastOneCand       = " + ("True" if atLeastOneCand else "False") )
 print( "[INFO] OneMatchedHLTMu      = " + ("True" if OneMatchedHLTMu > -1 else "False") )
-print( "[INFO] miniAOD              = " + ("True" if miniAOD else "False") )
 print( "[INFO] UsePropToMuonSt      = " + ("True" if UsePropToMuonSt else "False") )
 print( " " )
 
@@ -79,7 +71,6 @@ triggerList    = {
                         "HLT_MinimumBiasHF_OR_BptxAND_v", #9
                         "HLT_MinimumBiasHF_AND_BptxAND_v", #10
                         "HLT_MinimumBiasZDC1n_OR_BptxAND_v", #11
-                        "HLT_MinimumBiasZDC1n_OR_MinimumBiasHF_AND_BptxAND_v" #12
                         )
 }
 
@@ -119,9 +110,6 @@ oniaTreeAnalyzer(process,
 if applyCuts:
   process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.01")
 process.onia2MuMuPatGlbGlb.onlySoftMuons         = cms.bool(OnlySoftMuons)
-process.hionia.minimumFlag      = cms.bool(keepExtraColl)           #for Reco_trk_*
-process.hionia.useGeTracks      = cms.untracked.bool(keepExtraColl) #for Reco_trk_*
-process.hionia.fillRecoTracks   = cms.bool(keepExtraColl)           #for Reco_trk_*
 #process.hionia.CentralitySrc    = cms.InputTag("hiCentrality")
 #process.hionia.CentralityBinSrc = cms.InputTag("centralityBin","HFtowers")
 #process.hionia.muonLessPV       = cms.bool(False)

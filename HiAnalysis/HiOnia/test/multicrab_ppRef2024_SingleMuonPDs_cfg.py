@@ -16,7 +16,7 @@ config.General.transferLogs = False
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "dimuonAnalyzer_ppRef2024_Data_cfg.py"
-config.JobType.maxMemoryMB = 6000         # request high memory machines.
+config.JobType.maxMemoryMB = 4000         # request high memory machines.
 config.JobType.numCores = 4 # must match the number of threads enabled in the hioniaanalyzer config file!
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
 config.JobType.maxJobRuntimeMin = 1000 # max = 2750
@@ -25,7 +25,7 @@ config.section_("Data")
 config.Data.inputDBS = 'global'
 #config.Data.totalUnits = -1
 config.Data.splitting = "EventAwareLumiBased"
-config.Data.unitsPerJob = 50000000
+config.Data.unitsPerJob = 40000000
 
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
@@ -35,6 +35,7 @@ config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/
 config.section_("Site")
 config.Site.storageSite = "T3_CH_CERNBOX"
 #config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
+config.Site.blacklist = ["T2_US_Florida", "T2_CH_CSCS"]
 
 # Multi crab part
 

@@ -871,20 +871,6 @@ void HiOniaAnalyzer::InitEvent() {
 
 
 void HiOniaAnalyzer::fillRecoMuons(int iCent) {
-  int nGoodMuons = 0;
-  int nGoodMuonsNoTrig = 0;
-
-  if (collMuonNoTrig.isValid()) {
-    for (std::vector<pat::Muon>::const_iterator it = collMuonNoTrig->begin(); it != collMuonNoTrig->end(); ++it) {
-      const pat::Muon* muon = &(*it);
-      if (muon == nullptr) {
-        std::cout << "ERROR: 'muon' pointer in fillRecoMuons is NULL ! Return now" << std::endl;
-        return;
-      }
-      if (selGlobalMuon(muon))
-        nGoodMuonsNoTrig++;
-    }
-  }
 
   if (collMuon.isValid()) {
     for (vector<pat::Muon>::const_iterator it = collMuon->begin(); it != collMuon->end(); ++it) {
@@ -911,11 +897,8 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
       if (_muonSel == (std::string)("All"))
         muType = All;
 
-      if (muType == GlbOrTrk || muType == GlbTrk || muType == Trk || muType == Glb || muType == Tight || muType == All) {
-        nGoodMuons++;
-
-        ULong64_t trigBits = 0;
-        for (unsigned int iTr = 1; iTr < NTRIGGERS; ++iTr) {
+      ULong64_t trigBits = 0;
+      for (unsigned int iTr = 1; iTr < NTRIGGERS; ++iTr) {
           const pat::TriggerObjectStandAloneCollection muHLTMatchesFilter =
               muon->triggerObjectMatchesByFilter(filterNameMap.at(theTriggerNames[iTr]));
 
@@ -932,9 +915,6 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
       }
     }
   }
-
-  hGoodMuonsNoTrig->Fill(nGoodMuonsNoTrig);
-  hGoodMuons->Fill(nGoodMuons);
 
   return;
 };
@@ -1163,11 +1143,6 @@ void HiOniaAnalyzer::beginJob() {
   InitTree();
 
   // book histos
-  hGoodMuonsNoTrig = fs->make<TH1F>("hGoodMuonsNoTrig", "hGoodMuonsNoTrig", 10, 0, 10);
-  hGoodMuons = fs->make<TH1F>("hGoodMuons", "hGoodMuons", 10, 0, 10);
-
-  hGoodMuonsNoTrig->Sumw2();
-  hGoodMuons->Sumw2();
 
   hStats = fs->make<TH1F>("hStats", "hStats;;Number of Events", 2 * NTRIGGERS + 1, 0, 2 * NTRIGGERS + 1);
   hStats->GetXaxis()->SetBinLabel(1, "All");

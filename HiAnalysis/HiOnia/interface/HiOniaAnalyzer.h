@@ -330,8 +330,6 @@ private:
   Short_t muType;  // type of muon (GlbTrk=0, Trk=1, Glb=2, none=-1)
 
   // histos
-  TH1F* hGoodMuonsNoTrig = nullptr;
-  TH1F* hGoodMuons = nullptr;
 
   // event counters
   TH1F* hStats = nullptr;

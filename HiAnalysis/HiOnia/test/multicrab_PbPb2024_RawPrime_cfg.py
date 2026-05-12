@@ -16,16 +16,16 @@ config.General.transferLogs = False
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "dimuonAnalyzer_PbPb2024_Data_cfg.py"
-config.JobType.maxMemoryMB = 2400         # request high memory machines.
+config.JobType.maxMemoryMB = 2000         # request high memory machines.
 #config.JobType.numCores = 4
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
-#config.JobType.maxJobRuntimeMin = 2000 # max = 2750
+config.JobType.maxJobRuntimeMin = 1000 # max = 2750
 
 config.section_("Data")
 config.Data.inputDBS = 'global'
 #config.Data.totalUnits = -1
 config.Data.splitting = "EventAwareLumiBased"
-config.Data.unitsPerJob = 4000000
+config.Data.unitsPerJob = 5000000
 
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
@@ -35,7 +35,8 @@ config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/
 
 config.section_("Site")
 config.Site.storageSite = "T3_CH_CERNBOX"
-config.Site.whitelist = ["T2_US_Vanderbilt", "T2_CH_*", "T2_DE_*", "T1_FR_*"]
+#config.Site.whitelist = ["T2_US_Vanderbilt", "T2_CH_CERN", "T2_DE_*", "T1_FR_*"]
+config.Site.blacklist = ["T2_US_Florida", "T2_CH_CSCS"]
 
 # Multi crab part
 
@@ -48,7 +49,7 @@ def submit(config):
         print("Failed submitting task: %s" % (cle))
 
 # Submit the jobs: 60 HIRawPrime PDs, ~140k files each, average of 100k events/file
-config.Data.outLFNDirBase = '/store/user/fdamas/PbPb2024/'
+config.Data.outLFNDirBase = '/store/user/fdamas/Z/Data/PbPb2024/'
 
 
 ### First, HIRun2024A
