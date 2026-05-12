@@ -899,20 +899,20 @@ void HiOniaAnalyzer::fillRecoMuons(int iCent) {
 
       ULong64_t trigBits = 0;
       for (unsigned int iTr = 1; iTr < NTRIGGERS; ++iTr) {
-          const pat::TriggerObjectStandAloneCollection muHLTMatchesFilter =
+        const pat::TriggerObjectStandAloneCollection muHLTMatchesFilter =
               muon->triggerObjectMatchesByFilter(filterNameMap.at(theTriggerNames[iTr]));
 
-          // apparently matching by path gives false positives so we use matching by filter for all triggers for which we know the filter name
-          if (!muHLTMatchesFilter.empty()) {
-            std::string theLabel = theTriggerNames.at(iTr) + "_" + theCentralities.at(iCent);
+        // apparently matching by path gives false positives so we use matching by filter for all triggers for which we know the filter name
+        if (!muHLTMatchesFilter.empty()) {
+          std::string theLabel = theTriggerNames.at(iTr) + "_" + theCentralities.at(iCent);
 
-            trigBits += pow(2, iTr - 1);
+          trigBits += pow(2, iTr - 1);
             
-          }
         }
-        if (_fillTree)
-          this->fillTreeMuon(muon, muType, trigBits);
       }
+      if (_fillTree)
+        this->fillTreeMuon(muon, muType, trigBits);
+      
     }
   }
 
