@@ -4,7 +4,7 @@ from Configuration.StandardSequences.Eras import eras
 
 #----------------------------------------------------------------------------
 
-globalTag = '141X_dataRun3_Prompt_v3'
+globalTag = '161X_dataRun3_Prompt_v1'
 
 isMC           = False # if input is MONTECARLO: True or if it's DATA: False
 muonSelection  = "Glb" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, Tight are available
@@ -16,9 +16,9 @@ OneMatchedHLTMu = -1   # Keep only di(tri)muons of which the one(two) muon(s) ar
 #############################################################################
 miniAOD        = True # whether the input file is in miniAOD format (default is AOD)
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
-pdgId = 443 # J/Psi : 443, Y(1S) : 553
+pdgId = 23 # J/Psi : 443, Y(1S) : 553
 
-addEventPlane = True
+addEventPlane = False
 
 addMuonIsolation = True
 #----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ print( "[INFO] addEventPlane        = " + ("True" if addEventPlane else "False")
 print( " " )
 
 # set up process
-process = cms.Process("HIOnia", eras.Run3_pp_on_PbPb_2024)
+process = cms.Process("HIOnia", eras.Run3_pp_on_PbPb_2026)
 
 # setup 'analysis'  options
 options = VarParsing.VarParsing ('analysis')
@@ -49,14 +49,13 @@ options = VarParsing.VarParsing ('analysis')
 # Input and Output File Name
 
 options.inputFiles = [
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/1dda444c-9316-4096-bdc4-42f25d54b4fa.root',
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime0/MINIAOD/PromptReco-v2/000/388/468/00000/31d04fe3-5590-4c70-8f9c-c6a6d71d8484.root',
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime2/MINIAOD/PromptReco-v2/000/388/468/00000/f3eccc31-3237-4db2-a0af-f9adeab67001.root',
-  'root://cmsxrootd.fnal.gov//store/hidata/HIRun2024B/HIPhysicsRawPrime2/MINIAOD/PromptReco-v2/000/388/468/00000/472dc37a-3323-4f81-a688-43289d168c8d.root',
-
+  '/store/hidata/HIRun2026A/HIPhysicsRawPrime13/MINIAOD/PbPbEW-PromptReco-v1/000/404/436/00000/1e70ec90-bd40-427d-a426-630af411f7d1.root',
+  '/store/hidata/HIRun2026A/HIPhysicsRawPrime13/MINIAOD/PbPbEW-PromptReco-v1/000/404/395/00000/569428af-561c-4469-8194-5fd4fe949b8c.root',
+  '/store/hidata/HIRun2026A/HIPhysicsRawPrime13/MINIAOD/PbPbEW-PromptReco-v1/000/404/359/00000/23e7867e-7636-469a-abd5-e1d46be8792b.root',
+  '/store/hidata/HIRun2026A/HIPhysicsRawPrime53/MINIAOD/PbPbEW-PromptReco-v1/000/404/436/00000/0af160ff-d974-4f74-8642-9e039300f0aa.root'
 ]
 
-options.outputFile = 'DimuonTree_HighPtMuons_PbPb2024_Data.root'
+options.outputFile = 'DimuonTree_HighPtMuons_PbPb2026_Data.root'
 options.secondaryOutputFile = "Jpsi_Dataset.root"
 
 options.maxEvents = -1 # -1 means all events
@@ -118,7 +117,7 @@ oniaTreeAnalyzer(process,
                  muonSelection=muonSelection, L1Stage=2, isMC=isMC, pdgID=pdgId, outputFileName=options.outputFile
 )
 
-process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.2 && abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 20")
+process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.4 && abs(daughter('muon1').innerTrack.dz - daughter('muon2').innerTrack.dz) < 20")
 process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.41 && isGlobalMuon")
 
 if applyCuts:
@@ -169,7 +168,7 @@ if applyEventSel:
 
   process.dimuonSelection = cms.EDProducer("CandViewShallowCloneCombiner",
                                     checkCharge = cms.bool(False),
-                                    cut = cms.string("mass > 2.1"),
+                                    cut = cms.string("mass > 2.0"),
                                     decay = cms.string("muonSelector muonSelector")
                                     )
 
@@ -178,7 +177,7 @@ if applyEventSel:
                                         minNumber = cms.uint32(1)
                                         )
   
-  process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.phfCoincFilterPF2Th4 * process.primaryVertexFilter * process.hltHI * process.patMuonSequence )
+  process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.phfCoincFilterPF2Th4 * process.primaryVertexFilter * process.hltHI * process.patMuonSequence )
 
 # needed for muon isolation
 process.oniaTreeAna.replace(process.patMuonSequence, process.centralityBin * process.patMuonSequence )

@@ -1,0 +1,68 @@
+from CRABAPI.RawCommand import crabCommand
+from CRABClient.ClientExceptions import ClientException
+from http.client import HTTPException
+
+# We want to put all the CRAB project directories from the tasks we submit here into one common directory.
+# That's why we need to set this parameter (here or above in the configuration file, it does not matter, we will not overwrite it).
+from CRABClient.UserUtilities import config
+config = config()
+
+from CRABClient.UserUtilities import getUsername
+username = getUsername()
+
+##########################
+
+
+config.section_("General")
+config.General.workArea = 'crab_projects'
+config.General.transferOutputs = True
+config.General.transferLogs = False
+
+config.section_("JobType")
+config.JobType.pluginName = "Analysis"
+config.JobType.psetName = "dimuonAnalyzer_PbPb2026_Data_cfg.py"
+
+config.JobType.maxMemoryMB = 2000         # request high memory machines.
+#config.JobType.numCores = 4
+config.JobType.allowUndistributedCMSSW = True
+config.JobType.maxJobRuntimeMin = 200 # max = 2750
+
+config.section_("Data")
+config.Data.inputDBS = 'global'
+#config.Data.totalUnits = -1
+config.Data.splitting = "EventAwareLumiBased"
+config.Data.unitsPerJob = 5000000
+
+config.Data.allowNonValidInputDataset = True
+config.Data.publication = False
+config.Data.runRange = '404423-404511'
+config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions26HI/DCSOnly_JSONS/dailyDCSOnlyJSON/Collisions26HI_5p36TeV_404337_404529_DCSOnly_TkPx.json'
+
+config.Data.outLFNDirBase = '/store/user/' + username + '/Z/Data/PbPb2026/'
+
+
+config.section_("Site")
+config.Site.storageSite = "T3_CH_CERNBOX"
+config.Site.whitelist = ["T2_CH_CERN","T1_US_*","T1_FR_*","T1_IT_*","T1_DE_*","T2_US_UCSD","T2_DE_*","T2_FR_*","T0_CH_CERN"]
+config.Site.blacklist = ["T2_US_Florida", "T2_CH_CSCS"]
+
+# Multi crab part
+
+def submit(config):
+    try:
+        crabCommand('submit', config = config, dryrun=False)
+    except HTTPException as hte:
+        print("Failed submitting task: %s" % (hte.headers))
+    except ClientException as cle:
+        print("Failed submitting task: %s" % (cle))
+
+# Submit the jobs: 60 PDs
+
+for i in range(60):
+
+    config.General.requestName = f'RawPrime{i}'
+    config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2026A-PbPbEW-PromptReco-v1/MINIAOD"
+    config.Data.outputDatasetTag = config.General.requestName
+
+    print("Submitting CRAB job for: "+ config.Data.inputDataset)
+    submit(config)
