@@ -4,7 +4,7 @@ from Configuration.StandardSequences.Eras import eras
 
 #----------------------------------------------------------------------------
 
-globalTag = '132X_dataRun3_Prompt_v7'
+globalTag = '132X_dataRun3_Prompt_v4'
 
 isMC           = False # if input is MONTECARLO: True or if it's DATA: False
 muonSelection  = "Glb" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk, Tight are available
@@ -16,7 +16,7 @@ OneMatchedHLTMu = -1   # Keep only di(tri)muons of which the one(two) muon(s) ar
 #############################################################################
 miniAOD        = True # whether the input file is in miniAOD format (default is AOD)
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
-pdgId = 443 # J/Psi : 443, Y(1S) : 553
+pdgId = 23 # J/Psi : 443, Y(1S) : 553
 
 addEventPlane = True
 

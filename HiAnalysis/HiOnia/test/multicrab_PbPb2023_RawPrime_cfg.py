@@ -14,17 +14,17 @@ config.General.transferLogs = False
 
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
-config.JobType.psetName = "dimuonAnalyzer_PbPb2023_Data.py"
+config.JobType.psetName = "dimuonAnalyzer_PbPb2023_Data_cfg.py"
 config.JobType.maxMemoryMB = 2000         # request high memory machines.
 #config.JobType.numCores = 4
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
-config.JobType.maxJobRuntimeMin = 2000 # max = 2750
+config.JobType.maxJobRuntimeMin = 600 # max = 2750
 
 config.section_("Data")
 config.Data.inputDBS = 'global'
 #config.Data.totalUnits = -1
-config.Data.splitting = "FileBased"
-config.Data.unitsPerJob = 200
+config.Data.splitting = "EventAwareLumiBased"
+config.Data.unitsPerJob = 10000000
 
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
@@ -34,7 +34,7 @@ config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/
 
 config.section_("Site")
 config.Site.storageSite = "T2_CH_CERN"
-config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
+#config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
 
 # Multi crab part
 
@@ -52,7 +52,7 @@ config.Data.outLFNDirBase = '/store/group/phys_heavyions/fdamas/DimuonAnalyses/D
 
 for i in range(32):
 
-    config.General.requestName = f'RawPrime{i}'
+    config.General.requestName = f'PbPb2023_RawPrime{i}'
     config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2023A-PromptReco-v2/MINIAOD"
     config.Data.outputDatasetTag = config.General.requestName
 

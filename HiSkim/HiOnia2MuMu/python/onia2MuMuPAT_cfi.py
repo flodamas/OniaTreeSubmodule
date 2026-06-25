@@ -5,6 +5,7 @@ onia2MuMuPAT = cms.EDProducer('HiOnia2MuMuPAT',
         beamSpotTag              = cms.InputTag("offlineBeamSpot"),
         primaryVertexTag         = cms.InputTag("offlinePrimaryVertices"),
         genParticles             = cms.InputTag("genParticles"),
+        srcTracks                = cms.InputTag("generalTracks"),
         # At least one muon must pass this selection
         higherPuritySelection    = cms.string(""), ## No need to repeat lowerPuritySelection in there, already included
         # BOTH muons must pass this selection

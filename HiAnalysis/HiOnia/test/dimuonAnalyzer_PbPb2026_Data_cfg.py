@@ -18,7 +18,7 @@ miniAOD        = True # whether the input file is in miniAOD format (default is 
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
 pdgId = 23 # J/Psi : 443, Y(1S) : 553
 
-addEventPlane = False
+addEventPlane = True
 
 addMuonIsolation = True
 #----------------------------------------------------------------------------
@@ -146,7 +146,7 @@ if applyEventSel:
   # HLT trigger firing events
   import HLTrigger.HLTfilters.hltHighLevel_cfi
   process.hltHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-  process.hltHI.HLTPaths = ["HLT_HIL2SingleMu*_v*", "HLT_HIMinimumBiasHF1AND*_v*"]
+  process.hltHI.HLTPaths = ["HLT_HIL2SingleMu*_v*"]
   process.hltHI.throw = False
   process.hltHI.andOr = True
 

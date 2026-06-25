@@ -16,7 +16,7 @@ OneMatchedHLTMu = -1   # Keep only di(tri)muons of which the one(two) muon(s) ar
 #############################################################################
 miniAOD        = True # whether the input file is in miniAOD format (default is AOD)
 UsePropToMuonSt = True # whether to use L1 propagated muons (works only for miniAOD now)
-pdgId = 443 # J/Psi : 443, Y(1S) : 553
+pdgId = 23 # J/Psi : 443, Y(1S) : 553
 
 addEventPlane = True
 
@@ -147,7 +147,7 @@ if applyEventSel:
   # HLT trigger firing events
   import HLTrigger.HLTfilters.hltHighLevel_cfi
   process.hltHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-  process.hltHI.HLTPaths = ["HLT_HIL2SingleMu*_v*", "HLT_HIMinimumBiasHF1AND*_v*"]
+  process.hltHI.HLTPaths = ["HLT_HIL2SingleMu*_v*"]
   process.hltHI.throw = False
   process.hltHI.andOr = True
 
@@ -178,7 +178,7 @@ if applyEventSel:
                                         minNumber = cms.uint32(1)
                                         )
   
-  process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.dimuonSelection * process.atLeastOneDimuon * process.phfCoincFilterPF2Th4 * process.primaryVertexFilter * process.hltHI * process.patMuonSequence )
+  process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.phfCoincFilterPF2Th4 * process.primaryVertexFilter * process.hltHI * process.patMuonSequence )
 
 # needed for muon isolation
 process.oniaTreeAna.replace(process.patMuonSequence, process.centralityBin * process.patMuonSequence )
