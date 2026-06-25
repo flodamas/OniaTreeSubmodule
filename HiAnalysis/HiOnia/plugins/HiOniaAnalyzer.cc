@@ -412,7 +412,7 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
 
     Reco_Muon_normChi2_bestTracker[Reco_Muon_size] = bestTrack->normalizedChi2();
 
-    if (!iTrack.isNull()) {
+    if (iTrack.isNonNull() && iTrack.isAvailable()) {
         Reco_Muon_highPurity[Reco_Muon_size] = iTrack->quality(reco::TrackBase::highPurity);
         Reco_Muon_nTrkHits[Reco_Muon_size] = iTrack->found();
         Reco_Muon_normChi2_inner[Reco_Muon_size] =
