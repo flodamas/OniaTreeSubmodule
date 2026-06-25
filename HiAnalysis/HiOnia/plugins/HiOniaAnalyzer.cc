@@ -437,13 +437,13 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
         reco::TrackRef gTrack = muon->globalTrack();
         Reco_Muon_nMuValHits[Reco_Muon_size] = gTrack->hitPattern().numberOfValidMuonHits();
         Reco_Muon_normChi2_global[Reco_Muon_size] = gTrack->normalizedChi2();
-        Reco_Muon_pt_global[Reco_Muon_size] = gTrack->pt();
-        Reco_Muon_ptErr_global[Reco_Muon_size] = gTrack->ptError();
+        //Reco_Muon_pt_global[Reco_Muon_size] = gTrack->pt();
+        //Reco_Muon_ptErr_global[Reco_Muon_size] = gTrack->ptError();
     } else {
         Reco_Muon_nMuValHits[Reco_Muon_size] = -1;
         Reco_Muon_normChi2_global[Reco_Muon_size] = 999;
-        Reco_Muon_pt_global[Reco_Muon_size] = -1;
-        Reco_Muon_ptErr_global[Reco_Muon_size] = -1;
+        //Reco_Muon_pt_global[Reco_Muon_size] = -1;
+        //Reco_Muon_ptErr_global[Reco_Muon_size] = -1;
     }
     
 
