@@ -15,7 +15,7 @@ def oniaTreeAnalyzer(process, muonTriggerList=[[],[],[],[]], muonSelection="Trk"
 ##### Onia2MuMuPAT input collections/options
     process.onia2MuMuPatGlbGlb.dimuonSelection = cms.string("mass > 0")
     process.onia2MuMuPatGlbGlb.resolvePileUpAmbiguity = cms.bool(True)
-    process.onia2MuMuPatGlbGlb.srcTracks = cms.InputTag("generalTracks")
+    #process.onia2MuMuPatGlbGlb.srcTracks = cms.InputTag("generalTracks")
     process.onia2MuMuPatGlbGlb.primaryVertexTag = cms.InputTag("offlinePrimaryVertices")
     process.patMuonsWithoutTrigger.pvSrc = cms.InputTag("offlinePrimaryVertices")
     

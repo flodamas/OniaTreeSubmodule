@@ -4,7 +4,7 @@ HiOniaAnalyzer::HiOniaAnalyzer(const edm::ParameterSet& iConfig)
     : _patMuonToken(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("srcMuon"))),
       _patMuonNoTrigToken(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("srcMuonNoTrig"))),
       _patDimuonToken(consumes<pat::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("srcDimuon"))),
-      _recoTracksToken(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"))),
+      //_recoTracksToken(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"))),
       _genParticleToken(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
       _genInfoToken(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
       _thePVsToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexTag"))),
@@ -427,10 +427,21 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
         Reco_Muon_pt_inner[Reco_Muon_size] = iTrack->pt();
         Reco_Muon_ptErr_inner.push_back(iTrack->ptError());
         Reco_Muon_validFraction[Reco_Muon_size] = iTrack->validFraction();
-    } else if (_muonSel != (std::string)("All")) {
+    } else {
+        Reco_Muon_highPurity[Reco_Muon_size] = false;
+        Reco_Muon_nTrkHits[Reco_Muon_size] = -1;
+        Reco_Muon_normChi2_inner[Reco_Muon_size] = 999.f;
+        Reco_Muon_nPixValHits[Reco_Muon_size] = -1;
+        Reco_Muon_nPixWMea[Reco_Muon_size] = -1;
+        Reco_Muon_nTrkWMea[Reco_Muon_size] = -1;
+        Reco_Muon_dxy[Reco_Muon_size] = -999.f;
+        Reco_Muon_dxyErr[Reco_Muon_size] = -999.f;
+        Reco_Muon_dz[Reco_Muon_size] = -999.f;
+        Reco_Muon_dzErr[Reco_Muon_size] = -999.f;
+        Reco_Muon_pt_inner[Reco_Muon_size] = -1.f;
         Reco_Muon_ptErr_inner.push_back(-1.f);
-        std::cout << "ERROR: 'iTrack' pointer in fillTreeMuon is NULL ! Return now" << std::endl;
-        return;
+        Reco_Muon_validFraction[Reco_Muon_size] = -1.f;
+        
     }
 
     if (muon->isGlobalMuon()) {

@@ -378,7 +378,7 @@ private:
   edm::EDGetTokenT<pat::MuonCollection> _patMuonToken;
   edm::EDGetTokenT<pat::MuonCollection> _patMuonNoTrigToken;
   edm::EDGetTokenT<pat::CompositeCandidateCollection> _patDimuonToken;
-  edm::EDGetTokenT<reco::TrackCollection> _recoTracksToken;
+  //edm::EDGetTokenT<reco::TrackCollection> _recoTracksToken;
   edm::EDGetTokenT<reco::GenParticleCollection> _genParticleToken;
   edm::EDGetTokenT<GenEventInfoProduct> _genInfoToken;
   edm::EDGetTokenT<reco::VertexCollection> _thePVsToken;

@@ -31,7 +31,7 @@ HiOnia2MuMuPAT::HiOnia2MuMuPAT(const edm::ParameterSet &iConfig)
     : muonsToken_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muons"))),
       thebeamspotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotTag"))),
       thePVsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexTag"))),
-      recoTracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"))),
+      //recoTracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"))),
       theGenParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
       magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
       trackBuilderToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
