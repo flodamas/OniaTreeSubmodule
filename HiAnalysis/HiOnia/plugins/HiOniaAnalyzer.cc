@@ -373,12 +373,12 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
     Reco_Muon_L1_4mom_phi.push_back(muon->hasUserFloat("l1Phi") ? muon->userFloat("l1Phi") : -99);
 
     //Fill map of the muon indices. Use long int keys, to avoid rounding errors on a float key. Implies a precision of 10^-6
-    mapMuonMomToIndex_[FloatToIntkey(vMuon.pt())] = Reco_Muon_size;
+    mapMuonMomToIndex_[FloatToIntkey(muon->pt())] = Reco_Muon_size;
 
     Reco_Muon_trig[Reco_Muon_size] = trigBits;
 
     reco::TrackRef iTrack = muon->innerTrack();
-    reco::TrackRef bestTrack = muon->muonBestTrack();
+    //reco::TrackRef bestTrack = muon->muonBestTrack();
 
     Reco_Muon_InTightAcc[Reco_Muon_size] = isInAcceptance(vMuon.eta(), vMuon.pt(), "GLB");
     Reco_Muon_InLooseAcc[Reco_Muon_size] = isInAcceptance(vMuon.eta(), vMuon.pt(), "GLBSOFT");
@@ -410,7 +410,7 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
     Reco_Muon_kink[Reco_Muon_size] = muon->combinedQuality().trkKink;
     Reco_Muon_segmentComp[Reco_Muon_size] = muon->segmentCompatibility(reco::Muon::SegmentAndTrackArbitration);
 
-    Reco_Muon_normChi2_bestTracker[Reco_Muon_size] = bestTrack->normalizedChi2();
+    //Reco_Muon_normChi2_bestTracker[Reco_Muon_size] = bestTrack->normalizedChi2();
 
     if (iTrack.isNonnull() && iTrack.isAvailable()) {
         Reco_Muon_highPurity[Reco_Muon_size] = iTrack->quality(reco::TrackBase::highPurity);
@@ -428,7 +428,7 @@ void HiOniaAnalyzer::fillTreeMuon(const pat::Muon* muon, int iType, ULong64_t tr
         Reco_Muon_ptErr_inner.push_back(iTrack->ptError());
         Reco_Muon_validFraction[Reco_Muon_size] = iTrack->validFraction();
     } else if (_muonSel != (std::string)("All")) {
-        Reco_Muon_ptErr_inner.push_back(iTrack->ptError());
+        Reco_Muon_ptErr_inner.push_back(-1.f);
         std::cout << "ERROR: 'iTrack' pointer in fillTreeMuon is NULL ! Return now" << std::endl;
         return;
     }

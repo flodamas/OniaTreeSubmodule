@@ -52,7 +52,7 @@ bool HiOniaAnalyzer::selGlobalMuon(const pat::Muon* aMuon) {
   if (!_applycuts)
     return true;
 
-  bool isInAcc = isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)("GLB"));
+  bool isInAcc = aMuon->pt() > 5.0;// isInAcceptance(aMuon->eta(), aMuon->pt(), (std::string)("GLB"));
   //bool isGood = (_selTightGlobalMuon ? aMuon->passed(reco::Muon::CutBasedIdTight) : isSoftMuonBase(aMuon));
 
   return (isInAcc);
