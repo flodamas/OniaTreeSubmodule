@@ -16,16 +16,16 @@ config.General.transferLogs = False
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "dimuonAnalyzer_ppRef2024_Data_cfg.py"
-config.JobType.maxMemoryMB = 4000         # request high memory machines.
-config.JobType.numCores = 4 # must match the number of threads enabled in the hioniaanalyzer config file!
+config.JobType.maxMemoryMB = 2000         # request high memory machines.
+#config.JobType.numCores = 4 # must match the number of threads enabled in the hioniaanalyzer config file!
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
-config.JobType.maxJobRuntimeMin = 1000 # max = 2750
+config.JobType.maxJobRuntimeMin = 600 # max = 2750
 
 config.section_("Data")
 config.Data.inputDBS = 'global'
 #config.Data.totalUnits = -1
 config.Data.splitting = "EventAwareLumiBased"
-config.Data.unitsPerJob = 40000000
+config.Data.unitsPerJob = 30000000
 
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
@@ -33,9 +33,9 @@ config.Data.runRange = '387474-387721'
 config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_ppref_387474_387721_Muon.json'
 
 config.section_("Site")
-config.Site.storageSite = "T3_CH_CERNBOX"
+config.Site.storageSite = "T2_CH_CERN"
 #config.Site.whitelist = ["T2_US_*","T2_CH_CERN","T1_US_*"]
-config.Site.blacklist = ["T2_US_Florida", "T2_CH_CSCS"]
+#config.Site.blacklist = ["T2_US_Florida", "T2_CH_CSCS"]
 
 # Multi crab part
 
@@ -49,7 +49,7 @@ def submit(config):
 
 # Submit the jobs: 4 PPRefSingeMuon PDs, ~2.3k files each, average of 200k events/file
 
-config.Data.outLFNDirBase = '/store/user/fdamas/Z/Data/ppRef2024/'
+config.Data.outLFNDirBase = '/store/group/phys_heavyions/fdamas/DimuonAnalyses/Data/ppRef2024/'
 
 for i in range(4):
     config.General.requestName = f'SingleMuon{i}'

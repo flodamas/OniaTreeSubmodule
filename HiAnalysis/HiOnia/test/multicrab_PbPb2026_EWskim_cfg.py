@@ -35,14 +35,14 @@ config.Data.unitsPerJob = 5000000
 
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
-config.Data.runRange = '404423-404511'
+config.Data.runRange = '404423-404926'
 config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions26HI/DCSOnly_JSONS/dailyDCSOnlyJSON/Collisions26HI_5p36TeV_404337_404529_DCSOnly_TkPx.json'
 
-config.Data.outLFNDirBase = '/store/user/' + username + '/Z/Data/PbPb2026/'
+config.Data.outLFNDirBase = '/store/group/phys_heavyions/fdamas/DimuonAnalyses/Data/PbPb2026/'
 
 
 config.section_("Site")
-config.Site.storageSite = "T3_CH_CERNBOX"
+config.Site.storageSite = "T2_CH_CERN"
 config.Site.whitelist = ["T2_CH_CERN","T1_US_*","T1_FR_*","T1_IT_*","T1_DE_*","T2_US_UCSD","T2_DE_*","T2_FR_*","T0_CH_CERN"]
 config.Site.blacklist = ["T2_US_Florida", "T2_CH_CSCS"]
 
@@ -60,7 +60,7 @@ def submit(config):
 
 for i in range(60):
 
-    config.General.requestName = f'RawPrime{i}'
+    config.General.requestName = f'EWskim{i}'
     config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2026A-PbPbEW-PromptReco-v1/MINIAOD"
     config.Data.outputDatasetTag = config.General.requestName
 

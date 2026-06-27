@@ -19,13 +19,13 @@ config.JobType.psetName = "dimuonAnalyzer_PbPb2024_Data_cfg.py"
 config.JobType.maxMemoryMB = 2000         # request high memory machines.
 #config.JobType.numCores = 4
 config.JobType.allowUndistributedCMSSW = True #Problems with slc7
-config.JobType.maxJobRuntimeMin = 1000 # max = 2750
+config.JobType.maxJobRuntimeMin = 800 # max = 2750
 
 config.section_("Data")
 config.Data.inputDBS = 'global'
 #config.Data.totalUnits = -1
 config.Data.splitting = "EventAwareLumiBased"
-config.Data.unitsPerJob = 5000000
+config.Data.unitsPerJob = 10000000
 
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
@@ -49,7 +49,7 @@ def submit(config):
         print("Failed submitting task: %s" % (cle))
 
 # Submit the jobs: 60 HIRawPrime PDs, ~140k files each, average of 100k events/file
-config.Data.outLFNDirBase = '/store/group/phys_heavyions/fdamas/DimuonAnalyses/Data/PbPb2023/'
+config.Data.outLFNDirBase = '/store/group/phys_heavyions/fdamas/DimuonAnalyses/Data/PbPb2024/'
 
 
 ### First, HIRun2024A
@@ -87,6 +87,7 @@ submit(config)
 
 
 ### HIRun2024B was completely reconstructed promptly, but there are two independent versions
+config.Data.unitsPerJob = 5000000
 
 for i in range(60):
 

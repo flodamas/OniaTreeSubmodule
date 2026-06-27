@@ -38,11 +38,11 @@ config.Data.publication = False
 config.Data.runRange = '399465-400426'
 config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions25HI/Cert_Collisions2025_HI_399465_400426_Muon.json'
 
-config.Data.outLFNDirBase = '/store/user/' + username + '/Z/Data/PbPb2025/'
+config.Data.outLFNDirBase = '/store/group/phys_heavyions/fdamas/DimuonAnalyses/Data/PbPb2025/'
 
 
 config.section_("Site")
-config.Site.storageSite = "T3_CH_CERNBOX"
+config.Site.storageSite = "T2_CH_CERN"
 config.Site.whitelist = ["T2_CH_*","T1_US_*","T1_FR_*","T1_IT_*","T1_DE_*","T2_US_UCSD","T2_DE_DESY","T2_FR_*"]
 config.Site.blacklist = ["T2_US_Florida", "T2_CH_CSCS"]
 
@@ -60,7 +60,7 @@ def submit(config):
 
 for i in range(60):
 
-    config.General.requestName = f'RawPrime{i}'
+    config.General.requestName = f'EWskim{i}'
     config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2025A-PbPbEW-PromptReco-v1/MINIAOD"
     config.Data.outputDatasetTag = config.General.requestName
 
