@@ -329,7 +329,7 @@ void HiOniaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 };
 
 void HiOniaAnalyzer::fillRecoHistos() {
-  if ( !_isMC) { 
+  
     
     for (unsigned int count = 0; count < _thePassedCands.size(); count++) {
         const pat::CompositeCandidate* aDimuonCand = _thePassedCands.at(count);
@@ -344,8 +344,6 @@ void HiOniaAnalyzer::fillRecoHistos() {
           }
         }
     }
-    
-  }
 
   return;
 };

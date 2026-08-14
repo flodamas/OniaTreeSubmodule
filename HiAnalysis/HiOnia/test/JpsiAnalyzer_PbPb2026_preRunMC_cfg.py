@@ -104,7 +104,7 @@ oniaTreeAnalyzer(process,
                  muonSelection=muonSelection, L1Stage=2, isMC=isMC, pdgID=pdgId, outputFileName=options.outputFile
 )
 
-process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 1.0")
+process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.0")
 
 if applyCuts:
   process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.001")
