@@ -22,7 +22,9 @@ config.section_("JobType")
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "dimuonAnalyzer_PbPb2026_Data_cfg.py"
 
-config.JobType.maxMemoryMB = 2000         # request high memory machines.
+config.JobType.inputFiles = ["CentralityTable_DataPbPb2026_Nominal.db"]
+
+config.JobType.maxMemoryMB = 2400         # request high memory machines.
 #config.JobType.numCores = 4
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxJobRuntimeMin = 200 # max = 2750
@@ -31,20 +33,20 @@ config.section_("Data")
 config.Data.inputDBS = 'global'
 #config.Data.totalUnits = -1
 config.Data.splitting = "EventAwareLumiBased"
-config.Data.unitsPerJob = 5000000
+config.Data.unitsPerJob = 500000
 
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
-config.Data.runRange = '404423-404926'
-config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions26HI/DCSOnly_JSONS/dailyDCSOnlyJSON/Collisions26HI_5p36TeV_404337_404529_DCSOnly_TkPx.json'
+config.Data.runRange = '404469-404926'
+config.Data.lumiMask = 'https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions26HI/Collisions26HI_5p36TeV_404337_404926_golden.json'
 
 config.Data.outLFNDirBase = '/store/group/phys_heavyions/fdamas/DimuonAnalyses/Data/PbPb2026/'
 
 
 config.section_("Site")
 config.Site.storageSite = "T2_CH_CERN"
-config.Site.whitelist = ["T2_CH_CERN","T1_US_*","T1_FR_*","T1_IT_*","T1_DE_*","T2_US_UCSD","T2_DE_*","T2_FR_*","T0_CH_CERN"]
-config.Site.blacklist = ["T2_US_Florida", "T2_CH_CSCS"]
+config.Site.whitelist = ["T2_CH_CERN","T1_US_*","T1_FR_*","T1_IT_*","T1_DE_*","T2_US_*","T2_DE_*","T2_FR_*"]
+#config.Site.blacklist = ["T2_US_Florida"]
 
 # Multi crab part
 
@@ -60,7 +62,7 @@ def submit(config):
 
 for i in range(60):
 
-    config.General.requestName = f'EWskim{i}'
+    config.General.requestName = f'PbPb2026_EWskim{i}'
     config.Data.inputDataset = f"/HIPhysicsRawPrime{i}/HIRun2026A-PbPbEW-PromptReco-v1/MINIAOD"
     config.Data.outputDatasetTag = config.General.requestName
 

@@ -77,6 +77,7 @@ triggerList    = {
                         "HLT_HIL2SingleMu5_v",#5
                         "HLT_HIL2SingleMu7_v",#6
                         "HLT_HIL2SingleMu12_v",#7
+                        "HLT_HIMinimumBiasHF1ANDZDC1nOR_v", #8 -> no offline muon matching!
 			)
 }
 
@@ -98,12 +99,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
-print('\n\033[31m~*~ USING NOMINAL CENTRALITY TABLE FOR 2024 PbPb DATA ~*~\033[0m\n')
+print('\n\033[31m~*~ USING NOMINAL CENTRALITY CALIBRATION TABLE FOR 2026 PbPb DATA ~*~\033[0m\n')
 process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
     cms.PSet(record = cms.string("HeavyIonRcd"),
-        tag = cms.string("CentralityTable_HFtowers200_DataPbPb_periHYDJETshape_run3v140x01_offline_Nominal"),
-        connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
+        #tag = cms.string("CentralityTable_HFtowers200_DataPbPb_periHYDJETshape_run3v140x01_offline_Nominal"),
+        #connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
+        connect = cms.string("sqlite_file:CentralityTable_DataPbPb2026_Nominal.db"),
         label = cms.untracked.string("HFtowers")
         ),
     ])
@@ -121,7 +123,7 @@ process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 2.4 && abs
 process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.0 && abs(eta) < 2.41 && isGlobalMuon")
 
 if applyCuts:
-  process.onia2MuMuPatGlbGlb.LateDimuonSel = cms.string("userFloat(\"vProb\")>0.001")
+  process.onia2MuMuPatGlbGlb.LateDimuonSel = cms.string("userFloat(\"vProb\")>0.0001")
 
 process.hionia.CentralitySrc    = cms.InputTag("hiCentrality")
 process.hionia.CentralityBinSrc = cms.InputTag("centralityBin","HFtowers")
@@ -141,7 +143,7 @@ if applyEventSel:
   # Offline event filters
   process.load('HeavyIonsAnalysis.EventAnalysis.collisionEventSelection_cff')
   process.load('HeavyIonsAnalysis.EventAnalysis.hffilter_cfi')
-  process.load('HeavyIonsAnalysis.EventAnalysis.hffilterPF_cfi')
+  #process.load('HeavyIonsAnalysis.EventAnalysis.hffilterPF_cfi')
   
   # HLT trigger firing events
   import HLTrigger.HLTfilters.hltHighLevel_cfi
@@ -177,7 +179,8 @@ if applyEventSel:
                                         minNumber = cms.uint32(1)
                                         )
   
-  process.oniaTreeAna.replace(process.patMuonSequence,process.muonSelector * process.atLeastTwoMuons * process.phfCoincFilterPF2Th4 * process.primaryVertexFilter * process.hltHI * process.patMuonSequence )
+  # no extra filtering on HLT path in order to have the flexibility of studying minimum-bias and single-muon triggers offline
+  process.oniaTreeAna.replace(process.patMuonSequence, process.muonSelector * process.atLeastTwoMuons * process.phfCoincFilter3Th5 * process.primaryVertexFilter * process.patMuonSequence )
 
 # needed for muon isolation
 process.oniaTreeAna.replace(process.patMuonSequence, process.centralityBin * process.patMuonSequence )
