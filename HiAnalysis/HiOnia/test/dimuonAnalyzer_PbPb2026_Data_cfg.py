@@ -154,7 +154,7 @@ if applyEventSel:
 
   # Muon filtering
 
-  MUONCUT = "isGlobalMuon && pt > 10.0 && abs(eta) < 2.42"
+  MUONCUT = "isGlobalMuon && pt > 10.0 && abs(eta) < 2.41"
   
   process.muonSelector = cms.EDFilter("PATMuonRefSelector",
                                         src = cms.InputTag("slimmedMuons"),
@@ -194,6 +194,10 @@ process.oniaTreeAna = cms.Path(process.oniaTreeAna)
 if miniAOD:
   from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import changeToMiniAOD
   changeToMiniAOD(process)
+  process.hiMuons.muon_minPt = 10
+  process.hiMuons.file_isoModel = "HeavyIonsAnalysis/Configuration/data/Run3_PbPb/muiso_BDT.ubj"
+  process.hiMuons.file_isoCorr = "HeavyIonsAnalysis/Configuration/data/Run3_2025_PbPb/mu_spectra_train_weights.json.gz" # NB: same training as 2025 because of MC
+  process.hiMuons.era = "Run3_2025_PbPb"
   process.unpackedMuons.addPropToMuonSt = cms.bool(UsePropToMuonSt)
 
 #----------------------------------------------------------------------------
