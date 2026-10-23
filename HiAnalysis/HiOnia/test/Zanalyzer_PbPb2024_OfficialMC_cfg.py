@@ -4,7 +4,7 @@ from Configuration.StandardSequences.Eras import eras
 
 #----------------------------------------------------------------------------
 
-globalTag = '151X_mcRun3_2025_realistic_HI_v5'
+globalTag = '141X_mcRun3_2024_realistic_HI_v14'
 
 isMC           = True # if input is MONTECARLO: True or if it's DATA: False
 muonSelection  = "All" # Single muon selection: All, Glb(isGlobal), GlbTrk(isGlobal&&isTracker), Trk(isTracker), GlbOrTrk
@@ -39,16 +39,16 @@ print( "[INFO] addMuonIsolation     = " + ("True" if addMuonIsolation else "Fals
 print( " " )
 
 # set up process
-process = cms.Process("HIOnia", eras.Run3_pp_on_PbPb_2026)
+process = cms.Process("HIOnia", eras.Run3_pp_on_PbPb_2024)
 
 # setup 'analysis'  options
 options = VarParsing.VarParsing ('analysis')
 
 # Input and Output File Name
-options.outputFile = "MadGraph_prePbPb2026_HydjetEmbeddedMC.root"
+options.outputFile = "Powheg_DYHighMass_PbPb2024_HydjetEmbeddedMC.root"
 options.secondaryOutputFile = "Jpsi_DataSet.root"
 options.inputFiles =[
-  'root://cmsxrootd.fnal.gov//store/user/fdamas/PbPb2026/RunPrepMC/DrellYan_HighMass_MadGraph_HydjetEmbedded_1610pre3/PATwith161pre4_151X_mcRun3_2025_realistic_HI_v5/260420_113941/0000/step4_PAT_102.root'
+    "/store/mc/HINPbPbWinter24MiniAOD/DYto2Mu_MLL-50_TuneCP5_5p36TeV_powheg-pythia8/MINIAODSIM/141X_mcRun3_2024_realistic_HI_v14-v2/110000/0b78908a-5389-461e-a12a-ec0f33e1b697.root"
 ]
 options.maxEvents = -1 # -1 means all events
 
@@ -109,8 +109,8 @@ oniaTreeAnalyzer(process,
 )
 
 process.onia2MuMuPatGlbGlb.dimuonMassHypothesis  = cms.double(91.19)
-process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 30")
-process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 5.")
+process.onia2MuMuPatGlbGlb.dimuonSelection       = cms.string("mass > 40")
+process.onia2MuMuPatGlbGlb.lowerPuritySelection  = cms.string("pt > 10.")
 
 if applyCuts:
   process.onia2MuMuPatGlbGlb.LateDimuonSel         = cms.string("userFloat(\"vProb\")>0.01")
@@ -130,8 +130,7 @@ process.hionia.addMuonIsolation = cms.bool(addMuonIsolation)
 if applyEventSel:
   process.load('HeavyIonsAnalysis.EventAnalysis.collisionEventSelection_cff')
   process.load('HeavyIonsAnalysis.EventAnalysis.hffilter_cfi')
-  process.load('HeavyIonsAnalysis.EventAnalysis.hffilterPF_cfi')
-  process.oniaTreeAna.replace(process.patMuonSequence, process.phfCoincFilterPF2Th4 * process.primaryVertexFilter * process.patMuonSequence )
+  process.oniaTreeAna.replace(process.patMuonSequence, process.phfCoincFilter3Th5 * process.primaryVertexFilter * process.patMuonSequence )
 
 # needed for muon isolation
 process.oniaTreeAna.replace(process.patMuonSequence, process.centralityBin * process.patMuonSequence )
@@ -140,6 +139,9 @@ process.oniaTreeAna = cms.Path(process.oniaTreeAna)
 if miniAOD:
   from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import changeToMiniAOD
   changeToMiniAOD(process)
+  process.hiMuons.muon_minPt = 10
+  process.hiMuons.file_isoCorr = "HeavyIonsAnalysis/Configuration/data/Run3_2024_PbPb/mu_spectra_train_weights.json.gz"
+  process.hiMuons.era = "Run3_2024_PbPb"
   process.unpackedMuons.addPropToMuonSt = cms.bool(UsePropToMuonSt)
 
 #----------------------------------------------------------------------------

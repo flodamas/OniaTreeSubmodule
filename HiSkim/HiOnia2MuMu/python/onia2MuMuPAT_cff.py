@@ -169,6 +169,7 @@ def changeToMiniAOD(process):
             process.kt4PFJetsForRho.src = "packedPFCandidates"
             process.hiMuons.muons = "slimmedMuons"
             process.unpackedMuons.muons = "hiMuons"
+            process.hiMuons.file_isoModel = "HeavyIonsAnalysis/Configuration/data/Run3_PbPb/muiso_BDT.ubj"
             process.hiRecoPFJetsTask.add(process.hiFJRhoProducerFinerBins)
             process.hiRecoPFJetsTask.add(process.hiMuons)
             process.patMuonSequence.associate(process.hiRecoPFJetsTask)

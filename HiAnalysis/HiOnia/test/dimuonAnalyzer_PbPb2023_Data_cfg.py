@@ -194,7 +194,6 @@ if miniAOD:
   from HiSkim.HiOnia2MuMu.onia2MuMuPAT_cff import changeToMiniAOD
   changeToMiniAOD(process)
   process.hiMuons.muon_minPt = 10
-  process.hiMuons.file_isoModel = "HeavyIonsAnalysis/Configuration/data/Run3_PbPb/muiso_BDT.ubj"
   process.hiMuons.file_isoCorr = "HeavyIonsAnalysis/Configuration/data/Run3_2023_PbPb/mu_spectra_train_weights.json.gz"
   process.hiMuons.era = "Run3_2023_PbPb"
   process.unpackedMuons.addPropToMuonSt = cms.bool(UsePropToMuonSt)

@@ -131,7 +131,7 @@ if applyEventSel:
     process.hltHI.andOr = True
 
     # Muon filtering
-    MUONCUT = "isGlobalMuon && pt > 10.0 && abs(eta) < 2.42"
+    MUONCUT = "isGlobalMuon && pt > 10.0 && abs(eta) < 2.41"
   
     process.muonSelector = cms.EDFilter("PATMuonRefSelector",
                                         src = cms.InputTag("slimmedMuons"),
