@@ -41,10 +41,10 @@ def onia2MuMuPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, useL1Stag
         process.muonMatchHLTL1.preselection = cms.string("")
 
     #This is NEEDED in PbPb, but should be REMOVED in pp
-    process.patTrigger.collections.append("hltIterL3MuonCandidatesPPOnAA")
-    process.patTrigger.collections.append("hltL2MuonCandidatesPPOnAA")
-    process.muonMatchHLTL3.matchedCuts = cms.string('coll("hltIterL3MuonCandidatesPPOnAA")')
-    process.muonMatchHLTL2.matchedCuts = cms.string('coll("hltL2MuonCandidatesPPOnAA")')
+    #process.patTrigger.collections.append("hltIterL3MuonCandidatesPPOnAA")
+    #process.patTrigger.collections.append("hltL2MuonCandidatesPPOnAA")
+    #process.muonMatchHLTL3.matchedCuts = cms.string('coll("hltIterL3MuonCandidatesPPOnAA")')
+    #process.muonMatchHLTL2.matchedCuts = cms.string('coll("hltL2MuonCandidatesPPOnAA")')
 
     from HLTrigger.Configuration.HLT_FULL_cff import fragment
     process.hltESPSteppingHelixPropagatorAlong = fragment.hltESPSteppingHelixPropagatorAlong
