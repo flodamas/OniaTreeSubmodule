@@ -69,8 +69,8 @@ namespace pat {
 bool pat::HIMuonMVAProducer::passMVAIso(const double& mva, const double& cent, const WP& wp) const {
   double cut(10.);
   const auto cen = cent > 90. ? 90. : cent;
-  const auto cen2 = cen*cen;
-  const auto cen3 = cen*cen*cen;
+  const auto cen2 = cen * cen;
+  const auto cen3 = cen * cen * cen;
   if (era_ == "Run3_2023_PbPb") {
     //Working point: WP95
     if (wp == WP95)
@@ -124,6 +124,7 @@ bool pat::HIMuonMVAProducer::passMVAIso(const double& mva, const double& cent, c
             0.25002692183217673;
   } else
     throw std::logic_error("[ERROR] Wrong era for HIMuonMVAProducer");
+  return mva < cut;
 }
 
 void pat::HIMuonMVAProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
